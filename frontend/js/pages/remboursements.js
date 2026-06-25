@@ -68,9 +68,11 @@ async function submitRembourser(feuilleId) {
     err.textContent = 'Référence bancaire requise pour un virement.'; err.classList.remove('hidden'); return;
   }
   try {
-    await Api.effectuerRemboursement(data);
-    Modal.close(); toast('Remboursement effectué avec succès !', 'success');
+    const result = await Api.effectuerRemboursement(data);
+    Modal.close();
+    toast('Remboursement effectué avec succès !', 'success');
     loadFeuilles(); loadRemboursements();
+    viewFacture(result.id);
   } catch(e) { err.textContent = e.message; err.classList.remove('hidden'); }
 }
 
