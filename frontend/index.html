@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ForInsurance : Sécurité Sociale</title>
+  <meta name="description" content="ForInsurance - Votre sécurité sociale au Cameroun"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"/>
+  <link rel="stylesheet" href="css/main.css?v=3"/>
+</head>
+<body>
+<div id="app">
+
+<!-- ==========================================
+     LANDING PAGE
+=========================================== -->
+<div id="screen-landing" class="screen">
+  <div class="landing-nav">
+    <div class="landing-logo"><i class="fas fa-shield-alt"></i> ForInsurance</div>
+    <div class="l-tabs">
+      <button class="ltab active" data-ltab="about" onclick="switchLandingTab('about')">À propos</button>
+      <button class="ltab" data-ltab="roles" onclick="switchLandingTab('roles')">Assurés & Médecins</button>
+    </div>
+    <button class="btn btn-outline" style="border-color:#fff;color:#fff" onclick="showLogin()">Espace Connecté <i class="fas fa-arrow-right"></i></button>
+  </div>
+
+  <!-- Tab: À propos -->
+  <div id="ltab-about" class="ltab-content active">
+    <div class="landing-hero">
+      <div class="hero-text">
+        <div class="hero-badge">Organisme de Sécurité Sociale</div>
+        <h1>ForInsurance : votre santé, notre engagement.</h1>
+        <p>Rejoignez le réseau de sécurité sociale qui protege vous et votre famille. Accedez à des soins de qualite, beneficiez de remboursements rapides et suivez vos dossiers en toute transparence.</p>
+      </div>
+    </div>
+
+    <div class="l-section l-features">
+      <h2 class="l-section-title">Pourquoi choisir ForInsurance ?</h2>
+      <div class="feat-grid">
+        <div class="feat">
+          <div class="feat-icon"><i class="fas fa-bolt"></i></div>
+          <h3>Traitement rapide</h3>
+          <p>Les feuilles de maladie sont traitées en quelques clics. Les remboursements sont effectués sans délai.</p>
+        </div>
+        <div class="feat">
+          <div class="feat-icon"><i class="fas fa-file-invoice"></i></div>
+          <h3>Suivi transparent</h3>
+          <p>Assurés et médecins peuvent suivre l'état des dossiers à chaque étape : de la création au remboursement.</p>
+        </div>
+        <div class="feat">
+          <div class="feat-icon"><i class="fas fa-prescription-bottle-alt"></i></div>
+          <h3>Prescriptions numeriques</h3>
+          <p>Prescrivez des médicaments ou demandez des consultations spécialisées directement depuis la plateforme.</p>
+        </div>
+        <div class="feat">
+          <div class="feat-icon"><i class="fas fa-shield-alt"></i></div>
+          <h3>Securite des donnees</h3>
+          <p>Les donnees medicales et personnelles sont stockees dans un environnement hautement securise.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="l-section l-contact">
+      <h2 class="l-section-title">Vous souhaitez devenir assuré ?</h2>
+      <p class="l-section-desc">Contactez-nous pour qu'un agent ForInsurance vous enregistre et vous attribue votre numéro de sécurité sociale.</p>
+      <div class="contact-card">
+        <i class="fas fa-envelope"></i>
+        <a href="https://mail.google.com/mail/?view=cm&fs=1&to=forinsurance237@gmail.com" target="_blank">forinsurance237@gmail.com <i class="fas fa-external-link-alt" style="font-size:12px"></i></a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab: Assurés & Médecins -->
+  <div id="ltab-roles" class="ltab-content">
+    <div class="l-section">
+      <h2 class="l-section-title">Une plateforme pour tous les acteurs</h2>
+      <p class="l-section-desc">ForInsurance est conçue pour les agents de sécurité sociale et les professionnels de santé. Chacun dispose d'outils adaptés à ses besoins.</p>
+      <div class="role-cards">
+        <div class="role-card">
+          <div class="role-icon"><i class="fas fa-user-cog"></i></div>
+          <h3>Assureurs</h3>
+          <p>Les agents de sécurité sociale gèrent les inscriptions, traitent les feuilles de maladie, valident les remboursements et supervisent l'ensemble du parcours de soins des assurés.</p>
+          <ul>
+            <li><i class="fas fa-check-circle"></i> Inscrire et gérer les assurés</li>
+            <li><i class="fas fa-check-circle"></i> Traiter les feuilles de maladie</li>
+            <li><i class="fas fa-check-circle"></i> Effectuer les remboursements</li>
+            <li><i class="fas fa-check-circle"></i> Consulter les statistiques</li>
+          </ul>
+        </div>
+        <div class="role-card">
+          <div class="role-icon"><i class="fas fa-user-md"></i></div>
+          <h3>Médecins</h3>
+          <p>Les professionnels de santé créent et transmettent les feuilles de maladie, prescrivent des médicaments et orientent les patients vers des spécialistes.</p>
+          <ul>
+            <li><i class="fas fa-check-circle"></i> Créer des feuilles de maladie</li>
+            <li><i class="fas fa-check-circle"></i> Prescrire des médicaments</li>
+            <li><i class="fas fa-check-circle"></i> Orienter vers un spécialiste</li>
+            <li><i class="fas fa-check-circle"></i> Suivre l'état des dossiers</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="l-section l-cta">
+      <h2>Déjà inscrit ?</h2>
+      <p>Authentifiez-vous pour accéder à votre espace de travail.</p>
+      <button class="btn btn-lg" style="background:#fff;color:#667eea;font-weight:700;border:none" onclick="showLogin()">S'authentifier <i class="fas fa-arrow-right"></i></button>
+    </div>
+  </div>
+
+  <div class="l-footer">
+    <p>ForInsurance · Organisme de Sécurité Sociale · ENSPY 2025/2026</p>
+    <p style="font-size:.75rem;opacity:.5;margin-top:4px">Plateforme de gestion des remboursements médicaux</p>
+  </div>
+</div>
+
+  <!-- ══ ÉCRAN DE CONNEXION ══════════════════════════════════ -->
+  <div id="screen-login" class="screen hidden">
+    <div style="position:absolute;top:20px;left:30px;">
+      <button class="btn btn-secondary" onclick="showLanding()"><i class="fas fa-arrow-left"></i> ForInsurance</button>
+    </div>
+    <div class="login-card">
+      <div class="login-logo">
+        <i class="fas fa-shield-alt logo-icon"></i>
+        <h1 class="logo-title">ForInsurance</h1>
+        <p class="logo-sub">Organisme de Sécurité Sociale · ENSPY 2025/2026</p>
+      </div>
+      <div class="role-tabs">
+        <button class="rtab active" data-role="assureur" onclick="setRole('assureur')"><i class="fas fa-user-cog"></i> Assureur</button>
+        <button class="rtab" data-role="medecin" onclick="setRole('medecin')"><i class="fas fa-user-md"></i> Médecin</button>
+      </div>
+      <form id="login-form">
+        <div class="form-group">
+          <label for="f-id">Identifiant</label>
+          <input id="f-id" type="text" placeholder="assureur01" autocomplete="username"/>
+        </div>
+        <div class="form-group">
+          <label for="f-pw">Mot de passe</label>
+          <input id="f-pw" type="password" placeholder="••••••••" autocomplete="current-password"/>
+        </div>
+        <div id="login-err" class="alert alert-error hidden"></div>
+        <button type="submit" class="btn btn-primary btn-full" id="btn-login">
+          <span class="btn-text">Se connecter</span>
+          <i class="fas fa-spinner btn-spinner hidden" style="animation: spin 1s linear infinite"></i>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ══ APPLICATION PRINCIPALE ════════════════════════════ -->
+  <div id="screen-app" class="screen hidden">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-head">
+        <i class="fas fa-shield-alt s-logo"></i>
+        <div class="s-brand">
+          <div class="s-title">ForInsurance</div>
+          <div class="s-sub" id="s-role">—</div>
+        </div>
+        <button id="btn-collapse" class="btn-collapse" title="Réduire"><i class="fas fa-chevron-left"></i></button>
+      </div>
+      <nav id="sidebar-nav" class="s-nav">
+        <div class="s-label">Principal</div>
+        <a class="s-item active" data-page="dashboard">
+          <i class="fas fa-th-large s-icon"></i><span class="s-text">Tableau de bord</span>
+        </a>
+        <div id="nav-assureur" class="hidden">
+          <div class="s-label">Gestion</div>
+          <a class="s-item" data-page="assures"><i class="fas fa-users s-icon"></i><span class="s-text">Assurés</span></a>
+          <a class="s-item" data-page="medecins"><i class="fas fa-user-md s-icon"></i><span class="s-text">Médecins</span></a>
+          <div class="s-label">Remboursements</div>
+          <a class="s-item" data-page="feuilles"><i class="fas fa-file-medical-alt s-icon"></i><span class="s-text">Feuilles de maladie</span></a>
+          <a class="s-item" data-page="remboursements"><i class="fas fa-credit-card s-icon"></i><span class="s-text">Remboursements</span></a>
+        </div>
+        <div id="nav-medecin" class="hidden">
+          <div class="s-label">Mes dossiers</div>
+          <a class="s-item" data-page="mes-feuilles"><i class="fas fa-file-invoice s-icon"></i><span class="s-text">Feuilles de maladie</span></a>
+          <div class="s-label">Prescriptions</div>
+          <a class="s-item" data-page="prescriptions-med"><i class="fas fa-prescription-bottle-alt s-icon"></i><span class="s-text">Médicaments</span></a>
+          <a class="s-item" data-page="consultations-spec"><i class="fas fa-microscope s-icon"></i><span class="s-text">Consultations Spéc.</span></a>
+        </div>
+      </nav>
+      <div class="s-foot">
+        <div class="s-avatar" id="s-avatar">?</div>
+        <div class="s-user">
+          <div id="s-uname">—</div>
+          <div id="s-urole" class="s-urole">—</div>
+        </div>
+        <button id="btn-logout" class="btn-logout" title="Déconnexion"><i class="fas fa-sign-out-alt"></i></button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="topbar-l" style="display:flex;align-items:center;gap:10px">
+          <button id="btn-menu" class="btn-menu" style="background:none;font-size:22px;padding:4px"><i class="fas fa-bars"></i></button>
+          <h2 id="page-title" class="page-title">Tableau de bord</h2>
+        </div>
+        <div class="topbar-r">
+          <span id="top-date" class="top-date"></span>
+        </div>
+      </header>
+
+      <div class="page-wrap">
+
+        <!-- DASHBOARD -->
+        <section id="page-dashboard" class="page active">
+          <div id="stats-grid" class="stats-grid"></div>
+          <div class="card">
+            <div class="card-hd"><h3>Activité récente</h3></div>
+            <div class="card-bd" id="activity-list"></div>
+          </div>
+        </section>
+
+        <!-- ASSURÉS -->
+        <section id="page-assures" class="page">
+          <div class="page-bar">
+            <div style="position:relative;flex:1;min-width:200px">
+              <i class="fas fa-search" style="position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:13px"></i>
+              <input class="search" id="q-assures" placeholder="Rechercher un assuré…" style="padding-left:32px"/>
+            </div>
+            <button class="btn btn-primary" id="btn-add-assure"><i class="fas fa-plus"></i> Inscrire un assuré</button>
+          </div>
+          <div class="card">
+            <div class="card-bd p0">
+              <table class="tbl" id="tbl-assures">
+                <thead><tr><th>N° Sécurité Sociale</th><th>Nom complet</th><th>Naissance</th><th>Médecin traitant</th><th>Statut</th><th>Actions</th></tr></thead>
+                <tbody id="tbody-assures"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- MÉDECINS -->
+        <section id="page-medecins" class="page">
+          <div class="page-bar">
+            <div style="position:relative;flex:1;min-width:200px">
+              <i class="fas fa-search" style="position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:13px"></i>
+              <input class="search" id="q-medecins" placeholder="Rechercher un médecin…" style="padding-left:32px"/>
+            </div>
+            <button class="btn btn-primary" id="btn-add-medecin"><i class="fas fa-plus"></i> Enregistrer un médecin</button>
+          </div>
+          <div class="card">
+            <div class="card-bd p0">
+              <table class="tbl" id="tbl-medecins">
+                <thead><tr><th>ID</th><th>Nom complet</th><th>Type</th><th>Spécialité</th><th>Téléphone</th><th>Actions</th></tr></thead>
+                <tbody id="tbody-medecins"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- FEUILLES -->
+        <section id="page-feuilles" class="page">
+          <div class="page-bar">
+            <div style="position:relative;flex:1;min-width:200px">
+              <i class="fas fa-search" style="position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:13px"></i>
+              <input class="search" id="q-feuilles" placeholder="Référence, assuré, médecin…" style="padding-left:32px"/>
+            </div>
+            <div class="filter-tabs" id="ft-feuilles">
+              <button class="ftab active" data-v="all">Toutes</button>
+              <button class="ftab" data-v="En cours de traitement">En cours</button>
+              <button class="ftab" data-v="Incomplète">Incomplètes</button>
+              <button class="ftab" data-v="Validée">Validées</button>
+              <button class="ftab" data-v="Remboursée">Remboursées</button>
+              <button class="ftab" data-v="Refusée">Refusées</button>
+            </div>
+          </div>
+          <div class="card"><div class="card-bd p0">
+            <table class="tbl">
+              <thead><tr><th>Référence</th><th>Assuré</th><th>Médecin</th><th>Date</th><th>Statut</th><th>Montant</th><th>Actions</th></tr></thead>
+              <tbody id="tbody-feuilles"></tbody>
+            </table>
+          </div></div>
+        </section>
+
+        <!-- REMBOURSEMENTS -->
+        <section id="page-remboursements" class="page">
+          <div class="page-bar">
+            <div style="position:relative;flex:1;min-width:200px">
+              <i class="fas fa-search" style="position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:13px"></i>
+              <input class="search" id="q-remb" placeholder="Référence, assuré…" style="padding-left:32px"/>
+            </div>
+          </div>
+          <div class="card"><div class="card-bd p0">
+            <table class="tbl">
+              <thead><tr><th>Référence feuille</th><th>Assuré</th><th>Montant</th><th>Mode</th><th>Date</th><th>Assureur</th><th>Actions</th></tr></thead>
+              <tbody id="tbody-remb"></tbody>
+            </table>
+          </div></div>
+        </section>
+
+        <!-- MES FEUILLES -->
+        <section id="page-mes-feuilles" class="page">
+          <div class="page-bar">
+            <div style="position:relative;flex:1;min-width:200px">
+              <i class="fas fa-search" style="position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:13px"></i>
+              <input class="search" id="q-mfeuilles" placeholder="Référence, N° assuré…" style="padding-left:32px"/>
+            </div>
+            <button class="btn btn-primary" id="btn-add-feuille"><i class="fas fa-plus"></i> Nouvelle feuille</button>
+          </div>
+          <div class="card"><div class="card-bd p0">
+            <table class="tbl">
+              <thead><tr><th>Référence</th><th>N° SS Assuré</th><th>Date</th><th>Diagnostic</th><th>Statut</th><th>Actions</th></tr></thead>
+              <tbody id="tbody-mfeuilles"></tbody>
+            </table>
+          </div></div>
+        </section>
+
+        <!-- PRESCRIPTIONS MED -->
+        <section id="page-prescriptions-med" class="page">
+          <div class="page-bar">
+            <div style="position:relative;flex:1;min-width:200px">
+              <i class="fas fa-search" style="position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:13px"></i>
+              <input class="search" id="q-presc" placeholder="Patient, N° SS…" style="padding-left:32px"/>
+            </div>
+            <button class="btn btn-primary" id="btn-add-presc"><i class="fas fa-plus"></i> Prescrire médicaments</button>
+          </div>
+          <div class="card"><div class="card-bd p0">
+            <table class="tbl">
+              <thead><tr><th>ID</th><th>Patient</th><th>Médicaments</th><th>Date</th><th>Actions</th></tr></thead>
+              <tbody id="tbody-presc"></tbody>
+            </table>
+          </div></div>
+        </section>
+
+        <!-- CONSULTATIONS SPEC -->
+        <section id="page-consultations-spec" class="page">
+          <div class="page-bar">
+            <div style="position:relative;flex:1;min-width:200px">
+              <i class="fas fa-search" style="position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:13px"></i>
+              <input class="search" id="q-consult" placeholder="Patient, spécialité…" style="padding-left:32px"/>
+            </div>
+            <button class="btn btn-primary" id="btn-add-consult"><i class="fas fa-plus"></i> Prescrire une consultation</button>
+          </div>
+          <div class="card"><div class="card-bd p0">
+            <table class="tbl">
+              <thead><tr><th>ID</th><th>Patient</th><th>Spécialité</th><th>Urgence</th><th>Date</th><th>Actions</th></tr></thead>
+              <tbody id="tbody-consult"></tbody>
+            </table>
+          </div></div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- MODAL -->
+  <div id="modal" class="modal-overlay hidden">
+    <div class="modal-box" id="modal-box">
+      <div class="modal-hd">
+        <h3 id="modal-title">—</h3>
+        <button id="modal-close" class="modal-close"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-bd" id="modal-bd"></div>
+      <div class="modal-ft" id="modal-ft"></div>
+    </div>
+  </div>
+
+  <!-- TOASTS -->
+  <div id="toasts"></div>
+
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="js/api.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/pages/dashboard.js"></script>
+<script src="js/pages/assures.js"></script>
+<script src="js/pages/medecins.js"></script>
+<script src="js/pages/feuilles.js"></script>
+<script src="js/pages/remboursements.js"></script>
+<script src="js/pages/prescriptions.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
