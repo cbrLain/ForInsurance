@@ -84,20 +84,33 @@ async function showEffectuerRemboursement() {
     }
     Modal.wide('Effectuer un remboursement', `
       <p style="color:var(--text-muted);font-size:.82rem;margin-bottom:14px">Sélectionnez une feuille validée pour procéder au remboursement.</p>
-      <table class="tbl">
-        <thead><tr><th>Référence</th><th>Assuré</th><th>N° SS</th><th>Montant</th><th></th></tr></thead>
-        <tbody>${feuilles.map(f => `
-          <tr>
-            <td><code style="font-size:.8rem;color:var(--text-muted)">${f.reference}</code></td>
-            <td>${f.assure_nom}</td>
-            <td style="color:var(--text-muted)">${f.numero_ss}</td>
-            <td style="font-weight:700;color:var(--success)">${fmtMoney(f.montant_remboursement)}</td>
-            <td><button class="btn btn-sm btn-success" onclick="Modal.close();showRembourser(${f.id},'${f.reference}',${f.montant_remboursement},${f.assure_id})"><i class="fas fa-credit-card"></i> Rembourser</button></td>
-          </tr>
-        `).join('')}</tbody>
-      </table>
+      <div style="position:relative;margin-bottom:12px">
+        <i class="fas fa-search" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:13px"></i>
+        <input class="search" id="q-remb-feuilles" placeholder="Référence, nom assuré, N° SS…" style="padding-left:32px;width:100%" oninput="filterRembFeuilles(this.value)"/>
+      </div>
+      <div style="max-height:360px;overflow-y:auto">
+        <table class="tbl" id="tbl-remb-feuilles">
+          <thead><tr><th>Référence</th><th>Assuré</th><th>N° SS</th><th>Montant</th><th></th></tr></thead>
+          <tbody id="tbody-remb-feuilles">${feuilles.map(f => `
+            <tr data-search="${(f.reference + ' ' + f.assure_nom + ' ' + f.numero_ss).toLowerCase()}">
+              <td><code style="font-size:.8rem;color:var(--text-muted)">${f.reference}</code></td>
+              <td>${f.assure_nom}</td>
+              <td style="color:var(--text-muted)">${f.numero_ss}</td>
+              <td style="font-weight:700;color:var(--success)">${fmtMoney(f.montant_remboursement)}</td>
+              <td><button class="btn btn-sm btn-success" onclick="Modal.close();showRembourser(${f.id},'${f.reference}',${f.montant_remboursement},${f.assure_id})"><i class="fas fa-credit-card"></i> Rembourser</button></td>
+            </tr>
+          `).join('')}</tbody>
+        </table>
+      </div>
     `, `<button class="btn btn-secondary" onclick="Modal.close()">Annuler</button>`);
   } catch(e) { toast(e.message, 'error'); }
+}
+
+function filterRembFeuilles(val) {
+  const q = val.toLowerCase();
+  document.querySelectorAll('#tbody-remb-feuilles tr').forEach(tr => {
+    tr.style.display = tr.dataset.search.includes(q) ? '' : 'none';
+  });
 }
 
 /* ── Impression de la facture ───────────────────────────── */
