@@ -1,6 +1,0 @@
-services:
-  - type: web
-    name: securasante
-    env: node
-    buildCommand: npm install
-    startCommand: node server.js

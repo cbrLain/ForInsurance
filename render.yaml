@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: forinsurance
+    env: node
+    region: frankfurt
+    buildCommand: cd backend && npm install
+    startCommand: cd backend && node server.js
+    healthCheckPath: /api/auth/me
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: JWT_SECRET
+        generateValue: true
