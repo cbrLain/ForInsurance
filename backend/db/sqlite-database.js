@@ -31,7 +31,22 @@ async function initSqlite() {
       };
     },
     exec: (sql) => db.exec(sql),
-    transaction: (fn) => db.transaction(fn),
+    transaction: (fn) => {
+      if (fn.constructor.name === 'AsyncFunction') {
+        return async function sqliteAsyncTransaction(...args) {
+          db.exec('BEGIN');
+          try {
+            const result = await fn.apply(this, args);
+            db.exec('COMMIT');
+            return result;
+          } catch (e) {
+            db.exec('ROLLBACK');
+            throw e;
+          }
+        };
+      }
+      return db.transaction(fn);
+    },
     save: () => {},
     close: () => { db.close(); },
   };
