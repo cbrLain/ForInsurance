@@ -1,0 +1,20 @@
+{
+  "name": "forinsurance",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "cd backend && node server.js",
+    "seed": "cd backend && node db/seed.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-async-errors": "^3.1.1",
+    "jsonwebtoken": "^9.0.2",
+    "better-sqlite3": "^11.0.0",
+    "pg": "^8.22.0",
+    "socket.io": "^4.8.3"
+  }
+}
