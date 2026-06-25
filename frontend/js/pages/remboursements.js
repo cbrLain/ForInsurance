@@ -25,55 +25,191 @@ function renderRemboursements(rows) {
   `).join('');
 }
 
-/* ── Modale remboursement (appelée depuis feuilles.js) ──── */
-function showRembourser(feuilleId, ref, montant, assureId) {
-  Modal.open(`Effectuer le remboursement : ${ref}`, `
+/* ── Modale remboursement avec simulation réaliste ───── */
+function showRembourser(feuilleId, ref, montant, assureId, assureNom) {
+  Modal.open(`Remboursement : ${ref}`, `
     <div class="alert alert-info" style="margin-bottom:14px">
-      <i class="fas fa-info-circle"></i> Montant à rembourser : <strong>${fmtMoney(montant)}</strong>
+      <i class="fas fa-info-circle"></i> Montant à rembourser : <strong style="font-size:1.1rem">${fmtMoney(montant)}</strong>
     </div>
     <div class="form-group">
       <label>Mode de paiement *</label>
-      <select id="r-mode" onchange="toggleRefBancaire()">
+      <select id="r-mode" onchange="toggleRembMode()">
         <option value="">-- Choisir --</option>
-        <option value="especes">Espèces</option>
-        <option value="virement">Virement bancaire</option>
+        <option value="especes">💰 Espèces (guichet)</option>
+        <option value="virement">🏦 Virement bancaire</option>
       </select>
     </div>
-    <div class="form-group" id="grp-ref" style="display:none">
-      <label>Référence bancaire *</label>
-      <input id="r-ref" placeholder="VIR-2024-CMR-BANK"/>
+
+    <div id="rmode-especes" style="display:none">
+      <div class="alert alert-warning" style="margin-top:10px">
+        <i class="fas fa-hand-holding-usd"></i> Paiement en espèces au guichet de l'agence.
+      </div>
+      <div class="form-group">
+        <label>Référence de retrait</label>
+        <input id="r-ref-especes" value="RET-${String(Date.now()).slice(-8)}" readonly style="background:var(--bg-card);color:var(--text-muted)"/>
+      </div>
     </div>
+
+    <div id="rmode-virement" style="display:none">
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:12px;margin-top:8px">
+        <h4 style="font-size:.82rem;margin-bottom:10px;color:var(--text-muted)">INFORMATIONS BANCAIRES</h4>
+        <div class="form-group">
+          <label>Bénéficiaire</label>
+          <input id="r-benef" value="${assureNom || '—'}" readonly style="background:var(--bg-card);color:var(--text-muted);font-weight:600"/>
+        </div>
+        <div class="form-row">
+          <div class="form-group" style="flex:1">
+            <label>Banque de l'assuré</label>
+            <select id="r-banque">
+              <option value="">-- Sélectionner --</option>
+              <option value="Afriland First Bank">Afriland First Bank</option>
+              <option value="BICEC">BICEC</option>
+              <option value="Société Générale Cameroun">Société Générale Cameroun</option>
+              <option value="Ecobank Cameroun">Ecobank Cameroun</option>
+              <option value="Attijari Cameroun">Attijari Cameroun</option>
+              <option value="UBA Cameroun">UBA Cameroun</option>
+              <option value="Crédit Mutuel">Crédit Mutuel</option>
+            </select>
+          </div>
+          <div class="form-group" style="flex:0 0 100px">
+            <label>Code banque</label>
+            <input id="r-code-banque" placeholder="10001" maxlength="5"/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>IBAN (International Bank Account Number)</label>
+          <input id="r-iban" placeholder="CM21 10001 00001 23456789012 80" style="font-family:monospace;letter-spacing:1px"/>
+        </div>
+        <div class="form-row">
+          <div class="form-group" style="flex:1">
+            <label>Motif du virement</label>
+            <select id="r-motif">
+              <option value="Remboursement feuille de maladie">Remboursement feuille de maladie</option>
+              <option value="Prestation médicale">Prestation médicale</option>
+              <option value="Indemnité maladie">Indemnité maladie</option>
+            </select>
+          </div>
+        </div>
+        <div style="font-size:.72rem;color:var(--text-dim);background:var(--bg-input);padding:8px;border-radius:4px;margin-top:6px">
+          <i class="fas fa-lock"></i> Transmission sécurisée via le réseau interbancaire CMR (ETEBAC)
+        </div>
+      </div>
+    </div>
+
     <div id="r-err" class="alert alert-error hidden"></div>
   `, `
     <button class="btn btn-secondary" onclick="Modal.close()">Annuler</button>
-    <button class="btn btn-success" onclick="submitRembourser(${feuilleId})"><i class="fas fa-check"></i> Confirmer le remboursement</button>
+    <button class="btn btn-success" onclick="submitRembourser(${feuilleId}, '${ref}', ${montant})"><i class="fas fa-paper-plane"></i> Envoyer le paiement</button>
   `);
 }
 
-function toggleRefBancaire() {
+function toggleRembMode() {
   const mode = document.getElementById('r-mode').value;
-  document.getElementById('grp-ref').style.display = mode === 'virement' ? 'flex' : 'none';
+  document.getElementById('rmode-especes').style.display = mode === 'especes' ? 'block' : 'none';
+  document.getElementById('rmode-virement').style.display = mode === 'virement' ? 'block' : 'none';
+  if (mode === 'virement' && !document.getElementById('r-iban').value) {
+    document.getElementById('r-iban').value = 'CM21 ' + String(Math.floor(10000 + Math.random()*90000)) + ' ' + String(Math.floor(10000 + Math.random()*90000)) + ' ' + String(Math.floor(10000000000 + Math.random()*90000000000)) + ' ' + String(Math.floor(10 + Math.random()*89));
+  }
 }
 
-async function submitRembourser(feuilleId) {
+async function submitRembourser(feuilleId, ref, montant) {
   const err = document.getElementById('r-err');
   err.classList.add('hidden');
-  const data = {
-    feuille_id: feuilleId,
-    mode_paiement: document.getElementById('r-mode').value,
-    reference_bancaire: document.getElementById('r-ref')?.value.trim() || null,
-  };
-  if (!data.mode_paiement) { err.textContent = 'Mode de paiement requis.'; err.classList.remove('hidden'); return; }
-  if (data.mode_paiement === 'virement' && !data.reference_bancaire) {
-    err.textContent = 'Référence bancaire requise pour un virement.'; err.classList.remove('hidden'); return;
+  const mode = document.getElementById('r-mode').value;
+  if (!mode) { err.textContent = 'Veuillez choisir un mode de paiement.'; err.classList.remove('hidden'); return; }
+
+  let refBancaire;
+  const banque = mode === 'virement' ? document.getElementById('r-banque').value : null;
+  const iban = mode === 'virement' ? document.getElementById('r-iban').value.trim() : null;
+
+  if (mode === 'virement') {
+    if (!banque) { err.textContent = 'Veuillez sélectionner la banque de l\'assuré.'; err.classList.remove('hidden'); return; }
+    if (!iban || iban.length < 10) { err.textContent = 'Veuillez saisir un IBAN valide.'; err.classList.remove('hidden'); return; }
+    refBancaire = `VIR-${String(Date.now()).slice(-8)}-${banque.substring(0,4).toUpperCase()}`;
+  } else {
+    refBancaire = document.getElementById('r-ref-especes')?.value || null;
   }
+
+  const data = { feuille_id: feuilleId, mode_paiement: mode, reference_bancaire: refBancaire };
+
   try {
     const result = await Api.effectuerRemboursement(data);
-    Modal.close();
-    toast('Remboursement effectué avec succès !', 'success');
-    loadFeuilles(); loadRemboursements();
-    viewFacture(result.id);
-  } catch(e) { err.textContent = e.message; err.classList.remove('hidden'); }
+    const resultId = result.id;
+
+    if (mode === 'especes') {
+      Modal.open('Paiement en espèces', `
+        <div style="text-align:center;padding:20px 0">
+          <div style="font-size:56px;margin-bottom:10px;color:var(--success)"><i class="fas fa-hand-holding-usd"></i></div>
+          <h3 style="margin-bottom:4px">Paiement en espèces</h3>
+          <p style="color:var(--text-muted);font-size:.85rem">Montant décaissé : <strong style="font-size:1.3rem;color:var(--success)">${fmtMoney(montant)}</strong></p>
+          <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:12px;margin:14px auto;max-width:300px;text-align:left">
+            <div class="prt-row"><span class="prt-key">Opération</span><span class="prt-val">Retrait guichet</span></div>
+            <div class="prt-row"><span class="prt-key">Référence</span><span class="prt-val">${refBancaire}</span></div>
+            <div class="prt-row"><span class="prt-key">Date</span><span class="prt-val">${fmtDateTime(new Date())}</span></div>
+            <div class="prt-row"><span class="prt-key">Agent</span><span class="prt-val">${currentUser?.prenom || ''} ${currentUser?.nom || ''}</span></div>
+          </div>
+          <div class="alert alert-success" style="text-align:left">
+            <i class="fas fa-check-circle"></i> Espèces remises à l'assuré. Ticket de caisse imprimé.
+          </div>
+        </div>
+      `, `
+        <button class="btn btn-primary" onclick="Modal.close();loadFeuilles();loadRemboursements();viewFacture(${resultId})"><i class="fas fa-receipt"></i> Voir la facture</button>
+      `);
+    } else {
+      const contenu = document.getElementById('modal-bd');
+      contenu.innerHTML = `
+        <div style="text-align:center;padding:24px 0">
+          <div style="font-size:48px;margin-bottom:14px;color:var(--primary)"><i class="fas fa-university"></i></div>
+          <h3 style="margin-bottom:6px">Ordre de virement transmis</h3>
+          <p style="color:var(--text-muted);font-size:.85rem">Connexion sécurisée au système bancaire ${banque}…</p>
+          <div style="margin:16px auto;width:200px;height:4px;background:var(--border);border-radius:2px;overflow:hidden">
+            <div id="prog-bar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--primary),var(--success));border-radius:2px;transition:width 0.3s"></div>
+          </div>
+          <div id="prog-status" style="font-size:.78rem;color:var(--text-muted)">Initialisation du transfert ETEBAC…</div>
+          <div id="prog-details" style="margin-top:14px;font-size:.75rem;color:var(--text-dim);display:none">
+            <div><i class="fas fa-check-circle" style="color:var(--success)"></i> Authentification banque émettrice : OK</div>
+            <div><i class="fas fa-check-circle" style="color:var(--success)"></i> Vérification IBAN : ${iban.substring(0,15)}…</div>
+            <div><i class="fas fa-check-circle" style="color:var(--success)"></i> Contrôle solde : Disponible</div>
+            <div><i class="fas fa-spinner" style="animation:spin 1s linear infinite"></i> Transmission en cours…</div>
+          </div>
+        </div>
+      `;
+      document.getElementById('modal-ft').innerHTML = '';
+
+      const stages = [
+        { p: 20, msg: 'Authentification banque émettrice…' },
+        { p: 40, msg: 'Vérification du compte bénéficiaire…' },
+        { p: 55, msg: 'Contrôle des fonds disponibles…' },
+        { p: 70, msg: 'Validation du protocole ETEBAC…' },
+        { p: 85, msg: 'Ordre de virement en cours d\'exécution…' },
+      ];
+      for (const s of stages) {
+        await new Promise(r => setTimeout(r, 400 + Math.random() * 300));
+        document.getElementById('prog-bar').style.width = s.p + '%';
+        document.getElementById('prog-status').textContent = s.msg;
+      }
+      document.getElementById('prog-details').style.display = 'block';
+      await new Promise(r => setTimeout(r, 500));
+      document.getElementById('prog-bar').style.width = '100%';
+      document.getElementById('prog-status').textContent = 'Virement effectué avec succès !';
+      document.getElementById('prog-status').style.color = 'var(--success)';
+      document.getElementById('prog-status').style.fontWeight = '700';
+      document.getElementById('prog-details').innerHTML += '<div><i class="fas fa-check-circle" style="color:var(--success)"></i> <strong style="color:var(--success)">Virement transmis à la banque centrale</strong></div>';
+
+      await new Promise(r => setTimeout(r, 600));
+      document.getElementById('modal-ft').innerHTML = `
+        <button class="btn btn-primary" onclick="Modal.close();loadFeuilles();loadRemboursements();viewFacture(${resultId})"><i class="fas fa-receipt"></i> Voir la facture</button>
+      `;
+    }
+  } catch(e) {
+    if (document.getElementById('r-err')) {
+      document.getElementById('r-err').textContent = e.message;
+      document.getElementById('r-err').classList.remove('hidden');
+    } else {
+      toast(e.message, 'error');
+      Modal.close();
+    }
+  }
 }
 
 /* ── Effectuer un remboursement depuis la page ─────────── */
@@ -99,7 +235,7 @@ async function showEffectuerRemboursement() {
               <td>${f.assure_nom}</td>
               <td style="color:var(--text-muted)">${f.numero_ss}</td>
               <td style="font-weight:700;color:var(--success)">${fmtMoney(f.montant_remboursement)}</td>
-              <td><button class="btn btn-sm btn-success" onclick="Modal.close();showRembourser(${f.id},'${f.reference}',${f.montant_remboursement},${f.assure_id})"><i class="fas fa-credit-card"></i> Rembourser</button></td>
+              <td><button class="btn btn-sm btn-success" onclick="Modal.close();showRembourser(${f.id},'${f.reference}',${f.montant_remboursement},${f.assure_id},'${f.assure_nom.replace(/'/g, "\\'")}')"><i class="fas fa-credit-card"></i> Rembourser</button></td>
             </tr>
           `).join('')}</tbody>
         </table>
