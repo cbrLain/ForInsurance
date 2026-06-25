@@ -1,0 +1,16 @@
+2026-06-25T10:41:21.352752219Z ==> It looks like we don't have access to your repo, but we'll try to clone it anyway.
+2026-06-25T10:41:21.352777719Z ==> Cloning from https://github.com/cbrLain/ForInsurance
+2026-06-25T10:41:21.943191441Z ==> Checking out commit c3b02876616ebbf87d7c6027889aad9075bb62c0 in branch master
+2026-06-25T10:41:31.53437867Z ==> Using Node.js version 24.14.1 (default)
+2026-06-25T10:41:31.53439499Z ==> Docs on specifying a Node.js version: https://render.com/docs/node-version
+2026-06-25T10:41:31.59296558Z ==> Running build command 'npm install'...
+2026-06-25T10:41:32.017239682Z npm error code ENOENT
+2026-06-25T10:41:32.017414705Z npm error syscall open
+2026-06-25T10:41:32.017469466Z npm error path /opt/render/project/src/backend/package.json
+2026-06-25T10:41:32.017630919Z npm error errno -2
+2026-06-25T10:41:32.017841873Z npm error enoent Could not read package.json: Error: ENOENT: no such file or directory, open '/opt/render/project/src/backend/package.json'
+2026-06-25T10:41:32.018106328Z npm error enoent This is related to npm not being able to find a file.
+2026-06-25T10:41:32.018114288Z npm error enoent
+2026-06-25T10:41:32.019548143Z npm error A complete log of this run can be found in: /opt/render/.cache/_logs/2026-06-25T10_41_31_722Z-debug-0.log
+2026-06-25T10:41:32.12358236Z ==> Build failed 😞
+2026-06-25T10:41:32.123796334Z ==> Common ways to troubleshoot your deploy: https://render.com/docs/troubleshooting-deploys
