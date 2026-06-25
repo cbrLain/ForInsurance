@@ -74,6 +74,32 @@ async function submitRembourser(feuilleId) {
   } catch(e) { err.textContent = e.message; err.classList.remove('hidden'); }
 }
 
+/* ── Effectuer un remboursement depuis la page ─────────── */
+async function showEffectuerRemboursement() {
+  try {
+    const feuilles = await Api.getFeuilles({ statut: 'Validée' });
+    if (!feuilles.length) {
+      toast('Aucune feuille validée en attente de remboursement.', 'warning');
+      return;
+    }
+    Modal.wide('Effectuer un remboursement', `
+      <p style="color:var(--text-muted);font-size:.82rem;margin-bottom:14px">Sélectionnez une feuille validée pour procéder au remboursement.</p>
+      <table class="tbl">
+        <thead><tr><th>Référence</th><th>Assuré</th><th>N° SS</th><th>Montant</th><th></th></tr></thead>
+        <tbody>${feuilles.map(f => `
+          <tr>
+            <td><code style="font-size:.8rem;color:var(--text-muted)">${f.reference}</code></td>
+            <td>${f.assure_nom}</td>
+            <td style="color:var(--text-muted)">${f.numero_ss}</td>
+            <td style="font-weight:700;color:var(--success)">${fmtMoney(f.montant_remboursement)}</td>
+            <td><button class="btn btn-sm btn-success" onclick="Modal.close();showRembourser(${f.id},'${f.reference}',${f.montant_remboursement},${f.assure_id})"><i class="fas fa-credit-card"></i> Rembourser</button></td>
+          </tr>
+        `).join('')}</tbody>
+      </table>
+    `, `<button class="btn btn-secondary" onclick="Modal.close()">Annuler</button>`);
+  } catch(e) { toast(e.message, 'error'); }
+}
+
 /* ── Impression de la facture ───────────────────────────── */
 async function viewFacture(rembId) {
   try {
@@ -142,3 +168,5 @@ document.getElementById('q-remb').addEventListener('input', e => {
   clearTimeout(window._qr);
   window._qr = setTimeout(() => loadRemboursements(e.target.value), 400);
 });
+
+document.getElementById('btn-effectuer-remb').onclick = showEffectuerRemboursement;
