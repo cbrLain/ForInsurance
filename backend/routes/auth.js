@@ -5,6 +5,7 @@ const jwt     = require('jsonwebtoken');
 const { getDb } = require('../db/database');
 const { sendMail } = require('../services/email');
 const { authenticate } = require('../middleware/auth');
+const { broadcast } = require('../socket');
 
 // POST /api/auth/login
 router.post('/login', async (req, res) => {
@@ -56,6 +57,7 @@ router.post('/register-medecin', async (req, res) => {
     console.error('Email error:', e.message);
   }
 
+  broadcast('data-change', { resource: 'demandes' });
   res.status(201).json({ message: 'Demande envoyée.' });
 });
 
@@ -97,6 +99,7 @@ router.patch('/demandes/:id', authenticate, async (req, res) => {
           <p>Cordialement,<br>L'équipe ForInsurance</p>`
       });
     } catch (e) { console.error('Email error:', e.message); }
+    broadcast('data-change', { resource: 'demandes' });
     return res.json({ message: 'Demande refusée.' });
   }
 
@@ -134,6 +137,7 @@ router.patch('/demandes/:id', authenticate, async (req, res) => {
     });
   } catch (e) { console.error('Email error:', e.message); }
 
+  broadcast('data-change', { resource: 'demandes' });
   res.json({ message: 'Médecin inscrit avec succès.', identifiant });
 });
 
