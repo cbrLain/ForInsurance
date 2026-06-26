@@ -21,7 +21,7 @@ async function loadDashboard(role) {
           badge.textContent = d.demandesEnAttente;
           badge.classList.toggle('hidden', d.demandesEnAttente === 0);
         }
-        if (d.demandesEnAttente > 0) loadDemandesInscription();
+        loadDemandesInscription();
       }
     } else {
       grid.innerHTML = `
@@ -93,10 +93,10 @@ async function approuverDemande(id) {
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error);
-    alert(data.message);
+    toast(data.message, 'success');
     loadDemandesInscription();
     loadDashboard('assureur');
-  } catch(e) { alert(e.message); }
+  } catch(e) { toast(e.message, 'error'); }
 }
 
 async function rejeterDemande(id) {
@@ -110,7 +110,7 @@ async function rejeterDemande(id) {
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error);
-    alert(data.message);
+    toast(data.message, 'success');
     loadDemandesInscription();
-  } catch(e) { alert(e.message); }
+  } catch(e) { toast(e.message, 'error'); }
 }

@@ -6,12 +6,18 @@ let currentPage  = 'dashboard';
 
 // ── Socket.IO (temps réel) ────────────────────────────────────
 const socket = io();
+socket.on('connect', () => console.log('🔌 Socket connecté'));
+socket.on('disconnect', () => console.log('🔌 Socket déconnecté'));
 socket.on('data-change', (payload) => {
-  const user = JSON.parse(localStorage.getItem('ss_user') || 'null');
-  if (payload.resource === 'demandes' && user?.role === 'assureur') {
-    toast('📩 Nouvelle demande d\'inscription reçue !', 'info', 5000);
+  try {
+    const user = JSON.parse(localStorage.getItem('ss_user') || 'null');
+    if (payload.resource === 'demandes' && user?.role === 'assureur') {
+      toast('📩 Nouvelle demande d\'inscription reçue !', 'info', 6000);
+    }
+    if (currentPage) loadPage(currentPage);
+  } catch(e) {
+    console.error('Socket error:', e);
   }
-  if (currentPage) loadPage(currentPage);
 });
 
 // ── Initialisation ────────────────────────────────────────────
