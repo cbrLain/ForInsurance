@@ -20,6 +20,9 @@ insertUser.run('assureur02', hash('assureur123'), 'assureur', 'ABONDO', 'Mark');
 insertUser.run('medecin01',  hash('medecin123'),  'medecin',  'MAWAMBA', 'Princesse');
 insertUser.run('medecin02',  hash('medecin123'),  'medecin',  'BILONGO', 'Laurent');
 insertUser.run('medecin03',  hash('medecin123'),  'medecin',  'KIKI', 'Daniel');
+insertUser.run('medecin04',  hash('medecin123'),  'medecin',  'TALLA TEYO', 'Sylvain');
+insertUser.run('medecin05',  hash('medecin123'),  'medecin',  'WAFO TEGUO', 'Vitric');
+insertUser.run('medecin06',  hash('medecin123'),  'medecin',  'ONDOA MANGA', 'Harry Johan');
 
 // ── Personnes + Médecins ──────────────────────────────────────
 const insertPersonne = db.prepare(`
@@ -37,12 +40,12 @@ function seedMedecin(nom, prenom, dob, tel, email, identifiant, numAgrement, typ
   insertMedecin.run(pid, identifiant, numAgrement, type, specialite || null, userId || null);
 }
 
-seedMedecin('MAWAMBA DJOMO', 'Princesse',   '1980-03-15', '699000001', 'p.mawamba@enspy.cm', 'MED-001', 'AGR-001', 'generaliste',  null,           3);
-seedMedecin('BILONGO MINLO', 'Laurent',     '1978-07-22', '699000002', 'l.bilongo@enspy.cm', 'MED-002', 'AGR-002', 'generaliste',  null,           4);
-seedMedecin('KIKI DANIEL',   'Bryan',       '1975-11-08', '699000003', 'd.kiki@enspy.cm',    'MED-003', 'AGR-003', 'specialiste',  'Cardiologie',  5);
-seedMedecin('TALLA TEYO',    'Sylvain',     '1970-05-30', '699000004', 's.talla@enspy.cm',   'MED-004', 'AGR-004', 'specialiste',  'Neurologie',   null);
-seedMedecin('WAFO TEGUO',    'Vitric',      '1982-09-14', '699000005', 'v.wafo@enspy.cm',    'MED-005', 'AGR-005', 'specialiste',  'Dermatologie', null);
-seedMedecin('ONDOA MANGA',   'Harry Johan', '1985-01-20', '699000006', 'h.ondoa@enspy.cm',   'MED-006', 'AGR-006', 'generaliste',  null,           null);
+seedMedecin('MAWAMBA DJOMO', 'Princesse',   '1980-03-15', '699000001', 'p.mawamba@enspy.cm', 'MED-001', 'AGR-001', 'generaliste',  null,           4);
+seedMedecin('BILONGO MINLO', 'Laurent',     '1978-07-22', '699000002', 'l.bilongo@enspy.cm', 'MED-002', 'AGR-002', 'generaliste',  null,           5);
+seedMedecin('KIKI DANIEL',   'Bryan',       '1975-11-08', '699000003', 'd.kiki@enspy.cm',    'MED-003', 'AGR-003', 'specialiste',  'Cardiologie',  6);
+seedMedecin('TALLA TEYO',    'Sylvain',     '1970-05-30', '699000004', 's.talla@enspy.cm',   'MED-004', 'AGR-004', 'specialiste',  'Neurologie',   7);
+seedMedecin('WAFO TEGUO',    'Vitric',      '1982-09-14', '699000005', 'v.wafo@enspy.cm',    'MED-005', 'AGR-005', 'specialiste',  'Dermatologie', 8);
+seedMedecin('ONDOA MANGA',   'Harry Johan', '1985-01-20', '699000006', 'h.ondoa@enspy.cm',   'MED-006', 'AGR-006', 'generaliste',  null,           9);
 
 // ── Assurés ────────────────────────────────────────────────────
 const insertAssure = db.prepare(`
@@ -128,6 +131,18 @@ db.prepare(`INSERT OR IGNORE INTO prescription_consultation (prescription_id, sp
 
 console.log('✅ Base de données initialisée avec succès !');
 console.log('');
-console.log('Comptes de démonstration :');
-console.log('  Assureur  → identifiant: assureur01  | mot de passe: assureur123');
-console.log('  Médecin   → identifiant: medecin01   | mot de passe: medecin123');
+console.log('🔐 Tous les identifiants (mot de passe par défaut : medecin123) :');
+console.log('═══════════════════════════════════════════════════');
+console.log('  ASSUREURS :');
+console.log('    admin      → AdminForInsurance2025!   | Administrateur système');
+console.log('    assureur01 → assureur123              | NOUMSSI Elvira');
+console.log('    assureur02 → assureur123              | ABONDO Mark');
+console.log('');
+console.log('  MEDECINS :');
+console.log('    medecin01  → medecin123   | MAWAMBA Princesse (Généraliste)');
+console.log('    medecin02  → medecin123   | BILONGO Laurent (Généraliste)');
+console.log('    medecin03  → medecin123   | KIKI Daniel (Spécialiste - Cardiologie)');
+console.log('    medecin04  → medecin123   | TALLA TEYO Sylvain (Spécialiste - Neurologie)');
+console.log('    medecin05  → medecin123   | WAFO TEGUO Vitric (Spécialiste - Dermatologie)');
+console.log('    medecin06  → medecin123   | ONDOA MANGA Harry Johan (Généraliste)');
+console.log('    MED0006    → medecin123   | EMAILTEST Check (Généraliste)');
