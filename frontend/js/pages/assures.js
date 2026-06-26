@@ -104,77 +104,120 @@ document.getElementById('q-assures').addEventListener('input', (e) => {
 });
 
 async function showAddMedecinTraitant() {
-  let assures = [];
-  try { assures = await Api.getAssures(); } catch {}
-  const assureOpts = assures.map(a => `<option value="${a.id}">${a.nom} ${a.prenom} (${a.numero_ss})</option>`).join('');
+  const _state = { assure: null, medecin: null };
 
-  let medecins = [];
-  try { medecins = await Api.getMedecins('', 'generaliste'); } catch {}
-  const medOpts = medecins.map(m => `<option value="${m.id}">${m.nom} ${m.prenom}</option>`).join('');
+  function render() {
+    const assureHtml = _state.assure
+      ? `<div class="selected-item">
+          <i class="fas fa-user-check" style="color:var(--success)"></i>
+          <span><strong>${_state.assure.nom} ${_state.assure.prenom}</strong> — ${_state.assure.numero_ss}</span>
+          <button class="btn btn-sm btn-link" onclick="window._amtClearAssure()" style="margin-left:auto">Changer</button>
+        </div>`
+      : `<div class="form-group">
+          <label>Rechercher l'assuré (N° SS ou nom)</label>
+          <input id="amt-sa" placeholder="Saisir le numéro de sécurité sociale ou le nom…" oninput="window._amtSearchAssure()"/>
+          <div id="amt-sa-results" class="search-results"></div>
+        </div>`;
 
-  Modal.open('Enregistrer un médecin traitant', `
-    <div class="form-group">
-      <label>Pour l\'assuré *</label>
-      <select id="amt-assure"><option value="">-- Sélectionner un assuré --</option>${assureOpts}</select>
-    </div>
-    <hr style="margin:14px 0;border-color:var(--border)">
-    <p style="color:var(--text-muted);font-size:.82rem;margin-bottom:14px">Seuls les médecins généralistes sont éligibles comme médecin traitant.</p>
-    <div class="form-group">
-      <label><input type="radio" name="amt-mode" value="existing" checked onchange="toggleAmtMode()"> Sélectionner un médecin existant</label>
-      <select id="amt-select" style="margin-top:6px"><option value="">-- Sélectionner --</option>${medOpts}</select>
-    </div>
-    <div class="form-group">
-      <label><input type="radio" name="amt-mode" value="new" onchange="toggleAmtMode()"> Créer un nouveau médecin traitant</label>
-      <div id="amt-new-fields" style="display:none;margin-top:8px">
-        <div class="form-row">
-          <div class="form-group"><label>Nom *</label><input id="amt-nom" placeholder="TALLA" style="text-transform:uppercase"/></div>
-          <div class="form-group"><label>Prénom *</label><input id="amt-prenom" placeholder="Sylvain"/></div>
-        </div>
-        <div class="form-group"><label>Téléphone</label><input id="amt-tel" placeholder="699000000"/></div>
+    const medHtml = !_state.assure
+      ? `<p style="color:var(--text-muted);font-size:.85rem">Sélectionnez d'abord l'assuré.</p>`
+      : _state.medecin
+        ? `<div class="selected-item">
+            <i class="fas fa-user-md" style="color:var(--primary)"></i>
+            <span><strong>Dr. ${_state.medecin.nom} ${_state.medecin.prenom}</strong> — ${_state.medecin.identifiant}</span>
+            <button class="btn btn-sm btn-link" onclick="window._amtClearMedecin()" style="margin-left:auto">Changer</button>
+          </div>`
+        : `<div class="form-group">
+            <label>Rechercher le médecin traitant (nom ou numéro d'agrément)</label>
+            <input id="amt-sm" placeholder="Saisir le nom ou numéro d'agrément…" oninput="window._amtSearchMedecin()"/>
+            <div id="amt-sm-results" class="search-results"></div>
+          </div>`;
+
+    const validBtn = _state.assure && _state.medecin
+      ? `<button class="btn btn-primary" onclick="window._amtSubmit()" style="width:100%;margin-top:12px">
+          <i class="fas fa-check"></i> Valider l'enregistrement
+         </button>`
+      : '';
+
+    Modal.open('Enregistrer un médecin traitant', `
+      <p style="color:var(--text-muted);font-size:.82rem;margin-bottom:14px">
+        <strong>Étape 1 :</strong> Recherchez l'assuré concerné, puis <strong>Étape 2 :</strong> choisissez son médecin traitant.
+      </p>
+      <div class="form-section">
+        <div class="form-section-title">1. Assuré</div>
+        ${assureHtml}
       </div>
-    </div>
-    <div id="amt-err" class="alert alert-error hidden"></div>
-  `, `
-    <button class="btn btn-secondary" onclick="Modal.close()">Annuler</button>
-    <button class="btn btn-primary" onclick="submitAddMedecinTraitant()"><i class="fas fa-check"></i> Enregistrer</button>
-  `);
-}
-
-function toggleAmtMode() {
-  const mode = document.querySelector('input[name="amt-mode"]:checked')?.value;
-  document.getElementById('amt-select').disabled = mode !== 'existing';
-  document.getElementById('amt-new-fields').style.display = mode === 'new' ? 'block' : 'none';
-}
-
-async function submitAddMedecinTraitant() {
-  const err = document.getElementById('amt-err');
-  err.classList.add('hidden');
-
-  const assureId = document.getElementById('amt-assure').value;
-  if (!assureId) { err.textContent = 'Veuillez sélectionner un assuré.'; err.classList.remove('hidden'); return; }
-
-  const mode = document.querySelector('input[name="amt-mode"]:checked')?.value;
-  let medId;
-  if (mode === 'new') {
-    const nom    = document.getElementById('amt-nom').value.trim();
-    const prenom = document.getElementById('amt-prenom').value.trim();
-    const tel    = document.getElementById('amt-tel').value.trim() || null;
-    if (!nom || !prenom) {
-      err.textContent = 'Nom et prénom du médecin sont obligatoires.';
-      err.classList.remove('hidden'); return;
-    }
-    try {
-      const result = await Api.addMedecin({ nom, prenom, telephone: tel, type: 'generaliste' });
-      medId = result.id;
-    } catch(e) { err.textContent = e.message; err.classList.remove('hidden'); return; }
-  } else {
-    medId = document.getElementById('amt-select').value;
-    if (!medId) { err.textContent = 'Veuillez sélectionner un médecin.'; err.classList.remove('hidden'); return; }
+      <div class="form-section" style="margin-top:14px">
+        <div class="form-section-title">2. Médecin traitant</div>
+        ${medHtml}
+      </div>
+      <div id="amt-err" class="alert alert-error hidden"></div>
+      ${validBtn}
+    `, `
+      <button class="btn btn-secondary" onclick="Modal.close()">Annuler</button>
+    `);
   }
 
-  try {
-    await Api.setMedecinTraitant(parseInt(assureId), parseInt(medId));
-    Modal.close(); toast('Médecin traitant enregistré !', 'success');
-    loadAssures();
-  } catch(e) { err.textContent = e.message; err.classList.remove('hidden'); }
+  window._amtSearchAssure = async function() {
+    const q = document.getElementById('amt-sa').value.trim();
+    const el = document.getElementById('amt-sa-results');
+    if (!q || q.length < 2) { el.innerHTML = ''; return; }
+    try {
+      const rows = await Api.getAssures(q);
+      el.innerHTML = rows.length
+        ? rows.map(a => `<div class="search-item" onclick="window._amtPickAssure(${a.id},'${a.nom}','${a.prenom}','${a.numero_ss}')">
+            <strong>${a.nom} ${a.prenom}</strong><br><small>${a.numero_ss}</small>
+          </div>`).join('')
+        : '<div class="search-item disabled">Aucun assuré trouvé</div>';
+    } catch { el.innerHTML = '<div class="search-item disabled">Erreur de recherche</div>'; }
+  };
+
+  window._amtPickAssure = function(id, nom, prenom, numSS) {
+    _state.assure = { id, nom, prenom, numero_ss: numSS };
+    _state.medecin = null;
+    render();
+  };
+
+  window._amtClearAssure = function() {
+    _state.assure = null;
+    _state.medecin = null;
+    render();
+  };
+
+  window._amtSearchMedecin = async function() {
+    const q = document.getElementById('amt-sm').value.trim();
+    const el = document.getElementById('amt-sm-results');
+    if (!q || q.length < 2) { el.innerHTML = ''; return; }
+    try {
+      const rows = await Api.getMedecins(q, 'generaliste');
+      el.innerHTML = rows.length
+        ? rows.map(m => `<div class="search-item" onclick="window._amtPickMedecin(${m.id},'${m.nom}','${m.prenom}','${m.identifiant}')">
+            <strong>Dr. ${m.nom} ${m.prenom}</strong><br><small>${m.identifiant}</small>
+          </div>`).join('')
+        : '<div class="search-item disabled">Aucun médecin généraliste trouvé</div>';
+    } catch { el.innerHTML = '<div class="search-item disabled">Erreur de recherche</div>'; }
+  };
+
+  window._amtPickMedecin = function(id, nom, prenom, identifiant) {
+    _state.medecin = { id, nom, prenom, identifiant };
+    render();
+  };
+
+  window._amtClearMedecin = function() {
+    _state.medecin = null;
+    render();
+  };
+
+  window._amtSubmit = async function() {
+    const err = document.getElementById('amt-err');
+    err.classList.add('hidden');
+    try {
+      await Api.setMedecinTraitant(_state.assure.id, _state.medecin.id);
+      Modal.close();
+      toast(`Médecin traitant enregistré pour ${_state.assure.prenom} ${_state.assure.nom}.`, 'success');
+      loadAssures();
+    } catch(e) { err.textContent = e.message; err.classList.remove('hidden'); }
+  };
+
+  render();
 }
