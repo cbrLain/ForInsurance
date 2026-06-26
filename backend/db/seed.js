@@ -26,22 +26,22 @@ const insertPersonne = db.prepare(`
   VALUES (?, ?, ?, ?, ?, ?)
 `);
 const insertMedecin = db.prepare(`
-  INSERT OR IGNORE INTO medecins (personne_id, identifiant, type, specialite, utilisateur_id)
-  VALUES (?, ?, ?, ?, ?)
+  INSERT OR IGNORE INTO medecins (personne_id, identifiant, num_agrement, type, specialite, utilisateur_id)
+  VALUES (?, ?, ?, ?, ?, ?)
 `);
 
-function seedMedecin(nom, prenom, dob, tel, email, identifiant, type, specialite, userId) {
+function seedMedecin(nom, prenom, dob, tel, email, identifiant, numAgrement, type, specialite, userId) {
   const info = insertPersonne.run(nom, prenom, dob, 'Yaoundé, Cameroun', tel, email);
   const pid = info.lastInsertRowid || db.prepare('SELECT id FROM personnes WHERE email=?').get(email)?.id;
-  insertMedecin.run(pid, identifiant, type, specialite || null, userId || null);
+  insertMedecin.run(pid, identifiant, numAgrement, type, specialite || null, userId || null);
 }
 
-seedMedecin('MAWAMBA DJOMO', 'Princesse',   '1980-03-15', '699000001', 'p.mawamba@enspy.cm', 'MED-001', 'generaliste',  null,           3);
-seedMedecin('BILONGO MINLO', 'Laurent',     '1978-07-22', '699000002', 'l.bilongo@enspy.cm', 'MED-002', 'generaliste',  null,           4);
-seedMedecin('KIKI DANIEL',   'Bryan',       '1975-11-08', '699000003', 'd.kiki@enspy.cm',    'MED-003', 'specialiste',  'Cardiologie',  5);
-seedMedecin('TALLA TEYO',    'Sylvain',     '1970-05-30', '699000004', 's.talla@enspy.cm',   'MED-004', 'specialiste',  'Neurologie',   null);
-seedMedecin('WAFO TEGUO',    'Vitric',      '1982-09-14', '699000005', 'v.wafo@enspy.cm',    'MED-005', 'specialiste',  'Dermatologie', null);
-seedMedecin('ONDOA MANGA',   'Harry Johan', '1985-01-20', '699000006', 'h.ondoa@enspy.cm',   'MED-006', 'generaliste',  null,           null);
+seedMedecin('MAWAMBA DJOMO', 'Princesse',   '1980-03-15', '699000001', 'p.mawamba@enspy.cm', 'MED-001', 'AGR-001', 'generaliste',  null,           3);
+seedMedecin('BILONGO MINLO', 'Laurent',     '1978-07-22', '699000002', 'l.bilongo@enspy.cm', 'MED-002', 'AGR-002', 'generaliste',  null,           4);
+seedMedecin('KIKI DANIEL',   'Bryan',       '1975-11-08', '699000003', 'd.kiki@enspy.cm',    'MED-003', 'AGR-003', 'specialiste',  'Cardiologie',  5);
+seedMedecin('TALLA TEYO',    'Sylvain',     '1970-05-30', '699000004', 's.talla@enspy.cm',   'MED-004', 'AGR-004', 'specialiste',  'Neurologie',   null);
+seedMedecin('WAFO TEGUO',    'Vitric',      '1982-09-14', '699000005', 'v.wafo@enspy.cm',    'MED-005', 'AGR-005', 'specialiste',  'Dermatologie', null);
+seedMedecin('ONDOA MANGA',   'Harry Johan', '1985-01-20', '699000006', 'h.ondoa@enspy.cm',   'MED-006', 'AGR-006', 'generaliste',  null,           null);
 
 // ── Assurés ────────────────────────────────────────────────────
 const insertAssure = db.prepare(`

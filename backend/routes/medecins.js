@@ -5,7 +5,7 @@ const { authenticate, requireRole } = require('../middleware/auth');
 const { broadcast } = require('../socket');
 
 const MED_SELECT = `
-  SELECT m.id, m.identifiant, m.type, m.specialite,
+  SELECT m.id, m.identifiant, m.num_agrement, m.type, m.specialite,
          p.nom, p.prenom, p.telephone, p.email, p.adresse, p.date_naissance
   FROM medecins m
   JOIN personnes p ON p.id = m.personne_id
@@ -19,9 +19,9 @@ router.get('/', authenticate, async (req, res) => {
   const params = [];
   if (type) { sql += ' AND m.type = ?'; params.push(type); }
   if (q) {
-    sql += ' AND (p.nom LIKE ? OR p.prenom LIKE ? OR m.identifiant LIKE ? OR m.specialite LIKE ?)';
+    sql += ' AND (p.nom LIKE ? OR p.prenom LIKE ? OR m.identifiant LIKE ? OR m.num_agrement LIKE ? OR m.specialite LIKE ?)';
     const like = `%${q}%`;
-    params.push(like, like, like, like);
+    params.push(like, like, like, like, like);
   }
   sql += ' ORDER BY p.nom';
   res.json(await db.prepare(sql).all(...params));
@@ -38,7 +38,7 @@ router.get('/:id', authenticate, async (req, res) => {
 // POST /api/medecins
 router.post('/', authenticate, requireRole('assureur'), async (req, res) => {
   const db = getDb();
-  const { nom, prenom, date_naissance, telephone, email, adresse, type, specialite } = req.body;
+  const { nom, prenom, date_naissance, telephone, email, adresse, num_agrement, type, specialite } = req.body;
   if (!nom || !prenom || !type)
     return res.status(400).json({ error: 'Nom, prénom et type requis.' });
   if (!['generaliste','specialiste'].includes(type))
@@ -56,8 +56,8 @@ router.post('/', authenticate, requireRole('assureur'), async (req, res) => {
   ).run(nom.toUpperCase(), prenom, date_naissance || null, adresse || null, telephone || null, email || null);
 
   const mInfo = await db.prepare(
-    'INSERT INTO medecins (personne_id,identifiant,type,specialite) VALUES (?,?,?,?)'
-  ).run(pInfo.lastInsertRowid, identifiant, type, specialite || null);
+    'INSERT INTO medecins (personne_id,identifiant,num_agrement,type,specialite) VALUES (?,?,?,?,?)'
+  ).run(pInfo.lastInsertRowid, identifiant, num_agrement || null, type, specialite || null);
 
   broadcast('data-change', { resource: 'medecins' });
   res.status(201).json({ id: mInfo.lastInsertRowid, message: 'Médecin enregistré avec succès.' });
@@ -68,11 +68,13 @@ router.put('/:id', authenticate, requireRole('assureur'), async (req, res) => {
   const db = getDb();
   const med = await db.prepare('SELECT * FROM medecins WHERE id=?').get(req.params.id);
   if (!med) return res.status(404).json({ error: 'Médecin introuvable.' });
-  const { nom, prenom, telephone, email, adresse, specialite } = req.body;
+  const { nom, prenom, telephone, email, adresse, num_agrement, specialite } = req.body;
   await db.prepare('UPDATE personnes SET nom=?,prenom=?,telephone=?,email=?,adresse=? WHERE id=?')
     .run(nom?.toUpperCase(), prenom, telephone, email, adresse, med.personne_id);
   if (specialite !== undefined)
     await db.prepare('UPDATE medecins SET specialite=? WHERE id=?').run(specialite, req.params.id);
+  if (num_agrement !== undefined)
+    await db.prepare('UPDATE medecins SET num_agrement=? WHERE id=?').run(num_agrement, req.params.id);
   broadcast('data-change', { resource: 'medecins' });
   res.json({ message: 'Médecin mis à jour.' });
 });

@@ -18,6 +18,9 @@ async function initSqlite() {
   const schema = fs.readFileSync(path.join(__dirname, 'schema.sqlite.sql'), 'utf8');
   db.exec(schema);
 
+  // Migrations progressives (colonnes ajoutées après création initiale)
+  try { db.exec('ALTER TABLE medecins ADD COLUMN num_agrement TEXT'); } catch {}
+
   _api = {
     prepare: (sql) => {
       const stmt = db.prepare(sql);

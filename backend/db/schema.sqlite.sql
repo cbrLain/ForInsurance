@@ -23,12 +23,13 @@ CREATE TABLE IF NOT EXISTS personnes (
 );
 
 CREATE TABLE IF NOT EXISTS medecins (
-  id            INTEGER PRIMARY KEY AUTOINCREMENT,
-  personne_id   INTEGER REFERENCES personnes(id) ON DELETE CASCADE,
-  identifiant   TEXT UNIQUE NOT NULL,
-  type          TEXT CHECK(type IN ('generaliste','specialiste')) NOT NULL,
-  specialite    TEXT,
-  utilisateur_id INTEGER REFERENCES utilisateurs(id)
+  id                INTEGER PRIMARY KEY AUTOINCREMENT,
+  personne_id       INTEGER REFERENCES personnes(id) ON DELETE CASCADE,
+  identifiant       TEXT UNIQUE NOT NULL,
+  num_agrement      TEXT,
+  type              TEXT CHECK(type IN ('generaliste','specialiste')) NOT NULL,
+  specialite        TEXT,
+  utilisateur_id    INTEGER REFERENCES utilisateurs(id)
 );
 
 CREATE TABLE IF NOT EXISTS assures (

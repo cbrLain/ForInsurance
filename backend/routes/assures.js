@@ -1,13 +1,15 @@
 // routes/assures.js
 const router = require('express').Router();
+const bcrypt = require('bcryptjs');
 const { getDb } = require('../db/database');
 const { authenticate, requireRole } = require('../middleware/auth');
 const { broadcast } = require('../socket');
+const { sendMail } = require('../services/email');
 
 const ASSURE_SELECT = `
   SELECT a.id, a.numero_ss, a.date_inscription, a.actif,
          p.nom, p.prenom, p.date_naissance, p.adresse, p.telephone, p.email,
-         m.identifiant AS medecin_id_code,
+         m.identifiant AS medecin_id_code, m.num_agrement,
          pm.nom || ' ' || pm.prenom AS medecin_traitant
   FROM assures a
   JOIN personnes p ON p.id = a.personne_id
@@ -106,11 +108,57 @@ router.patch('/:id/medecin-traitant', authenticate, requireRole('assureur'), asy
   const assure = await db.prepare('SELECT * FROM assures WHERE id = ?').get(req.params.id);
   if (!assure) return res.status(404).json({ error: 'Assuré introuvable.' });
 
-  const med = await db.prepare('SELECT * FROM medecins WHERE id = ?').get(medecin_traitant_id);
+  const med = await db.prepare(`
+    SELECT m.*, p.email, p.nom AS med_nom, p.prenom AS med_prenom
+    FROM medecins m JOIN personnes p ON p.id = m.personne_id WHERE m.id = ?
+  `).get(medecin_traitant_id);
   if (!med) return res.status(404).json({ error: 'Médecin introuvable.' });
   if (med.type !== 'generaliste') return res.status(400).json({ error: 'Le médecin traitant doit être un généraliste.' });
 
   await db.prepare('UPDATE assures SET medecin_traitant_id=? WHERE id=?').run(medecin_traitant_id, req.params.id);
+
+  // Créer les identifiants de connexion pour le médecin si nécessaire
+  let identifiant, motDePasse;
+  if (!med.utilisateur_id) {
+    const base = (med.med_nom || 'med').toLowerCase().replace(/[^a-z]/g, '').slice(0, 8);
+    identifiant = base + String(med.id).padStart(2, '0');
+    motDePasse = Math.random().toString(36).slice(2, 10);
+    const hash = bcrypt.hashSync(motDePasse, 10);
+    const uInfo = await db.prepare(
+      "INSERT INTO utilisateurs (identifiant, mot_de_passe, role, nom, prenom) VALUES (?, ?, 'medecin', ?, ?)"
+    ).run(identifiant, hash, med.med_nom, med.med_prenom);
+    await db.prepare('UPDATE medecins SET utilisateur_id=? WHERE id=?').run(uInfo.lastInsertRowid, med.id);
+  } else {
+    const usr = await db.prepare('SELECT identifiant FROM utilisateurs WHERE id=?').get(med.utilisateur_id);
+    identifiant = usr.identifiant;
+    motDePasse = '(déjà défini — contactez l\'administrateur pour le réinitialiser)';
+  }
+
+  // Envoyer les identifiants par email
+  if (med.email) {
+    try {
+      await sendMail({
+        to: med.email,
+        subject: 'Vos identifiants de connexion — ForInsurance',
+        html: `
+          <div style="font-family:sans-serif;max-width:520px;margin:0 auto">
+            <h2 style="color:#1a56db">ForInsurance — Portail Médecin</h2>
+            <p>Bonjour <strong>Dr. ${med.med_prenom} ${med.med_nom}</strong>,</p>
+            <p>Vous avez été enregistré comme médecin traitant d'un assuré. Voici vos identifiants pour accéder à votre espace médecin :</p>
+            <div style="background:#f4f6f8;padding:16px;border-radius:8px;margin:16px 0">
+              <p style="margin:4px 0"><strong>Identifiant :</strong> ${identifiant}</p>
+              <p style="margin:4px 0"><strong>Mot de passe :</strong> ${motDePasse}</p>
+            </div>
+            <p><a href="${process.env.APP_URL || 'http://localhost:3001'}" style="display:inline-block;padding:10px 24px;background:#1a56db;color:#fff;text-decoration:none;border-radius:6px">Se connecter</a></p>
+            <hr style="margin:20px 0;border:none;border-top:1px solid #e0e0e0">
+            <p style="color:#888;font-size:12px">Cet email est automatique, merci de ne pas y répondre.</p>
+          </div>`,
+      });
+    } catch (e) {
+      console.error('Erreur envoi email au médecin:', e.message);
+    }
+  }
+
   broadcast('data-change', { resource: 'assures' });
   res.json({ message: 'Médecin traitant enregistré avec succès.' });
 });
