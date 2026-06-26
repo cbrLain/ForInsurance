@@ -26,18 +26,17 @@ function renderFeuilles(rows) {
       <td>${fmtMoney(f.montant_remboursement)}</td>
       <td><div class="t-actions">
         <button class="btn btn-sm btn-secondary" onclick="viewFeuille(${f.id})"><i class="fas fa-eye"></i> Voir</button>
-        ${['Transmise'].includes(f.statut) ? `<button class="btn btn-sm btn-primary" onclick="ouvrirDossier(${f.id})"><i class="fas fa-folder-open"></i> Ouvrir</button>` : ''}
-        ${f.statut === 'Incomplète' ? `<button class="btn btn-sm btn-warning" onclick="changerStatutFeuille(${f.id},'En cours de traitement')"><i class="fas fa-undo"></i> Reprendre</button>` : ''}
+        ${f.statut === 'Incomplète' ? `<button class="btn btn-sm btn-success" onclick="showCompleter(${f.id})"><i class="fas fa-pen"></i> Compléter</button>` : ''}
       </div></td>
     </tr>
   `).join('');
 }
 
 async function ouvrirDossier(id) {
-  if (!confirm('Ouvrir ce dossier ? Il passera en "En cours de traitement".')) return;
+  if (!confirm('Ouvrir ce dossier ? Il passera en "Incomplète".')) return;
   try {
-    await Api.changerStatut(id, 'En cours de traitement');
-    toast('Dossier ouvert : En cours de traitement', 'success');
+    await Api.changerStatut(id, 'Incomplète');
+    toast('Dossier ouvert : Incomplète', 'success');
     loadFeuilles();
   } catch(e) { toast(e.message, 'error'); }
 }
@@ -55,8 +54,9 @@ async function viewFeuille(id) {
   try {
     const f = await Api.getFeuille(id);
     const transitions = {
-      'En cours de traitement': ['Incomplète','Refusée'],
-      'Transmise': ['Refusée'],
+      'Créée': ['Incomplète'],
+      'Incomplète': ['Rejetée'],
+      'Complétée': ['Rejetée'],
     };
     const btns = (transitions[f.statut] || []).map(s =>
       `<button class="btn btn-sm btn-danger" onclick="changerStatutDepuisModal(${f.id},'${s}')"><i class="fas fa-arrow-right"></i> ${s}</button>`
@@ -269,8 +269,8 @@ function renderMesFeuilles(rows) {
       <td>${badgeStatut(f.statut)}</td>
       <td><div class="t-actions">
         <button class="btn btn-sm btn-secondary" onclick="viewFeuille(${f.id})"><i class="fas fa-eye"></i> Voir</button>
-        ${f.statut === 'Brouillon' ? `<button class="btn btn-sm btn-primary" onclick="changerStatutFeuille(${f.id},'Transmise')"><i class="fas fa-paper-plane"></i> Transmettre</button>` : ''}
-        ${f.statut === 'Brouillon' ? `<button class="btn btn-sm btn-danger" onclick="supprimerFeuille(${f.id})"><i class="fas fa-trash-alt"></i> Supprimer</button>` : ''}
+        ${f.statut === 'Créée' ? `<button class="btn btn-sm btn-primary" onclick="changerStatutFeuille(${f.id},'Incomplète')"><i class="fas fa-paper-plane"></i> Soumettre</button>` : ''}
+        ${f.statut === 'Créée' ? `<button class="btn btn-sm btn-danger" onclick="supprimerFeuille(${f.id})"><i class="fas fa-trash-alt"></i> Supprimer</button>` : ''}
       </div></td>
     </tr>
   `).join('');
@@ -278,7 +278,7 @@ function renderMesFeuilles(rows) {
 
 async function supprimerFeuille(id) {
   if (!confirm('Supprimer cette feuille ?')) return;
-  await changerStatutFeuille(id, 'Supprimée');
+  await changerStatutFeuille(id, 'Rejetée');
 }
 
 function showAddFeuille() {

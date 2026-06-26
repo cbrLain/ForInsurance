@@ -50,9 +50,8 @@ CREATE TABLE IF NOT EXISTS feuilles_maladie (
   diagnostic           TEXT NOT NULL,
   actes_medicaux       TEXT,
   statut               TEXT CHECK(statut IN (
-    'Brouillon','Transmise','En cours de traitement',
-    'Incomplète','Refusée','Validée','Remboursée','Supprimée'
-  )) DEFAULT 'Brouillon',
+    'Créée','Incomplète','Complétée','Remboursée','Rejetée'
+  )) DEFAULT 'Créée',
   montant_honoraires   REAL,
   montant_remboursement REAL,
   taux_remboursement   REAL DEFAULT 0.7,

@@ -215,7 +215,7 @@ async function submitRembourser(feuilleId, ref, montant) {
 /* ── Effectuer un remboursement depuis la page ─────────── */
 async function showEffectuerRemboursement() {
   try {
-    const feuilles = await Api.getFeuilles({ statut: 'Validée' });
+    const feuilles = await Api.getFeuilles({ statut: 'Complétée' });
     if (!feuilles.length) {
       toast('Aucune feuille validée en attente de remboursement.', 'warning');
       return;

@@ -38,17 +38,14 @@ document.getElementById('modal').addEventListener('click', e => {
 // ── Badges statut feuille ─────────────────────────────────────
 function badgeStatut(s) {
   const map = {
-    'Brouillon':             { c: 'b-secondary', i: 'fas fa-pen' },
-    'Transmise':             { c: 'b-light', i: 'fas fa-paper-plane' },
-    'En cours de traitement':{ c: 'b-primary-light', i: 'fas fa-hourglass-half' },
-    'Incomplète':            { c: 'b-light', i: 'fas fa-exclamation-circle' },
-    'Validée':               { c: 'b-success-light', i: 'fas fa-check-square' },
-    'Remboursée':            { c: 'b-success', i: 'fas fa-money-bill-wave' },
-    'Refusée':               { c: 'b-danger', i: 'fas fa-times-circle' },
-    'Supprimée':             { c: 'b-secondary', i: 'fas fa-trash-alt' },
+    'Créée':      { c: '#6c757d', i: 'fas fa-pen' },
+    'Incomplète': { c: '#f59e0b', i: 'fas fa-exclamation-circle' },
+    'Complétée':  { c: '#059669', i: 'fas fa-check-square' },
+    'Remboursée': { c: '#16a34a', i: 'fas fa-money-bill-wave' },
+    'Rejetée':    { c: '#dc2626', i: 'fas fa-times-circle' },
   };
-  const m = map[s] || { c: 'b-light', i: 'fas fa-circle' };
-  return `<span class="badge ${m.c}"><i class="${m.i}"></i> ${s}</span>`;
+  const m = map[s] || { c: '#6c757d', i: 'fas fa-circle' };
+  return `<span style="color:${m.c};font-weight:600"><i class="${m.i}"></i> ${s}</span>`;
 }
 function badgeType(t) {
   return t === 'generaliste'
@@ -92,9 +89,8 @@ function drawDonut(canvasId, data) {
   if (!canvas || !data?.length) return;
   const ctx = canvas.getContext('2d');
   const colors = {
-    'Brouillon':'#e2e8f0','Transmise':'#f1f5f9','En cours de traitement':'#86efac',
-    'Incomplète':'#cbd5e1','Validée':'#4ade80','Remboursée':'#16a34a',
-    'Refusée':'#ef4444','Supprimée':'#e2e8f0'
+    'Créée':'#e2e8f0','Incomplète':'#fcd34d','Complétée':'#86efac',
+    'Remboursée':'#16a34a','Rejetée':'#ef4444'
   };
   const total = data.reduce((s, d) => s + d.n, 0);
   const cx = canvas.width / 2, cy = canvas.height / 2, r = Math.min(cx, cy) - 20;

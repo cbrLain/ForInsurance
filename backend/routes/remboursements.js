@@ -51,8 +51,8 @@ router.post('/', authenticate, requireRole('assureur'), async (req, res) => {
   if (!feuille) return res.status(404).json({ error: 'Feuille de maladie introuvable.' });
   if (feuille.statut === 'Remboursée')
     return res.status(400).json({ error: 'Remboursement déjà effectué pour cette feuille.' });
-  if (feuille.statut !== 'Validée')
-    return res.status(400).json({ error: 'La feuille doit être à l\'état Validée avant remboursement.' });
+  if (feuille.statut !== 'Complétée')
+    return res.status(400).json({ error: 'La feuille doit être à l\'état Complétée avant remboursement.' });
   if (!feuille.montant_remboursement)
     return res.status(400).json({ error: 'Montant de remboursement non défini. Complétez d\'abord la feuille.' });
   if (mode_paiement === 'virement' && !reference_bancaire)

@@ -23,7 +23,7 @@ async function loadDashboard(role) {
     actList.innerHTML = '';
     const el = document.createElement('div');
     el.className = 'activity-list';
-    const dotColors = { 'Remboursée':'#28a745','Validée':'#6610f2','Refusée':'#dc3545','En cours de traitement':'#17a2b8','Incomplète':'#ffc107','Transmise':'#007bff','Brouillon':'#6c757d','Supprimée':'#adb5bd' };
+    const dotColors = { 'Remboursée':'#16a34a','Complétée':'#059669','Rejetée':'#dc2626','Incomplète':'#f59e0b','Créée':'#6c757d' };
     if (d.activiteRecente?.length) {
       el.innerHTML = d.activiteRecente.map(a => `
         <div class="act-item">

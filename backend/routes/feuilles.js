@@ -4,16 +4,13 @@ const { getDb } = require('../db/database');
 const { authenticate, requireRole } = require('../middleware/auth');
 const { broadcast } = require('../socket');
 
-// Transitions d'état autorisées (machine à états du PDF)
+// Transitions d'état autorisées
 const TRANSITIONS = {
-  'Brouillon':             ['Transmise', 'Supprimée'],
-  'Transmise':             ['En cours de traitement', 'Refusée'],
-  'En cours de traitement':['Incomplète', 'Refusée', 'Validée'],
-  'Incomplète':            ['En cours de traitement'],
-  'Validée':               ['Remboursée'],
-  'Refusée':               [],
-  'Remboursée':            [],
-  'Supprimée':             [],
+  'Créée':       ['Incomplète'],
+  'Incomplète':  ['Complétée', 'Rejetée'],
+  'Complétée':   ['Remboursée', 'Rejetée'],
+  'Remboursée':  [],
+  'Rejetée':     [],
 };
 
 function genRef() {
@@ -79,7 +76,7 @@ router.post('/', authenticate, requireRole('medecin'), async (req, res) => {
   if (!med) return res.status(403).json({ error: 'Compte non lié à un médecin.' });
 
   const doublon = await db.prepare(
-    "SELECT id,reference FROM feuilles_maladie WHERE assure_id=? AND medecin_id=? AND date_consultation=? AND statut NOT IN ('Supprimée','Refusée')"
+    "SELECT id,reference FROM feuilles_maladie WHERE assure_id=? AND medecin_id=? AND date_consultation=? AND statut NOT IN ('Rejetée')"
   ).get(assure_id, med.id, date_consultation);
   if (doublon) return res.status(409).json({ error: `Doublon détecté : feuille ${doublon.reference} existe déjà.` });
 
@@ -89,7 +86,7 @@ router.post('/', authenticate, requireRole('medecin'), async (req, res) => {
 
   const info = await db.prepare(`
     INSERT INTO feuilles_maladie (reference,assure_id,medecin_id,date_consultation,diagnostic,actes_medicaux,statut,montant_honoraires,montant_remboursement,notes)
-    VALUES (?,?,?,?,?,?,'Brouillon',?,?,?)
+    VALUES (?,?,?,?,?,?,'Créée',?,?,?)
   `).run(ref, assure_id, med.id, date_consultation, diagnostic, actes_medicaux || null, mont, remb, notes || null);
 
   broadcast('data-change', { resource: 'feuilles' });
@@ -140,11 +137,11 @@ router.patch('/:id/completer', authenticate, requireRole('assureur'), async (req
 
   const feuille = await db.prepare('SELECT * FROM feuilles_maladie WHERE id=?').get(req.params.id);
   if (!feuille) return res.status(404).json({ error: 'Feuille introuvable.' });
-  if (['Remboursée','Supprimée','Refusée'].includes(feuille.statut))
+  if (['Remboursée','Rejetée'].includes(feuille.statut))
     return res.status(400).json({ error: `Impossible de compléter une feuille ${feuille.statut}.` });
 
   await db.prepare(`UPDATE feuilles_maladie SET montant_remboursement=?, mode_paiement=?, notes=COALESCE(?,notes),
-    statut=CASE WHEN statut='En cours de traitement' THEN 'Validée' ELSE statut END,
+    statut=CASE WHEN statut='Incomplète' THEN 'Complétée' ELSE statut END,
     updated_at=CURRENT_TIMESTAMP WHERE id=?`)
     .run(parseFloat(montant_remboursement), mode_paiement, notes || null, req.params.id);
 
