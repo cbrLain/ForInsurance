@@ -144,6 +144,9 @@ async function showAddMedecinTraitant() {
               </div>
               <div class="form-row">
                 <div class="form-group"><label>Téléphone</label><input id="amt-nm-tel" placeholder="699000000"/></div>
+                <div class="form-group"><label>Email *</label><input id="amt-nm-email" type="email" placeholder="medecin@example.cm"/></div>
+              </div>
+              <div class="form-row">
                 <div class="form-group"><label>N° d'agrément</label><input id="amt-nm-agr" placeholder="AGR-XXX"/></div>
               </div>
               <button class="btn btn-primary btn-sm" onclick="window._amtCreateMedecin()"><i class="fas fa-save"></i> Enregistrer et sélectionner</button>
@@ -251,10 +254,12 @@ async function showAddMedecinTraitant() {
     const nom = document.getElementById('amt-nm-nom').value.trim().toUpperCase();
     const prenom = document.getElementById('amt-nm-prenom').value.trim();
     const telephone = document.getElementById('amt-nm-tel').value.trim();
+    const email = document.getElementById('amt-nm-email').value.trim();
     const num_agrement = document.getElementById('amt-nm-agr').value.trim();
     if (!nom || !prenom) { err.textContent = 'Nom et prénom requis.'; err.classList.remove('hidden'); return; }
+    if (!email) { err.textContent = 'Email requis pour envoyer les identifiants de connexion.'; err.classList.remove('hidden'); return; }
     try {
-      const res = await Api.addMedecin({ nom, prenom, telephone, num_agrement, type: 'generaliste' });
+      const res = await Api.addMedecin({ nom, prenom, telephone, email, num_agrement, type: 'generaliste' });
       const medecins = await Api.getMedecins(nom, 'generaliste');
       const med = medecins.find(m => m.id === res.id) || medecins[0];
       _state.medecin = { id: med.id, nom: med.nom, prenom: med.prenom, identifiant: med.identifiant };
