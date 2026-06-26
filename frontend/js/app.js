@@ -59,11 +59,22 @@ function switchLandingTab(tab) {
   document.getElementById('ltab-' + tab).classList.add('active');
 }
 
-function switchToRegister() {
-  showLogin();
-  document.getElementById('reg-type')?.addEventListener('change', function() {
-    document.getElementById('reg-spec-group').style.display = this.value === 'specialiste' ? 'block' : 'none';
-  });
+function setLoginRole(role) {
+  document.querySelectorAll('.rtab').forEach(t => t.classList.remove('active'));
+  document.querySelector(`.rtab[data-role="${role}"]`).classList.add('active');
+  document.getElementById('f-id').placeholder = role === 'assureur' ? 'Identifiant assureur' : 'Identifiant médecin';
+}
+
+function toggleRegisterForm() {
+  const el = document.getElementById('register-collapse');
+  const ch = document.getElementById('reg-chevron');
+  el.classList.toggle('hidden');
+  ch.className = el.classList.contains('hidden') ? 'fas fa-chevron-down' : 'fas fa-chevron-up';
+  if (!el.classList.contains('hidden')) {
+    document.getElementById('reg-type')?.addEventListener('change', function() {
+      document.getElementById('reg-spec-group').style.display = this.value === 'specialiste' ? 'block' : 'none';
+    });
+  }
 }
 
 async function submitInscription() {
@@ -147,6 +158,9 @@ function showLogin() {
   document.getElementById('screen-landing').classList.add('hidden');
   document.getElementById('screen-login').classList.remove('hidden');
   document.getElementById('screen-app').classList.add('hidden');
+  document.getElementById('f-id').value = '';
+  document.getElementById('f-pw').value = '';
+  document.getElementById('login-err').classList.add('hidden');
 }
 
 // ── Navigation ────────────────────────────────────────────────

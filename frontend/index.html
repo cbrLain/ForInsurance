@@ -119,67 +119,80 @@
     <div style="position:absolute;top:20px;left:30px;">
       <button class="btn btn-secondary" onclick="showLanding()"><i class="fas fa-arrow-left"></i> ForInsurance</button>
     </div>
-    <div class="login-card">
-      <div class="login-logo">
-        <i class="fas fa-shield-alt logo-icon"></i>
-        <h1 class="logo-title">ForInsurance</h1>
-        <p class="logo-sub">Organisme de Sécurité Sociale · ENSPY 2025/2026</p>
+    <div class="login-wrapper">
+      <div class="login-card">
+        <div class="login-logo">
+          <i class="fas fa-shield-alt logo-icon"></i>
+          <h1 class="logo-title">ForInsurance</h1>
+          <p class="logo-sub">Organisme de Sécurité Sociale · ENSPY 2025/2026</p>
+        </div>
+
+        <div class="role-tabs">
+          <button class="rtab active" data-role="assureur" onclick="setLoginRole('assureur')">
+            <i class="fas fa-user-cog"></i> Assureur
+          </button>
+          <button class="rtab" data-role="medecin" onclick="setLoginRole('medecin')">
+            <i class="fas fa-user-md"></i> Médecin
+          </button>
+        </div>
+
+        <form id="login-form">
+          <div class="form-group">
+            <label for="f-id">Identifiant</label>
+            <input id="f-id" type="text" placeholder="Identifiant" autocomplete="username"/>
+          </div>
+          <div class="form-group">
+            <label for="f-pw">Mot de passe</label>
+            <input id="f-pw" type="password" placeholder="••••••••" autocomplete="current-password"/>
+          </div>
+          <div id="login-err" class="alert alert-error hidden"></div>
+          <button type="submit" class="btn btn-primary btn-full" id="btn-login">
+            <span class="btn-text">Se connecter</span>
+            <i class="fas fa-spinner btn-spinner hidden" style="animation: spin 1s linear infinite"></i>
+          </button>
+        </form>
+
+        <div class="login-register-link">
+          Vous êtes médecin et n'avez pas encore de compte ?
+          <a href="#" onclick="toggleRegisterForm();return false">Créer un compte <i class="fas fa-chevron-down" id="reg-chevron"></i></a>
+        </div>
       </div>
-      <form id="login-form">
-        <div class="form-group">
-          <label for="f-id">Identifiant</label>
-          <input id="f-id" type="text" placeholder="Identifiant" autocomplete="username"/>
-        </div>
-        <div class="form-group">
-          <label for="f-pw">Mot de passe</label>
-          <input id="f-pw" type="password" placeholder="••••••••" autocomplete="current-password"/>
-        </div>
-        <div id="login-err" class="alert alert-error hidden"></div>
-        <button type="submit" class="btn btn-primary btn-full" id="btn-login">
-          <span class="btn-text">Se connecter</span>
-          <i class="fas fa-spinner btn-spinner hidden" style="animation: spin 1s linear infinite"></i>
-        </button>
-      </form>
-    </div>
 
-    <div class="login-divider">
-      <span>Pas encore inscrit ?</span>
-    </div>
-
-    <div class="login-card" id="register-card" style="margin-top:0;border-top-left-radius:0;border-top-right-radius:0">
-      <div style="text-align:center;margin-bottom:14px">
-        <h3 style="margin:0;font-size:1rem">Inscription médecin</h3>
-        <p style="font-size:.8rem;color:var(--text-muted);margin:4px 0 0">
-          Créez votre compte. Un agent validera votre inscription.
+      <div id="register-collapse" class="login-card register-card hidden">
+        <div style="text-align:center;margin-bottom:16px">
+          <h3 style="margin:0;font-size:1.05rem"><i class="fas fa-user-md" style="color:var(--primary)"></i> Inscription médecin</h3>
+          <p style="font-size:.82rem;color:var(--text-muted);margin:4px 0 0">
+            Remplissez ce formulaire. Un agent validera votre inscription.
+          </p>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Nom *</label><input id="reg-nom" placeholder="TALLA" style="text-transform:uppercase"/></div>
+          <div class="form-group"><label>Prénom *</label><input id="reg-prenom" placeholder="Sylvain"/></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Email *</label><input id="reg-email" type="email" placeholder="medecin@example.cm"/></div>
+          <div class="form-group"><label>Téléphone</label><input id="reg-tel" placeholder="699000000"/></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>N° d'agrément *</label><input id="reg-agr" placeholder="AGR-XXX"/></div>
+          <div class="form-group">
+            <label>Type *</label>
+            <select id="reg-type">
+              <option value="generaliste">Généraliste</option>
+              <option value="specialiste">Spécialiste</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group" id="reg-spec-group" style="display:none">
+          <label>Spécialité *</label>
+          <input id="reg-spec" placeholder="Cardiologie, Neurologie…"/>
+        </div>
+        <div id="reg-err" class="alert alert-error hidden" style="margin-top:10px"></div>
+        <button class="btn btn-primary btn-full" onclick="submitInscription()" style="margin-top:14px"><i class="fas fa-paper-plane"></i> Envoyer la demande</button>
+        <p style="text-align:center;margin-top:10px;color:var(--text-muted);font-size:.78rem">
+          Vous recevrez vos identifiants par email après validation.
         </p>
       </div>
-      <div class="form-row">
-        <div class="form-group"><label>Nom *</label><input id="reg-nom" placeholder="TALLA" style="text-transform:uppercase"/></div>
-        <div class="form-group"><label>Prénom *</label><input id="reg-prenom" placeholder="Sylvain"/></div>
-      </div>
-      <div class="form-row">
-        <div class="form-group"><label>Email *</label><input id="reg-email" type="email" placeholder="medecin@example.cm"/></div>
-        <div class="form-group"><label>Téléphone</label><input id="reg-tel" placeholder="699000000"/></div>
-      </div>
-      <div class="form-row">
-        <div class="form-group"><label>N° d'agrément *</label><input id="reg-agr" placeholder="AGR-XXX"/></div>
-        <div class="form-group">
-          <label>Type *</label>
-          <select id="reg-type">
-            <option value="generaliste">Généraliste</option>
-            <option value="specialiste">Spécialiste</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-group" id="reg-spec-group" style="display:none">
-        <label>Spécialité *</label>
-        <input id="reg-spec" placeholder="Cardiologie, Neurologie…"/>
-      </div>
-      <div id="reg-err" class="alert alert-error hidden" style="margin-top:10px"></div>
-      <button class="btn btn-primary btn-full" onclick="submitInscription()" style="margin-top:14px"><i class="fas fa-paper-plane"></i> Envoyer la demande</button>
-      <p style="text-align:center;margin-top:10px;color:var(--text-muted);font-size:.78rem">
-        Vous recevrez vos identifiants par email après validation par un agent.
-      </p>
     </div>
   </div>
 
