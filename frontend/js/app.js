@@ -65,16 +65,15 @@ function setLoginRole(role) {
   document.getElementById('f-id').placeholder = role === 'assureur' ? 'Identifiant assureur' : 'Identifiant médecin';
 }
 
-function toggleRegisterForm() {
-  const el = document.getElementById('register-collapse');
-  const ch = document.getElementById('reg-chevron');
-  el.classList.toggle('hidden');
-  ch.className = el.classList.contains('hidden') ? 'fas fa-chevron-down' : 'fas fa-chevron-up';
-  if (!el.classList.contains('hidden')) {
-    document.getElementById('reg-type')?.addEventListener('change', function() {
-      document.getElementById('reg-spec-group').style.display = this.value === 'specialiste' ? 'block' : 'none';
-    });
-  }
+function showRegisterScreen() {
+  document.getElementById('screen-landing').classList.add('hidden');
+  document.getElementById('screen-login').classList.add('hidden');
+  document.getElementById('screen-app').classList.add('hidden');
+  document.getElementById('screen-register').classList.remove('hidden');
+  document.getElementById('reg-err').classList.add('hidden');
+  document.getElementById('reg-type')?.addEventListener('change', function() {
+    document.getElementById('reg-spec-group').style.display = this.value === 'specialiste' ? 'block' : 'none';
+  });
 }
 
 async function submitInscription() {
@@ -106,7 +105,7 @@ async function submitInscription() {
     ['reg-nom','reg-prenom','reg-email','reg-tel','reg-agr','reg-spec'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('reg-type').value = 'generaliste';
     document.getElementById('reg-spec-group').style.display = 'none';
-    showLanding();
+    showLogin();
   } catch(err) {
     errEl.textContent = err.message;
     errEl.classList.remove('hidden');
@@ -127,6 +126,7 @@ document.getElementById('btn-logout').onclick = () => {
 function showApp(user) {
   document.getElementById('screen-landing').classList.add('hidden');
   document.getElementById('screen-login').classList.add('hidden');
+  document.getElementById('screen-register').classList.add('hidden');
   document.getElementById('screen-app').classList.remove('hidden');
 
   // UI utilisateur
@@ -151,12 +151,14 @@ function showApp(user) {
 function showLanding() {
   document.getElementById('screen-landing').classList.remove('hidden');
   document.getElementById('screen-login').classList.add('hidden');
+  document.getElementById('screen-register').classList.add('hidden');
   document.getElementById('screen-app').classList.add('hidden');
 }
 
 function showLogin() {
   document.getElementById('screen-landing').classList.add('hidden');
   document.getElementById('screen-login').classList.remove('hidden');
+  document.getElementById('screen-register').classList.add('hidden');
   document.getElementById('screen-app').classList.add('hidden');
   document.getElementById('f-id').value = '';
   document.getElementById('f-pw').value = '';
