@@ -52,11 +52,6 @@ document.getElementById('login-form').addEventListener('submit', async e => {
   }
 });
 
-function demo(id, pw) {
-  document.getElementById('f-id').value = id;
-  document.getElementById('f-pw').value = pw;
-}
-
 function switchLandingTab(tab) {
   document.querySelectorAll('.ltab').forEach(t => t.classList.remove('active'));
   document.querySelector(`.ltab[data-ltab="${tab}"]`).classList.add('active');
@@ -64,11 +59,47 @@ function switchLandingTab(tab) {
   document.getElementById('ltab-' + tab).classList.add('active');
 }
 
-function setRole(role) {
-  document.querySelectorAll('.rtab').forEach(t => t.classList.remove('active'));
-  document.querySelector(`.rtab[data-role="${role}"]`).classList.add('active');
-  const creds = { assureur: ['assureur01','assureur123'], medecin: ['medecin01','medecin123'] };
-  demo(creds[role][0], creds[role][1]);
+function switchToRegister() {
+  showLogin();
+  document.getElementById('reg-type')?.addEventListener('change', function() {
+    document.getElementById('reg-spec-group').style.display = this.value === 'specialiste' ? 'block' : 'none';
+  });
+}
+
+async function submitInscription() {
+  const nom = document.getElementById('reg-nom').value.trim();
+  const prenom = document.getElementById('reg-prenom').value.trim();
+  const email = document.getElementById('reg-email').value.trim();
+  const tel = document.getElementById('reg-tel').value.trim();
+  const agrement = document.getElementById('reg-agr').value.trim();
+  const type = document.getElementById('reg-type').value;
+  const specialite = document.getElementById('reg-spec').value.trim();
+  const errEl = document.getElementById('reg-err');
+
+  if (!nom || !prenom || !email || !agrement) {
+    errEl.textContent = 'Veuillez remplir tous les champs obligatoires (*).';
+    errEl.classList.remove('hidden');
+    return;
+  }
+
+  errEl.classList.add('hidden');
+  try {
+    const res = await fetch('/api/auth/register-medecin', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nom, prenom, email, tel, agrement, type, specialite })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Erreur lors de l\'inscription');
+    alert('Demande envoyée ! Vous recevrez vos identifiants par email après validation.');
+    ['reg-nom','reg-prenom','reg-email','reg-tel','reg-agr','reg-spec'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('reg-type').value = 'generaliste';
+    document.getElementById('reg-spec-group').style.display = 'none';
+    showLanding();
+  } catch(err) {
+    errEl.textContent = err.message;
+    errEl.classList.remove('hidden');
+  }
 }
 
 // ── Déconnexion ───────────────────────────────────────────────

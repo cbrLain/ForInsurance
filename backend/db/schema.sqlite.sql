@@ -50,8 +50,8 @@ CREATE TABLE IF NOT EXISTS feuilles_maladie (
   diagnostic           TEXT NOT NULL,
   actes_medicaux       TEXT,
   statut               TEXT CHECK(statut IN (
-    'Créée','Incomplète','Complétée','Remboursée','Rejetée'
-  )) DEFAULT 'Créée',
+    'Incomplète','Complétée','Remboursée','Rejetée'
+  )) DEFAULT 'Incomplète',
   montant_honoraires   REAL,
   montant_remboursement REAL,
   taux_remboursement   REAL DEFAULT 0.7,
@@ -100,4 +100,18 @@ CREATE TABLE IF NOT EXISTS prescription_consultation (
   specialite_requise TEXT NOT NULL,
   urgence           TEXT CHECK(urgence IN ('normale','urgente')) DEFAULT 'normale',
   motif             TEXT
+);
+
+CREATE TABLE IF NOT EXISTS demandes_inscription (
+  id                INTEGER PRIMARY KEY AUTOINCREMENT,
+  nom               TEXT NOT NULL,
+  prenom            TEXT NOT NULL,
+  email             TEXT NOT NULL,
+  telephone         TEXT,
+  num_agrement      TEXT,
+  type              TEXT CHECK(type IN ('generaliste','specialiste')) NOT NULL,
+  specialite        TEXT,
+  statut            TEXT CHECK(statut IN ('en_attente','approuvee','rejetee')) DEFAULT 'en_attente',
+  motif_rejet       TEXT,
+  created_at        TEXT DEFAULT CURRENT_TIMESTAMP
 );

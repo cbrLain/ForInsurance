@@ -14,6 +14,7 @@ const insertUser = db.prepare(`
 `);
 const hash = (p) => bcrypt.hashSync(p, 10);
 
+insertUser.run('admin', hash('AdminForInsurance2025!'), 'assureur', 'SYSTEM', 'Admin');
 insertUser.run('assureur01', hash('assureur123'), 'assureur', 'NOUMSSI', 'Elvira');
 insertUser.run('assureur02', hash('assureur123'), 'assureur', 'ABONDO', 'Mark');
 insertUser.run('medecin01',  hash('medecin123'),  'medecin',  'MAWAMBA', 'Princesse');
@@ -96,7 +97,7 @@ insertFeuille.run('FM-2024-005', a1, med1Id, '2024-05-12', 'Rhinite allergique',
   'Tests cutanés allergènes', 'Rejetée', 18000, null, 0.7, null, 'Dossier incomplet - délai dépassé');
 
 insertFeuille.run('FM-2024-006', a2, med2Id, '2024-06-01', 'Bronchite aiguë',
-  'Radiographie pulmonaire', 'Créée', 12000, null, 0.7, null, null);
+  'Radiographie pulmonaire', 'Incomplète', 12000, null, 0.7, null, null);
 
 // ── Remboursement ──────────────────────────────────────────────
 const f1 = db.prepare("SELECT id FROM feuilles_maladie WHERE reference='FM-2024-001'").get()?.id;

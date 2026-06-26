@@ -54,7 +54,6 @@ async function viewFeuille(id) {
   try {
     const f = await Api.getFeuille(id);
     const transitions = {
-      'Créée': ['Incomplète'],
       'Incomplète': ['Rejetée'],
       'Complétée': ['Rejetée'],
     };
@@ -144,14 +143,14 @@ function submitCompleter(id) {
 }
 
 function showCompleterByRef() {
-  // Version avec recherche par référence (étape 1 + étape 2)
   Modal.open('Compléter une feuille de maladie', `
     <p style="color:var(--text-muted);font-size:.82rem;margin-bottom:14px">
-      <strong>Étape 1 :</strong> saisissez le code de la feuille de maladie à compléter.
+      <strong>Étape 1 :</strong> tapez le code de la feuille — les résultats apparaissent automatiquement.
     </p>
-    <div class="form-group">
+    <div class="form-group" style="position:relative">
       <label>Code de la feuille *</label>
-      <input id="c-ref" placeholder="FM-2026-XXXXXX" oninput="window._cRefSearch()"/>
+      <input id="c-ref" placeholder="FM-2026-XXXXXX" autocomplete="off" oninput="window._cRefSearch()" onblur="setTimeout(()=>document.getElementById('c-results').style.display='none',200)" onfocus="if(this.value.length>=2)document.getElementById('c-results').style.display='block'"/>
+      <div id="c-results" class="autocomplete-dropdown" style="display:none"></div>
       <div id="c-ref-info" style="margin-top:6px;font-size:.85rem"></div>
     </div>
     <div id="c-form" style="display:none">
@@ -181,31 +180,53 @@ function showCompleterByRef() {
     return function() {
       clearTimeout(timer);
       const ref = document.getElementById('c-ref').value.trim();
-      const info = document.getElementById('c-ref-info');
+      const results = document.getElementById('c-results');
       const form = document.getElementById('c-form');
       form.style.display = 'none';
-      if (ref.length < 5) { info.textContent = ''; return; }
-      info.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Vérification…';
-      info.style.color = 'var(--text-muted)';
+      if (ref.length < 2) { results.style.display = 'none'; results.innerHTML = ''; return; }
+      results.innerHTML = '<div class="autocomplete-item disabled"><i class="fas fa-spinner fa-spin"></i> Recherche…</div>';
+      results.style.display = 'block';
       timer = setTimeout(async () => {
         try {
-          const feuille = await Api.getFeuilleByRef(ref);
-          info.innerHTML = `<i class="fas fa-check-circle"></i> Feuille trouvée : <strong>${feuille.assure_nom}</strong> — ${feuille.diagnostic}`;
-          info.style.color = 'var(--primary)';
-          form.style.display = 'block';
-          form.dataset.feuilleId = feuille.id;
-        } catch(e) {
-          if (e.message === 'Remboursement déjà effectué.') {
-            info.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Remboursement déjà effectué';
-            info.style.color = 'var(--warning)';
-          } else {
-            info.innerHTML = '<i class="fas fa-times-circle"></i> Feuille introuvable';
-            info.style.color = 'var(--danger)';
+          const token = localStorage.getItem('ss_token');
+          const res = await fetch('/api/feuilles/search?q=' + encodeURIComponent(ref), {
+            headers: { 'Authorization': 'Bearer ' + token }
+          });
+          const list = await res.json();
+          if (!list.length) {
+            results.innerHTML = '<div class="autocomplete-item disabled">Aucune feuille trouvée</div>';
+            return;
           }
+          results.innerHTML = list.map(f => `
+            <div class="autocomplete-item" data-id="${f.id}" data-ref="${f.reference}" onclick="window._cPickFeuille(${f.id},'${f.reference}')">
+              <strong>${f.reference}</strong>
+              <span style="float:right;font-size:.75rem">${badgeStatut(f.statut)}</span>
+              <br><small>${f.assure_nom} · Dr. ${f.medecin_nom}</small>
+            </div>
+          `).join('');
+        } catch(e) {
+          results.innerHTML = '<div class="autocomplete-item disabled">Erreur de recherche</div>';
         }
-      }, 300);
+      }, 250);
     };
   })();
+
+  window._cPickFeuille = async function(id, ref) {
+    document.getElementById('c-results').style.display = 'none';
+    document.getElementById('c-ref').value = ref;
+    const info = document.getElementById('c-ref-info');
+    const form = document.getElementById('c-form');
+    try {
+      const feuille = await Api.getFeuilleByRef(ref);
+      info.innerHTML = `<i class="fas fa-check-circle"></i> ${feuille.assure_nom} — ${feuille.diagnostic}`;
+      info.style.color = 'var(--primary)';
+      form.style.display = 'block';
+      form.dataset.feuilleId = feuille.id;
+    } catch(e) {
+      info.innerHTML = '<i class="fas fa-times-circle"></i> ' + e.message;
+      info.style.color = 'var(--danger)';
+    }
+  };
 }
 
 async function submitCompleterByRef() {
@@ -269,8 +290,7 @@ function renderMesFeuilles(rows) {
       <td>${badgeStatut(f.statut)}</td>
       <td><div class="t-actions">
         <button class="btn btn-sm btn-secondary" onclick="viewFeuille(${f.id})"><i class="fas fa-eye"></i> Voir</button>
-        ${f.statut === 'Créée' ? `<button class="btn btn-sm btn-primary" onclick="changerStatutFeuille(${f.id},'Incomplète')"><i class="fas fa-paper-plane"></i> Soumettre</button>` : ''}
-        ${f.statut === 'Créée' ? `<button class="btn btn-sm btn-danger" onclick="supprimerFeuille(${f.id})"><i class="fas fa-trash-alt"></i> Supprimer</button>` : ''}
+        ${f.statut === 'Incomplète' ? `<button class="btn btn-sm btn-danger" onclick="supprimerFeuille(${f.id})"><i class="fas fa-trash-alt"></i> Supprimer</button>` : ''}
       </div></td>
     </tr>
   `).join('');

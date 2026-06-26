@@ -11,12 +11,13 @@ router.get('/', authenticate, async (req, res) => {
     const totalMedecins   = (await db.prepare('SELECT COUNT(*) AS n FROM medecins').get()).n;
     const totalFeuilles   = (await db.prepare('SELECT COUNT(*) AS n FROM feuilles_maladie').get()).n;
     const totalRemb       = (await db.prepare("SELECT COALESCE(SUM(montant),0) AS s FROM remboursements WHERE statut='effectue'").get()).s;
+    const demandesEnAttente = (await db.prepare("SELECT COUNT(*) AS n FROM demandes_inscription WHERE statut='en_attente'").get()).n;
     const parStatut       = await db.prepare("SELECT statut, COUNT(*) AS n FROM feuilles_maladie GROUP BY statut").all();
     const activiteRecente = await db.prepare(`
       SELECT 'Feuille ' || reference AS texte, statut, created_at AS date
       FROM feuilles_maladie ORDER BY created_at DESC LIMIT 8
     `).all();
-    res.json({ totalAssures, totalMedecins, totalFeuilles, totalRemb, parStatut, activiteRecente });
+    res.json({ totalAssures, totalMedecins, totalFeuilles, totalRemb, demandesEnAttente, parStatut, activiteRecente });
   } else {
     const med = await db.prepare('SELECT id FROM medecins WHERE utilisateur_id=?').get(req.user.id);
     const medecinId = med?.id;

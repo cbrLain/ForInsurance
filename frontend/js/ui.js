@@ -38,7 +38,6 @@ document.getElementById('modal').addEventListener('click', e => {
 // ── Badges statut feuille ─────────────────────────────────────
 function badgeStatut(s) {
   const map = {
-    'Créée':      { c: '#6c757d', i: 'fas fa-pen' },
     'Incomplète': { c: '#f59e0b', i: 'fas fa-exclamation-circle' },
     'Complétée':  { c: '#059669', i: 'fas fa-check-square' },
     'Remboursée': { c: '#16a34a', i: 'fas fa-money-bill-wave' },
@@ -89,7 +88,7 @@ function drawDonut(canvasId, data) {
   if (!canvas || !data?.length) return;
   const ctx = canvas.getContext('2d');
   const colors = {
-    'Créée':'#e2e8f0','Incomplète':'#fcd34d','Complétée':'#86efac',
+    'Incomplète':'#fcd34d','Complétée':'#86efac',
     'Remboursée':'#16a34a','Rejetée':'#ef4444'
   };
   const total = data.reduce((s, d) => s + d.n, 0);

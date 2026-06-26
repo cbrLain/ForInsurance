@@ -6,7 +6,6 @@ const { broadcast } = require('../socket');
 
 // Transitions d'état autorisées
 const TRANSITIONS = {
-  'Créée':       ['Incomplète'],
   'Incomplète':  ['Complétée', 'Rejetée'],
   'Complétée':   ['Remboursée', 'Rejetée'],
   'Remboursée':  [],
@@ -86,7 +85,7 @@ router.post('/', authenticate, requireRole('medecin'), async (req, res) => {
 
   const info = await db.prepare(`
     INSERT INTO feuilles_maladie (reference,assure_id,medecin_id,date_consultation,diagnostic,actes_medicaux,statut,montant_honoraires,montant_remboursement,notes)
-    VALUES (?,?,?,?,?,?,'Créée',?,?,?)
+    VALUES (?,?,?,?,?,?,'Incomplète',?,?,?)
   `).run(ref, assure_id, med.id, date_consultation, diagnostic, actes_medicaux || null, mont, remb, notes || null);
 
   broadcast('data-change', { resource: 'feuilles' });
@@ -124,6 +123,33 @@ router.get('/reference/:ref', authenticate, async (req, res) => {
   if (row.statut === 'Remboursée')
     return res.status(400).json({ error: 'Remboursement déjà effectué.' });
   res.json(row);
+});
+
+// GET /api/feuilles/search?q= — Autocomplete de références
+router.get('/search', authenticate, async (req, res) => {
+  const db = getDb();
+  const { q } = req.query;
+  if (!q || q.length < 2) return res.json([]);
+
+  let sql = `SELECT f.id, f.reference, f.statut,
+    pa.nom || ' ' || pa.prenom AS assure_nom,
+    pm.nom || ' ' || pm.prenom AS medecin_nom
+    FROM feuilles_maladie f
+    JOIN assures a ON a.id = f.assure_id
+    JOIN personnes pa ON pa.id = a.personne_id
+    JOIN medecins m ON m.id = f.medecin_id
+    JOIN personnes pm ON pm.id = m.personne_id
+    WHERE f.reference LIKE ?`;
+
+  const params = [`%${q}%`];
+
+  if (req.user.role === 'medecin') {
+    const med = await db.prepare('SELECT id FROM medecins WHERE utilisateur_id=?').get(req.user.id);
+    if (med) { sql += ' AND f.medecin_id = ?'; params.push(med.id); }
+  }
+
+  sql += ' ORDER BY f.created_at DESC LIMIT 10';
+  res.json(await db.prepare(sql).all(...params));
 });
 
 // PATCH /api/feuilles/:id/completer — Compléter (assureur)
