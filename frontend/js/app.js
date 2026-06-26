@@ -7,6 +7,10 @@ let currentPage  = 'dashboard';
 // ── Socket.IO (temps réel) ────────────────────────────────────
 const socket = io();
 socket.on('data-change', (payload) => {
+  const user = JSON.parse(localStorage.getItem('ss_user') || 'null');
+  if (payload.resource === 'demandes' && user?.role === 'assureur') {
+    toast('📩 Nouvelle demande d\'inscription reçue !', 'info', 5000);
+  }
   if (currentPage) loadPage(currentPage);
 });
 

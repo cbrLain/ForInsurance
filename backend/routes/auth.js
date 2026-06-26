@@ -57,7 +57,7 @@ router.post('/register-medecin', async (req, res) => {
     console.error('Email error:', e.message);
   }
 
-  broadcast('data-change', { resource: 'demandes' });
+  broadcast('data-change', { resource: 'demandes', nom, prenom, email });
   res.status(201).json({ message: 'Demande envoyée.' });
 });
 
