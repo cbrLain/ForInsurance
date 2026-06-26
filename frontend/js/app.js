@@ -135,7 +135,6 @@ function navigateTo(page) {
   const titles = {
     'dashboard':          'Tableau de bord',
     'assures':            'Gestion des Assurés',
-    'medecins':           'Gestion des Médecins',
     'feuilles':           'Feuilles de Maladie',
     'remboursements':     'Remboursements',
     'mes-feuilles':       'Mes Feuilles de Maladie',
@@ -157,7 +156,6 @@ function loadPage(page) {
   switch(page) {
     case 'dashboard':          loadDashboard(role); break;
     case 'assures':            loadAssures(); break;
-    case 'medecins':           loadMedecins(); break;
     case 'feuilles':           loadFeuilles(); break;
     case 'remboursements':     loadRemboursements(); break;
     case 'mes-feuilles':       loadMesFeuilles(); break;

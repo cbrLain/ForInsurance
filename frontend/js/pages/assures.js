@@ -95,8 +95,18 @@ async function editMedecinTraitant(assureId) {
   Modal.open('Enregistrer un médecin traitant', `
     <p style="color:var(--text-muted);font-size:.82rem;margin-bottom:14px">Seuls les médecins généralistes sont éligibles comme médecin traitant.</p>
     <div class="form-group">
-      <label>Médecin généraliste *</label>
-      <select id="mt-select"><option value="">-- Sélectionner --</option>${opts}</select>
+      <label><input type="radio" name="mt-mode" value="existing" checked onchange="toggleMtMode()"> Sélectionner un médecin existant</label>
+      <select id="mt-select" style="margin-top:6px"><option value="">-- Sélectionner --</option>${opts}</select>
+    </div>
+    <div class="form-group">
+      <label><input type="radio" name="mt-mode" value="new" onchange="toggleMtMode()"> Créer un nouveau médecin traitant</label>
+      <div id="mt-new-fields" style="display:none;margin-top:8px">
+        <div class="form-row">
+          <div class="form-group"><label>Nom *</label><input id="mt-nom" placeholder="TALLA" style="text-transform:uppercase"/></div>
+          <div class="form-group"><label>Prénom *</label><input id="mt-prenom" placeholder="Sylvain"/></div>
+        </div>
+        <div class="form-group"><label>Téléphone</label><input id="mt-tel" placeholder="699000000"/></div>
+      </div>
     </div>
     <div id="mt-err" class="alert alert-error hidden"></div>
   `, `
@@ -105,10 +115,35 @@ async function editMedecinTraitant(assureId) {
   `);
 }
 
+function toggleMtMode() {
+  const mode = document.querySelector('input[name="mt-mode"]:checked')?.value;
+  document.getElementById('mt-select').disabled = mode !== 'existing';
+  document.getElementById('mt-new-fields').style.display = mode === 'new' ? 'block' : 'none';
+}
+
 async function submitMedecinTraitant(assureId) {
-  const medId = document.getElementById('mt-select').value;
   const err   = document.getElementById('mt-err');
-  if (!medId) { err.textContent = 'Veuillez sélectionner un médecin.'; err.classList.remove('hidden'); return; }
+  err.classList.add('hidden');
+  const mode = document.querySelector('input[name="mt-mode"]:checked')?.value;
+
+  let medId;
+  if (mode === 'new') {
+    const nom    = document.getElementById('mt-nom').value.trim();
+    const prenom = document.getElementById('mt-prenom').value.trim();
+    const tel    = document.getElementById('mt-tel').value.trim() || null;
+    if (!nom || !prenom) {
+      err.textContent = 'Nom et prénom du médecin sont obligatoires.';
+      err.classList.remove('hidden'); return;
+    }
+    try {
+      const result = await Api.addMedecin({ nom, prenom, telephone: tel, type: 'generaliste' });
+      medId = result.id;
+    } catch(e) { err.textContent = e.message; err.classList.remove('hidden'); return; }
+  } else {
+    medId = document.getElementById('mt-select').value;
+    if (!medId) { err.textContent = 'Veuillez sélectionner un médecin.'; err.classList.remove('hidden'); return; }
+  }
+
   try {
     await Api.setMedecinTraitant(assureId, parseInt(medId));
     Modal.close(); toast('Médecin traitant enregistré !', 'success');

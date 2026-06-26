@@ -166,7 +166,6 @@
         <div id="nav-assureur" class="hidden">
           <div class="s-label">Gestion</div>
           <a class="s-item" data-page="assures"><i class="fas fa-users s-icon"></i><span class="s-text">Assurés</span></a>
-          <a class="s-item" data-page="medecins"><i class="fas fa-user-md s-icon"></i><span class="s-text">Médecins</span></a>
           <div class="s-label">Remboursements</div>
           <a class="s-item" data-page="feuilles"><i class="fas fa-file-medical-alt s-icon"></i><span class="s-text">Feuilles de maladie</span></a>
           <a class="s-item" data-page="remboursements"><i class="fas fa-credit-card s-icon"></i><span class="s-text">Remboursements</span></a>
@@ -230,24 +229,7 @@
           </div>
         </section>
 
-        <!-- MÉDECINS -->
-        <section id="page-medecins" class="page">
-          <div class="page-bar">
-            <div style="position:relative;flex:1;min-width:200px">
-              <i class="fas fa-search" style="position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:13px"></i>
-              <input class="search" id="q-medecins" placeholder="Rechercher un médecin…" style="padding-left:32px"/>
-            </div>
-            <button class="btn btn-primary" id="btn-add-medecin"><i class="fas fa-plus"></i> Enregistrer un médecin</button>
-          </div>
-          <div class="card">
-            <div class="card-bd p0">
-              <table class="tbl" id="tbl-medecins">
-                <thead><tr><th>ID</th><th>Nom complet</th><th>Type</th><th>Spécialité</th><th>Téléphone</th><th>Actions</th></tr></thead>
-                <tbody id="tbody-medecins"></tbody>
-              </table>
-            </div>
-          </div>
-        </section>
+
 
         <!-- FEUILLES -->
         <section id="page-feuilles" class="page">
@@ -367,7 +349,6 @@
 <script src="js/ui.js"></script>
 <script src="js/pages/dashboard.js"></script>
 <script src="js/pages/assures.js"></script>
-<script src="js/pages/medecins.js"></script>
 <script src="js/pages/feuilles.js"></script>
 <script src="js/pages/remboursements.js"></script>
 <script src="js/pages/prescriptions.js"></script>
