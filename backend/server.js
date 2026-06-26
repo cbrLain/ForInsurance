@@ -22,7 +22,10 @@ async function start() {
   await require('./db/database').initDb();
 
   // ── Socket.IO (temps réel) ────────────────────────────────────
-  initSocket(server);
+  const io = initSocket(server);
+  io.engine.on('connection_error', (err) => {
+    console.error('⚠️ Socket.IO connection error:', err.message);
+  });
 
   process.on('SIGINT', () => process.exit());
   process.on('SIGTERM', () => process.exit());
@@ -51,8 +54,11 @@ async function start() {
     res.status(500).json({ error: 'Erreur interne du serveur.' });
   });
 
-  server.listen(PORT, () => {
-    console.log(`\n🏥  SecuraSanté API démarrée sur http://localhost:${PORT}`);
+  server.listen(PORT, '0.0.0.0', () => {
+    const host = process.env.RENDER_EXTERNAL_URL || `http://localhost:${PORT}`;
+    console.log(`\n🏥  SecuraSanté API démarrée`);
+    console.log(`🌐  URL: ${host}`);
+    console.log(`📧  SMTP: ${process.env.SMTP_HOST || 'non configuré'}`);
     console.log(`📋  Endpoints disponibles :`);
     console.log(`    POST /api/auth/login`);
     console.log(`    GET  /api/assures`);
