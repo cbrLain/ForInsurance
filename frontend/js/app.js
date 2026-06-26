@@ -74,6 +74,8 @@ function showRegisterScreen() {
   document.getElementById('screen-login').classList.add('hidden');
   document.getElementById('screen-app').classList.add('hidden');
   document.getElementById('screen-register').classList.remove('hidden');
+  document.getElementById('reg-form').classList.remove('hidden');
+  document.getElementById('reg-success').classList.add('hidden');
   document.getElementById('reg-err').classList.add('hidden');
   document.getElementById('reg-type')?.addEventListener('change', function() {
     document.getElementById('reg-spec-group').style.display = this.value === 'specialiste' ? 'block' : 'none';
@@ -101,15 +103,15 @@ async function submitInscription() {
     const res = await fetch('/api/auth/register-medecin', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ nom, prenom, email, tel, agrement, type, specialite })
+      body: JSON.stringify({ nom, prenom, email, telephone:tel, agrement, type, specialite })
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Erreur lors de l\'inscription');
-    alert('Demande envoyée ! Vous recevrez vos identifiants par email après validation.');
+    document.getElementById('reg-form').classList.add('hidden');
+    document.getElementById('reg-success').classList.remove('hidden');
     ['reg-nom','reg-prenom','reg-email','reg-tel','reg-agr','reg-spec'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('reg-type').value = 'generaliste';
     document.getElementById('reg-spec-group').style.display = 'none';
-    showLogin();
   } catch(err) {
     errEl.textContent = err.message;
     errEl.classList.remove('hidden');

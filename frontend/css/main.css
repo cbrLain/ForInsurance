@@ -145,6 +145,15 @@ ul{list-style:none}
 .register-hero h1{font-size:1.6rem;font-weight:700;color:var(--text);margin:0}
 .register-hero p{color:var(--text-muted);font-size:.88rem;margin-top:6px}
 .register-form-card{background:var(--bg-white);width:480px;max-width:94vw;border-radius:10px;padding:36px;box-shadow:var(--shadow-lg);border:1px solid var(--border)}
+.btn-back{position:fixed;top:20px;left:30px;display:flex;align-items:center;gap:6px;padding:8px 14px;border:none;border-radius:var(--radius);background:var(--bg-white);color:var(--text);font-size:.85rem;font-weight:600;cursor:pointer;box-shadow:var(--shadow-sm);border:1px solid var(--border);transition:all .12s;z-index:10}
+.btn-back:hover{box-shadow:var(--shadow);background:#f8f9fa}
+@media(max-width:600px){
+  .screen#screen-register{padding:80px 14px 30px}
+  .register-form-card{padding:24px 18px}
+  .btn-back{top:12px;left:12px;padding:6px 10px;font-size:.78rem}
+  .register-hero h1{font-size:1.3rem}
+  .register-hero-icon{font-size:36px}
+}
 
 /* ── AUTOCOMPLETE ─────────────────────────────────────── */
 .autocomplete-dropdown{
