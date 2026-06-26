@@ -132,7 +132,7 @@ async function showAddMedecinTraitant() {
             <input id="amt-sm" placeholder="Saisir le nom ou numéro d'agrément…" oninput="window._amtSearchMedecin()"/>
             <div id="amt-sm-results" class="search-results"></div>
             <button class="btn btn-sm btn-link" onclick="window._amtShowNewMedecin()" style="margin-top:8px">
-              <i class="fas fa-plus-circle"></i> Créer un nouveau médecin traitant
+              <i class="fas fa-plus-circle"></i> Nouveau médecin traitant
             </button>
             <div id="amt-new-med" style="display:none;margin-top:10px;padding:12px;border:1px solid var(--border);border-radius:6px">
               <p style="font-weight:600;margin-bottom:8px">Nouveau médecin généraliste</p>
@@ -144,7 +144,7 @@ async function showAddMedecinTraitant() {
                 <div class="form-group"><label>Téléphone</label><input id="amt-nm-tel" placeholder="699000000"/></div>
                 <div class="form-group"><label>N° d'agrément</label><input id="amt-nm-agr" placeholder="AGR-XXX"/></div>
               </div>
-              <button class="btn btn-primary btn-sm" onclick="window._amtCreateMedecin()"><i class="fas fa-save"></i> Créer et sélectionner</button>
+              <button class="btn btn-primary btn-sm" onclick="window._amtCreateMedecin()"><i class="fas fa-save"></i> Enregistrer et sélectionner</button>
               <div id="amt-nm-err" class="alert alert-error hidden" style="margin-top:6px"></div>
             </div>
           </div>`;
