@@ -26,7 +26,6 @@ function renderFeuilles(rows) {
       <td>${fmtMoney(f.montant_remboursement)}</td>
       <td><div class="t-actions">
         <button class="btn btn-sm btn-secondary" onclick="viewFeuille(${f.id})"><i class="fas fa-eye"></i> Voir</button>
-        ${f.statut === 'En cours de traitement' ? `<button class="btn btn-sm btn-success" onclick="showCompleter(${f.id})"><i class="fas fa-pen"></i> Compléter</button>` : ''}
         ${['Transmise'].includes(f.statut) ? `<button class="btn btn-sm btn-primary" onclick="ouvrirDossier(${f.id})"><i class="fas fa-folder-open"></i> Ouvrir</button>` : ''}
         ${f.statut === 'Incomplète' ? `<button class="btn btn-sm btn-warning" onclick="changerStatutFeuille(${f.id},'En cours de traitement')"><i class="fas fa-undo"></i> Reprendre</button>` : ''}
       </div></td>
