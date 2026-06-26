@@ -147,7 +147,9 @@ document.getElementById('ft-feuilles').addEventListener('click', e => {
 
 document.getElementById('q-feuilles').addEventListener('input', e => {
   clearTimeout(window._qf);
-  window._qf = setTimeout(() => loadFeuilles(e.target.value), 400);
+  const v = e.target.value;
+  if (!v) { loadFeuilles(''); return; }
+  window._qf = setTimeout(() => loadFeuilles(v), 300);
 });
 
 /* ── Médecin : ses propres feuilles ──────────────────────── */
@@ -206,24 +208,32 @@ function showAddFeuille() {
   `);
 }
 
-async function rechercherAssureParNSS(nss) {
-  const info = document.getElementById('nf-assure-info');
-  const idField = document.getElementById('nf-assure-id');
-  if (nss.length < 5) { info.textContent = ''; idField.value = ''; return; }
-  try {
-    const rows = await Api.getAssures(nss);
-    const match = rows.find(a => a.numero_ss === nss);
-    if (match) {
-      info.innerHTML = `<i class="fas fa-check-circle"></i> ${match.nom} ${match.prenom}`;
-      info.style.color = 'var(--primary)';
-      idField.value = match.id;
-    } else {
-      info.style.color = 'var(--danger)';
-      info.innerHTML = '<i class="fas fa-times-circle"></i> Assuré non trouvé';
-      idField.value = '';
-    }
-  } catch {}
-}
+const rechercherAssureParNSS = (function() {
+  let timer;
+  return function(nss) {
+    clearTimeout(timer);
+    const info = document.getElementById('nf-assure-info');
+    const idField = document.getElementById('nf-assure-id');
+    if (nss.length < 5) { info.textContent = ''; info.style.color = ''; idField.value = ''; return; }
+    info.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Vérification…';
+    info.style.color = 'var(--text-muted)';
+    timer = setTimeout(async () => {
+      try {
+        const rows = await Api.getAssures(nss);
+        const match = rows.find(a => a.numero_ss === nss);
+        if (match) {
+          info.innerHTML = `<i class="fas fa-check-circle"></i> ${match.nom} ${match.prenom}`;
+          info.style.color = 'var(--primary)';
+          idField.value = match.id;
+        } else {
+          info.style.color = 'var(--danger)';
+          info.innerHTML = '<i class="fas fa-times-circle"></i> Assuré non trouvé';
+          idField.value = '';
+        }
+      } catch { info.innerHTML = ''; }
+    }, 300);
+  };
+})();
 
 function calcRemb() {
   const mont = parseFloat(document.getElementById('nf-mont').value);
@@ -259,5 +269,7 @@ async function submitAddFeuille() {
 document.getElementById('btn-add-feuille').onclick = showAddFeuille;
 document.getElementById('q-mfeuilles').addEventListener('input', e => {
   clearTimeout(window._qmf);
-  window._qmf = setTimeout(() => loadMesFeuilles(e.target.value), 400);
+  const v = e.target.value;
+  if (!v) { loadMesFeuilles(''); return; }
+  window._qmf = setTimeout(() => loadMesFeuilles(v), 300);
 });

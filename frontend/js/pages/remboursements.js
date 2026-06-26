@@ -246,9 +246,19 @@ async function showEffectuerRemboursement() {
 
 function filterRembFeuilles(val) {
   const q = val.toLowerCase();
-  document.querySelectorAll('#tbody-remb-feuilles tr').forEach(tr => {
-    tr.style.display = tr.dataset.search.includes(q) ? '' : 'none';
+  const tbody = document.getElementById('tbody-remb-feuilles');
+  let visible = 0;
+  tbody.querySelectorAll('tr').forEach(tr => {
+    const match = tr.dataset.search.includes(q);
+    tr.style.display = match ? '' : 'none';
+    if (match) visible++;
   });
+  const empty = tbody.querySelector('.empty-row');
+  if (!visible) {
+    if (!empty) tbody.insertAdjacentHTML('beforeend', '<tr class="empty-row"><td colspan="5" style="text-align:center;color:var(--text-muted);padding:24px">Aucune feuille correspondante</td></tr>');
+  } else if (empty) {
+    empty.remove();
+  }
 }
 
 /* ── Impression de la facture ───────────────────────────── */
@@ -317,7 +327,9 @@ function imprimerFacture() {
 
 document.getElementById('q-remb').addEventListener('input', e => {
   clearTimeout(window._qr);
-  window._qr = setTimeout(() => loadRemboursements(e.target.value), 400);
+  const v = e.target.value;
+  if (!v) { loadRemboursements(''); return; }
+  window._qr = setTimeout(() => loadRemboursements(v), 300);
 });
 
 document.getElementById('btn-effectuer-remb').onclick = showEffectuerRemboursement;

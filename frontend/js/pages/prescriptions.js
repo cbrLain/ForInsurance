@@ -77,24 +77,32 @@ function addMedRow() {
   container.appendChild(div);
 }
 
-async function rechercherAssurePresc(nss, prefix) {
-  const info = document.getElementById(`${prefix}-info`);
-  const idF  = document.getElementById(`${prefix}-assure-id`);
-  if (nss.length < 5) { info.textContent = ''; idF.value = ''; return; }
-  try {
-    const rows = await Api.getAssures(nss);
-    const match = rows.find(a => a.numero_ss === nss);
-    if (match) {
-      info.style.color = 'var(--primary)';
-      info.innerHTML = `<i class="fas fa-check-circle"></i> ${match.nom} ${match.prenom}`;
-      idF.value = match.id;
-    } else {
-      info.style.color = 'var(--danger)';
-      info.innerHTML = '<i class="fas fa-times-circle"></i> Assuré non trouvé';
-      idF.value = '';
-    }
-  } catch {}
-}
+const _prescTimers = {};
+const rechercherAssurePresc = (function() {
+  return function(nss, prefix) {
+    const info = document.getElementById(`${prefix}-info`);
+    const idF  = document.getElementById(`${prefix}-assure-id`);
+    if (nss.length < 5) { info.textContent = ''; info.style.color = ''; idF.value = ''; return; }
+    if (_prescTimers[prefix]) clearTimeout(_prescTimers[prefix]);
+    info.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Vérification…';
+    info.style.color = 'var(--text-muted)';
+    _prescTimers[prefix] = setTimeout(async () => {
+      try {
+        const rows = await Api.getAssures(nss);
+        const match = rows.find(a => a.numero_ss === nss);
+        if (match) {
+          info.style.color = 'var(--primary)';
+          info.innerHTML = `<i class="fas fa-check-circle"></i> ${match.nom} ${match.prenom}`;
+          idF.value = match.id;
+        } else {
+          info.style.color = 'var(--danger)';
+          info.innerHTML = '<i class="fas fa-times-circle"></i> Assuré non trouvé';
+          idF.value = '';
+        }
+      } catch { info.innerHTML = ''; }
+    }, 300);
+  };
+})();
 
 async function submitPrescriptionMed() {
   const err = document.getElementById('pm-err');
@@ -164,7 +172,9 @@ async function viewPrescription(id) {
 document.getElementById('btn-add-presc').onclick = showAddPrescription;
 document.getElementById('q-presc').addEventListener('input', e => {
   clearTimeout(window._qpr);
-  window._qpr = setTimeout(() => loadPrescriptionsMed(e.target.value), 400);
+  const v = e.target.value;
+  if (!v) { loadPrescriptionsMed(''); return; }
+  window._qpr = setTimeout(() => loadPrescriptionsMed(v), 300);
 });
 
 /* ══ CONSULTATIONS SPÉCIALISTE ══════════════════════════════ */
@@ -300,5 +310,7 @@ async function viewConsultation(id) {
 document.getElementById('btn-add-consult').onclick = showAddConsultation;
 document.getElementById('q-consult').addEventListener('input', e => {
   clearTimeout(window._qcs);
-  window._qcs = setTimeout(() => loadConsultationsSpec(e.target.value), 400);
+  const v = e.target.value;
+  if (!v) { loadConsultationsSpec(''); return; }
+  window._qcs = setTimeout(() => loadConsultationsSpec(v), 300);
 });
