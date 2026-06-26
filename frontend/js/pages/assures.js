@@ -21,7 +21,7 @@ function renderAssures(rows) {
       <td>${a.actif ? '<span class="badge b-success">Actif</span>' : '<span class="badge b-danger">Inactif</span>'}</td>
       <td><div class="t-actions">
         <button class="btn btn-sm btn-secondary" onclick="viewAssure(${a.id})"><i class="fas fa-eye"></i> Voir</button>
-        <button class="btn btn-sm btn-outline" onclick="editMedecinTraitant(${a.id})"><i class="fas fa-link"></i> Médecin</button>
+        <button class="btn btn-sm btn-outline" onclick="editMedecinTraitant(${a.id})"><i class="fas fa-user-md"></i> Enregistrer médecin traitant</button>
         <button class="btn btn-sm btn-danger" onclick="deleteAssure(${a.id})"><i class="fas fa-trash"></i></button>
       </div></td>
     </tr>
