@@ -45,9 +45,9 @@ router.get('/', authenticate, async (req, res) => {
   if (assure_id) { sql += ' AND f.assure_id = ?'; params.push(assure_id); }
   if (medecin_id) { sql += ' AND f.medecin_id = ?'; params.push(medecin_id); }
   if (q) {
-    sql += ' AND (f.reference LIKE ? OR pa.nom LIKE ? OR pm.nom LIKE ?)';
+    sql += ' AND (f.reference LIKE ? OR pa.nom LIKE ? OR pm.nom LIKE ? OR a.numero_ss LIKE ?)';
     const like = `%${q}%`;
-    params.push(like, like, like);
+    params.push(like, like, like, like);
   }
   sql += ' ORDER BY f.created_at DESC';
   res.json(await db.prepare(sql).all(...params));
@@ -139,9 +139,9 @@ router.get('/search', authenticate, async (req, res) => {
     JOIN personnes pa ON pa.id = a.personne_id
     JOIN medecins m ON m.id = f.medecin_id
     JOIN personnes pm ON pm.id = m.personne_id
-    WHERE f.reference LIKE ?`;
+    WHERE (f.reference LIKE ? OR pa.nom LIKE ? OR pm.nom LIKE ? OR a.numero_ss LIKE ?)`;
 
-  const params = [`%${q}%`];
+  const params = [`%${q}%`, `%${q}%`, `%${q}%`, `%${q}%`];
 
   if (req.user.role === 'medecin') {
     const med = await db.prepare('SELECT id FROM medecins WHERE utilisateur_id=?').get(req.user.id);

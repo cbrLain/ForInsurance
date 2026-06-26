@@ -26,7 +26,6 @@ function renderFeuilles(rows) {
       <td>${fmtMoney(f.montant_remboursement)}</td>
       <td><div class="t-actions">
         <button class="btn btn-sm btn-secondary" onclick="viewFeuille(${f.id})"><i class="fas fa-eye"></i> Voir</button>
-        ${f.statut === 'Incomplète' ? `<button class="btn btn-sm btn-success" onclick="showCompleter(${f.id})"><i class="fas fa-pen"></i> Compléter</button>` : ''}
       </div></td>
     </tr>
   `).join('');
@@ -149,7 +148,7 @@ function showCompleterByRef() {
     </p>
     <div class="form-group" style="position:relative">
       <label>Code de la feuille *</label>
-      <input id="c-ref" placeholder="FM-2026-XXXXXX" autocomplete="off" oninput="window._cRefSearch()" onblur="setTimeout(()=>document.getElementById('c-results').style.display='none',200)" onfocus="if(this.value.length>=2)document.getElementById('c-results').style.display='block'"/>
+      <input id="c-ref" placeholder="Référence, nom assuré, N° SS…" autocomplete="off" oninput="window._cRefSearch()" onblur="setTimeout(()=>document.getElementById('c-results').style.display='none',200)" onfocus="if(this.value.length>=2)document.getElementById('c-results').style.display='block'"/>
       <div id="c-results" class="autocomplete-dropdown" style="display:none"></div>
       <div id="c-ref-info" style="margin-top:6px;font-size:.85rem"></div>
     </div>
