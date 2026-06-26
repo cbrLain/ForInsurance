@@ -131,6 +131,22 @@ async function showAddMedecinTraitant() {
             <label>Rechercher le médecin traitant (nom ou numéro d'agrément)</label>
             <input id="amt-sm" placeholder="Saisir le nom ou numéro d'agrément…" oninput="window._amtSearchMedecin()"/>
             <div id="amt-sm-results" class="search-results"></div>
+            <button class="btn btn-sm btn-link" onclick="window._amtShowNewMedecin()" style="margin-top:8px">
+              <i class="fas fa-plus-circle"></i> Créer un nouveau médecin traitant
+            </button>
+            <div id="amt-new-med" style="display:none;margin-top:10px;padding:12px;border:1px solid var(--border);border-radius:6px">
+              <p style="font-weight:600;margin-bottom:8px">Nouveau médecin généraliste</p>
+              <div class="form-row">
+                <div class="form-group"><label>Nom *</label><input id="amt-nm-nom" placeholder="TALLA" style="text-transform:uppercase"/></div>
+                <div class="form-group"><label>Prénom *</label><input id="amt-nm-prenom" placeholder="Sylvain"/></div>
+              </div>
+              <div class="form-row">
+                <div class="form-group"><label>Téléphone</label><input id="amt-nm-tel" placeholder="699000000"/></div>
+                <div class="form-group"><label>N° d'agrément</label><input id="amt-nm-agr" placeholder="AGR-XXX"/></div>
+              </div>
+              <button class="btn btn-primary btn-sm" onclick="window._amtCreateMedecin()"><i class="fas fa-save"></i> Créer et sélectionner</button>
+              <div id="amt-nm-err" class="alert alert-error hidden" style="margin-top:6px"></div>
+            </div>
           </div>`;
 
     const validBtn = _state.assure && _state.medecin
@@ -206,6 +222,32 @@ async function showAddMedecinTraitant() {
   window._amtClearMedecin = function() {
     _state.medecin = null;
     render();
+  };
+
+  window._amtShowNewMedecin = function() {
+    const el = document.getElementById('amt-new-med');
+    el.style.display = el.style.display === 'none' ? 'block' : 'none';
+  };
+
+  window._amtCreateMedecin = async function() {
+    const err = document.getElementById('amt-nm-err');
+    err.classList.add('hidden');
+    const nom = document.getElementById('amt-nm-nom').value.trim().toUpperCase();
+    const prenom = document.getElementById('amt-nm-prenom').value.trim();
+    const telephone = document.getElementById('amt-nm-tel').value.trim();
+    const num_agrement = document.getElementById('amt-nm-agr').value.trim();
+    if (!nom || !prenom) { err.textContent = 'Nom et prénom requis.'; err.classList.remove('hidden'); return; }
+    try {
+      const res = await Api.addMedecin({ nom, prenom, telephone, num_agrement, type: 'generaliste' });
+      const medecins = await Api.getMedecins(nom, 'generaliste');
+      const med = medecins.find(m => m.id === res.id) || medecins[0];
+      _state.medecin = { id: med.id, nom: med.nom, prenom: med.prenom, identifiant: med.identifiant };
+      document.getElementById('amt-new-med').style.display = 'none';
+      document.getElementById('amt-sm').value = '';
+      document.getElementById('amt-sm-results').innerHTML = '';
+      render();
+      toast(`Médecin ${med.nom} ${med.prenom} créé et sélectionné.`, 'success');
+    } catch(e) { err.textContent = e.message; err.classList.remove('hidden'); }
   };
 
   window._amtSubmit = async function() {
