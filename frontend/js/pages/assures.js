@@ -21,7 +21,6 @@ function renderAssures(rows) {
       <td>${a.actif ? '<span class="badge b-success">Actif</span>' : '<span class="badge b-danger">Inactif</span>'}</td>
       <td><div class="t-actions">
         <button class="btn btn-sm btn-secondary" onclick="viewAssure(${a.id})"><i class="fas fa-eye"></i> Voir</button>
-        <button class="btn btn-sm btn-outline" onclick="editMedecinTraitant(${a.id})"><i class="fas fa-user-md"></i> Enregistrer médecin traitant</button>
         <button class="btn btn-sm btn-danger" onclick="deleteAssure(${a.id})"><i class="fas fa-trash"></i></button>
       </div></td>
     </tr>
@@ -88,69 +87,6 @@ async function viewAssure(id) {
   } catch(e) { toast(e.message, 'error'); }
 }
 
-async function editMedecinTraitant(assureId) {
-  let medecins = [];
-  try { medecins = await Api.getMedecins('', 'generaliste'); } catch {}
-  const opts = medecins.map(m => `<option value="${m.id}">${m.nom} ${m.prenom}</option>`).join('');
-  Modal.open('Enregistrer un médecin traitant', `
-    <p style="color:var(--text-muted);font-size:.82rem;margin-bottom:14px">Seuls les médecins généralistes sont éligibles comme médecin traitant.</p>
-    <div class="form-group">
-      <label><input type="radio" name="mt-mode" value="existing" checked onchange="toggleMtMode()"> Sélectionner un médecin existant</label>
-      <select id="mt-select" style="margin-top:6px"><option value="">-- Sélectionner --</option>${opts}</select>
-    </div>
-    <div class="form-group">
-      <label><input type="radio" name="mt-mode" value="new" onchange="toggleMtMode()"> Créer un nouveau médecin traitant</label>
-      <div id="mt-new-fields" style="display:none;margin-top:8px">
-        <div class="form-row">
-          <div class="form-group"><label>Nom *</label><input id="mt-nom" placeholder="TALLA" style="text-transform:uppercase"/></div>
-          <div class="form-group"><label>Prénom *</label><input id="mt-prenom" placeholder="Sylvain"/></div>
-        </div>
-        <div class="form-group"><label>Téléphone</label><input id="mt-tel" placeholder="699000000"/></div>
-      </div>
-    </div>
-    <div id="mt-err" class="alert alert-error hidden"></div>
-  `, `
-    <button class="btn btn-secondary" onclick="Modal.close()">Annuler</button>
-    <button class="btn btn-primary" onclick="submitMedecinTraitant(${assureId})"><i class="fas fa-check"></i> Enregistrer</button>
-  `);
-}
-
-function toggleMtMode() {
-  const mode = document.querySelector('input[name="mt-mode"]:checked')?.value;
-  document.getElementById('mt-select').disabled = mode !== 'existing';
-  document.getElementById('mt-new-fields').style.display = mode === 'new' ? 'block' : 'none';
-}
-
-async function submitMedecinTraitant(assureId) {
-  const err   = document.getElementById('mt-err');
-  err.classList.add('hidden');
-  const mode = document.querySelector('input[name="mt-mode"]:checked')?.value;
-
-  let medId;
-  if (mode === 'new') {
-    const nom    = document.getElementById('mt-nom').value.trim();
-    const prenom = document.getElementById('mt-prenom').value.trim();
-    const tel    = document.getElementById('mt-tel').value.trim() || null;
-    if (!nom || !prenom) {
-      err.textContent = 'Nom et prénom du médecin sont obligatoires.';
-      err.classList.remove('hidden'); return;
-    }
-    try {
-      const result = await Api.addMedecin({ nom, prenom, telephone: tel, type: 'generaliste' });
-      medId = result.id;
-    } catch(e) { err.textContent = e.message; err.classList.remove('hidden'); return; }
-  } else {
-    medId = document.getElementById('mt-select').value;
-    if (!medId) { err.textContent = 'Veuillez sélectionner un médecin.'; err.classList.remove('hidden'); return; }
-  }
-
-  try {
-    await Api.setMedecinTraitant(assureId, parseInt(medId));
-    Modal.close(); toast('Médecin traitant enregistré !', 'success');
-    loadAssures();
-  } catch(e) { err.textContent = e.message; err.classList.remove('hidden'); }
-}
-
 async function deleteAssure(id) {
   if (!confirm('Supprimer cet assuré ?')) return;
   try {
@@ -161,7 +97,84 @@ async function deleteAssure(id) {
 }
 
 document.getElementById('btn-add-assure').onclick = showAddAssure;
+document.getElementById('btn-add-medecin-traitant').onclick = showAddMedecinTraitant;
 document.getElementById('q-assures').addEventListener('input', (e) => {
   clearTimeout(window._qt);
   window._qt = setTimeout(() => loadAssures(e.target.value), 400);
 });
+
+async function showAddMedecinTraitant() {
+  let assures = [];
+  try { assures = await Api.getAssures(); } catch {}
+  const assureOpts = assures.map(a => `<option value="${a.id}">${a.nom} ${a.prenom} (${a.numero_ss})</option>`).join('');
+
+  let medecins = [];
+  try { medecins = await Api.getMedecins('', 'generaliste'); } catch {}
+  const medOpts = medecins.map(m => `<option value="${m.id}">${m.nom} ${m.prenom}</option>`).join('');
+
+  Modal.open('Enregistrer un médecin traitant', `
+    <div class="form-group">
+      <label>Pour l\'assuré *</label>
+      <select id="amt-assure"><option value="">-- Sélectionner un assuré --</option>${assureOpts}</select>
+    </div>
+    <hr style="margin:14px 0;border-color:var(--border)">
+    <p style="color:var(--text-muted);font-size:.82rem;margin-bottom:14px">Seuls les médecins généralistes sont éligibles comme médecin traitant.</p>
+    <div class="form-group">
+      <label><input type="radio" name="amt-mode" value="existing" checked onchange="toggleAmtMode()"> Sélectionner un médecin existant</label>
+      <select id="amt-select" style="margin-top:6px"><option value="">-- Sélectionner --</option>${medOpts}</select>
+    </div>
+    <div class="form-group">
+      <label><input type="radio" name="amt-mode" value="new" onchange="toggleAmtMode()"> Créer un nouveau médecin traitant</label>
+      <div id="amt-new-fields" style="display:none;margin-top:8px">
+        <div class="form-row">
+          <div class="form-group"><label>Nom *</label><input id="amt-nom" placeholder="TALLA" style="text-transform:uppercase"/></div>
+          <div class="form-group"><label>Prénom *</label><input id="amt-prenom" placeholder="Sylvain"/></div>
+        </div>
+        <div class="form-group"><label>Téléphone</label><input id="amt-tel" placeholder="699000000"/></div>
+      </div>
+    </div>
+    <div id="amt-err" class="alert alert-error hidden"></div>
+  `, `
+    <button class="btn btn-secondary" onclick="Modal.close()">Annuler</button>
+    <button class="btn btn-primary" onclick="submitAddMedecinTraitant()"><i class="fas fa-check"></i> Enregistrer</button>
+  `);
+}
+
+function toggleAmtMode() {
+  const mode = document.querySelector('input[name="amt-mode"]:checked')?.value;
+  document.getElementById('amt-select').disabled = mode !== 'existing';
+  document.getElementById('amt-new-fields').style.display = mode === 'new' ? 'block' : 'none';
+}
+
+async function submitAddMedecinTraitant() {
+  const err = document.getElementById('amt-err');
+  err.classList.add('hidden');
+
+  const assureId = document.getElementById('amt-assure').value;
+  if (!assureId) { err.textContent = 'Veuillez sélectionner un assuré.'; err.classList.remove('hidden'); return; }
+
+  const mode = document.querySelector('input[name="amt-mode"]:checked')?.value;
+  let medId;
+  if (mode === 'new') {
+    const nom    = document.getElementById('amt-nom').value.trim();
+    const prenom = document.getElementById('amt-prenom').value.trim();
+    const tel    = document.getElementById('amt-tel').value.trim() || null;
+    if (!nom || !prenom) {
+      err.textContent = 'Nom et prénom du médecin sont obligatoires.';
+      err.classList.remove('hidden'); return;
+    }
+    try {
+      const result = await Api.addMedecin({ nom, prenom, telephone: tel, type: 'generaliste' });
+      medId = result.id;
+    } catch(e) { err.textContent = e.message; err.classList.remove('hidden'); return; }
+  } else {
+    medId = document.getElementById('amt-select').value;
+    if (!medId) { err.textContent = 'Veuillez sélectionner un médecin.'; err.classList.remove('hidden'); return; }
+  }
+
+  try {
+    await Api.setMedecinTraitant(parseInt(assureId), parseInt(medId));
+    Modal.close(); toast('Médecin traitant enregistré !', 'success');
+    loadAssures();
+  } catch(e) { err.textContent = e.message; err.classList.remove('hidden'); }
+}
