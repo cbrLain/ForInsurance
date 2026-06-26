@@ -114,7 +114,20 @@ router.patch('/:id/statut', authenticate, async (req, res) => {
   res.json({ message: `Statut mis à jour : ${statut}.` });
 });
 
-// PATCH /api/feuilles/:id/completer — Compléter (assureur)
+// GET /api/feuilles/reference/:ref — Recherche par référence (pour compléter)
+router.get('/reference/:ref', authenticate, async (req, res) => {
+  const db = getDb();
+  const row = await db.prepare(`${FM_SELECT} WHERE f.reference = ?`).get(req.params.ref);
+  if (!row) return res.status(404).json({ error: 'Feuille introuvable.' });
+  // Un médecin ne voit que ses propres feuilles
+  if (req.user.role === 'medecin') {
+    const med = await db.prepare('SELECT id FROM medecins WHERE utilisateur_id=?').get(req.user.id);
+    if (!med || row.medecin_id !== med.id) return res.status(403).json({ error: 'Accès refusé.' });
+  }
+  if (row.statut === 'Remboursée')
+    return res.status(400).json({ error: 'Remboursement déjà effectué.' });
+  res.json(row);
+});
 router.patch('/:id/completer', authenticate, requireRole('assureur'), async (req, res) => {
   const db = getDb();
   const { montant_remboursement, mode_paiement, notes } = req.body;

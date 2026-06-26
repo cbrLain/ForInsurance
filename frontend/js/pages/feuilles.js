@@ -95,8 +95,11 @@ async function changerStatutDepuisModal(id, statut) {
 }
 
 function showCompleter(id) {
+  // Version directe (depuis le tableau) : on connaît déjà l'ID
   Modal.open('Compléter la feuille de maladie', `
-    <p style="color:var(--text-muted);font-size:.82rem;margin-bottom:14px">Renseignez le montant et le mode de remboursement pour valider ce dossier.</p>
+    <p style="color:var(--text-muted);font-size:.82rem;margin-bottom:14px">
+      <strong>Étape 2 :</strong> renseignez le montant et le mode de remboursement.
+    </p>
     <div class="form-row">
       <div class="form-group"><label>Montant à rembourser (FCFA) *</label><input id="c-mont" type="number" min="0" placeholder="15000"/></div>
       <div class="form-group">
@@ -116,21 +119,115 @@ function showCompleter(id) {
   `);
 }
 
-async function submitCompleter(id) {
+function submitCompleter(id) {
+  // Surcharge : si id est passé, c'est la version directe (depuis le tableau)
   const err = document.getElementById('c-err');
   err.classList.add('hidden');
-  const data = {
-    montant_remboursement: document.getElementById('c-mont').value,
-    mode_paiement:         document.getElementById('c-mode').value,
-    notes:                 document.getElementById('c-notes').value.trim() || null,
-  };
-  if (!data.montant_remboursement || !data.mode_paiement) {
+  const feuilleId = id || document.getElementById('c-form')?.dataset.feuilleId;
+  const montant = document.getElementById('c-mont').value;
+  const mode = document.getElementById('c-mode').value;
+  if (!feuilleId) { err.textContent = 'Aucune feuille sélectionnée.'; err.classList.remove('hidden'); return; }
+  if (!montant || !mode) {
     err.textContent = 'Montant et mode de paiement sont requis.';
     err.classList.remove('hidden'); return;
   }
   try {
-    await Api.completerFeuille(id, data);
-    Modal.close(); toast('Feuille complétée et validée !', 'success');
+    Api.completerFeuille(feuilleId, {
+      montant_remboursement: montant,
+      mode_paiement: mode,
+      notes: document.getElementById('c-notes').value.trim() || null,
+    }).then(() => {
+      Modal.close();
+      toast('Feuille complétée avec succès !', 'success');
+      loadFeuilles();
+    }).catch(e => { err.textContent = e.message; err.classList.remove('hidden'); });
+  } catch(e) { err.textContent = e.message; err.classList.remove('hidden'); }
+}
+
+function showCompleterByRef() {
+  // Version avec recherche par référence (étape 1 + étape 2)
+  Modal.open('Compléter une feuille de maladie', `
+    <p style="color:var(--text-muted);font-size:.82rem;margin-bottom:14px">
+      <strong>Étape 1 :</strong> saisissez le code de la feuille de maladie à compléter.
+    </p>
+    <div class="form-group">
+      <label>Code de la feuille *</label>
+      <input id="c-ref" placeholder="FM-2026-XXXXXX" oninput="window._cRefSearch()"/>
+      <div id="c-ref-info" style="margin-top:6px;font-size:.85rem"></div>
+    </div>
+    <div id="c-form" style="display:none">
+      <hr style="margin:14px 0;border:none;border-top:1px solid var(--border)">
+      <p style="color:var(--text-muted);font-size:.82rem;margin-bottom:14px">
+        <strong>Étape 2 :</strong> renseignez le montant et le mode de remboursement.
+      </p>
+      <div class="form-row">
+        <div class="form-group"><label>Montant à rembourser (FCFA) *</label><input id="c-mont2" type="number" min="0" placeholder="15000"/></div>
+        <div class="form-group">
+          <label>Mode de paiement *</label>
+          <select id="c-mode2">
+            <option value="">-- Choisir --</option>
+            <option value="especes">Espèces</option>
+            <option value="virement">Virement bancaire</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group"><label>Notes (optionnel)</label><textarea id="c-notes2" rows="2" placeholder="Observations…"></textarea></div>
+      <div id="c-err" class="alert alert-error hidden"></div>
+      <button class="btn btn-primary" onclick="submitCompleterByRef()" style="width:100%;margin-top:6px"><i class="fas fa-check"></i> Valider et compléter</button>
+    </div>
+  `, `<button class="btn btn-secondary" onclick="Modal.close()">Annuler</button>`);
+
+  window._cRefSearch = (function() {
+    let timer;
+    return function() {
+      clearTimeout(timer);
+      const ref = document.getElementById('c-ref').value.trim();
+      const info = document.getElementById('c-ref-info');
+      const form = document.getElementById('c-form');
+      form.style.display = 'none';
+      if (ref.length < 5) { info.textContent = ''; return; }
+      info.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Vérification…';
+      info.style.color = 'var(--text-muted)';
+      timer = setTimeout(async () => {
+        try {
+          const feuille = await Api.getFeuilleByRef(ref);
+          info.innerHTML = `<i class="fas fa-check-circle"></i> Feuille trouvée : <strong>${feuille.assure_nom}</strong> — ${feuille.diagnostic}`;
+          info.style.color = 'var(--primary)';
+          form.style.display = 'block';
+          form.dataset.feuilleId = feuille.id;
+        } catch(e) {
+          if (e.message === 'Remboursement déjà effectué.') {
+            info.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Remboursement déjà effectué';
+            info.style.color = 'var(--warning)';
+          } else {
+            info.innerHTML = '<i class="fas fa-times-circle"></i> Feuille introuvable';
+            info.style.color = 'var(--danger)';
+          }
+        }
+      }, 300);
+    };
+  })();
+}
+
+async function submitCompleterByRef() {
+  const err = document.getElementById('c-err');
+  err.classList.add('hidden');
+  const id = document.getElementById('c-form').dataset.feuilleId;
+  const montant = document.getElementById('c-mont2').value;
+  const mode = document.getElementById('c-mode2').value;
+  if (!id) { err.textContent = 'Aucune feuille sélectionnée.'; err.classList.remove('hidden'); return; }
+  if (!montant || !mode) {
+    err.textContent = 'Montant et mode de paiement sont requis.';
+    err.classList.remove('hidden'); return;
+  }
+  try {
+    await Api.completerFeuille(id, {
+      montant_remboursement: montant,
+      mode_paiement: mode,
+      notes: document.getElementById('c-notes2').value.trim() || null,
+    });
+    Modal.close();
+    toast('Feuille complétée avec succès !', 'success');
     loadFeuilles();
   } catch(e) { err.textContent = e.message; err.classList.remove('hidden'); }
 }
@@ -273,3 +370,6 @@ document.getElementById('q-mfeuilles').addEventListener('input', e => {
   if (!v) { loadMesFeuilles(''); return; }
   window._qmf = setTimeout(() => loadMesFeuilles(v), 300);
 });
+
+const btnCompleter = document.getElementById('btn-completer-feuille');
+if (btnCompleter) btnCompleter.onclick = showCompleterByRef;
