@@ -128,6 +128,8 @@ router.get('/reference/:ref', authenticate, async (req, res) => {
     return res.status(400).json({ error: 'Remboursement déjà effectué.' });
   res.json(row);
 });
+
+// PATCH /api/feuilles/:id/completer — Compléter (assureur)
 router.patch('/:id/completer', authenticate, requireRole('assureur'), async (req, res) => {
   const db = getDb();
   const { montant_remboursement, mode_paiement, notes } = req.body;
