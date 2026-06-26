@@ -71,7 +71,7 @@ router.post('/', authenticate, requireRole('medecin'), async (req, res) => {
   const assure = await db.prepare('SELECT id FROM assures WHERE id=? AND actif=1').get(assure_id);
   if (!assure) return res.status(404).json({ error: 'Assuré introuvable ou inactif.' });
 
-  const med = await db.prepare('SELECT id FROM medecins WHERE utilisateur_id=?').get(req.user.id);
+  const med = await db.prepare('SELECT id, type FROM medecins WHERE utilisateur_id=?').get(req.user.id);
   if (!med) return res.status(403).json({ error: 'Compte non lié à un médecin.' });
 
   const doublon = await db.prepare(
@@ -81,12 +81,13 @@ router.post('/', authenticate, requireRole('medecin'), async (req, res) => {
 
   const ref  = genRef();
   const mont = montant_honoraires ? parseFloat(montant_honoraires) : null;
-  const remb = mont ? Math.round(mont * 0.7 * 100) / 100 : null;
+  const taux = med.type === 'specialiste' ? 0.8 : 1.0;
+  const remb = mont ? Math.round(mont * taux * 100) / 100 : null;
 
   const info = await db.prepare(`
-    INSERT INTO feuilles_maladie (reference,assure_id,medecin_id,date_consultation,diagnostic,actes_medicaux,statut,montant_honoraires,montant_remboursement,notes)
-    VALUES (?,?,?,?,?,?,'Incomplète',?,?,?)
-  `).run(ref, assure_id, med.id, date_consultation, diagnostic, actes_medicaux || null, mont, remb, notes || null);
+    INSERT INTO feuilles_maladie (reference,assure_id,medecin_id,date_consultation,diagnostic,actes_medicaux,statut,montant_honoraires,montant_remboursement,taux_remboursement,notes)
+    VALUES (?,?,?,?,?,?,'Incomplète',?,?,?,?)
+  `).run(ref, assure_id, med.id, date_consultation, diagnostic, actes_medicaux || null, mont, remb, taux, notes || null);
 
   broadcast('data-change', { resource: 'feuilles' });
   res.status(201).json({ id: info.lastInsertRowid, reference: ref, message: 'Feuille créée en brouillon.' });

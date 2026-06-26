@@ -353,8 +353,9 @@ const rechercherAssureParNSS = (function() {
 function calcRemb() {
   const mont = parseFloat(document.getElementById('nf-mont').value);
   const info = document.getElementById('nf-remb-info');
+  const taux = currentUser?.medecin_type === 'specialiste' ? 0.8 : 1.0;
   if (!isNaN(mont) && mont > 0) {
-    info.textContent = `\u2192 Remboursement estimé (70%) : ${fmtMoney(Math.round(mont * 0.7))}`;
+    info.textContent = `\u2192 Remboursement estimé (${(taux*100).toFixed(0)}%) : ${fmtMoney(Math.round(mont * taux))}`;
   } else {
     info.textContent = '';
   }

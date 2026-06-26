@@ -18,17 +18,28 @@ router.post('/login', async (req, res) => {
   if (!user || !bcrypt.compareSync(mot_de_passe, user.mot_de_passe))
     return res.status(401).json({ error: 'Identifiant ou mot de passe incorrect.' });
 
+  let medecin_type = null;
+  if (user.role === 'medecin') {
+    const med = await db.prepare('SELECT type FROM medecins WHERE utilisateur_id=?').get(user.id);
+    if (med) medecin_type = med.type;
+  }
+
   const token = jwt.sign(
-    { id: user.id, identifiant: user.identifiant, role: user.role, nom: user.nom, prenom: user.prenom },
+    { id: user.id, identifiant: user.identifiant, role: user.role, nom: user.nom, prenom: user.prenom, medecin_type },
     process.env.JWT_SECRET,
     { expiresIn: '8h' }
   );
-  res.json({ token, user: { id: user.id, identifiant: user.identifiant, role: user.role, nom: user.nom, prenom: user.prenom } });
+  res.json({ token, user: { id: user.id, identifiant: user.identifiant, role: user.role, nom: user.nom, prenom: user.prenom, medecin_type } });
 });
 
 // GET /api/auth/me
-router.get('/me', authenticate, (req, res) => {
-  res.json({ user: req.user });
+router.get('/me', authenticate, async (req, res) => {
+  let medecin_type = null;
+  if (req.user.role === 'medecin') {
+    const med = await getDb().prepare('SELECT type FROM medecins WHERE utilisateur_id=?').get(req.user.id);
+    if (med) medecin_type = med.type;
+  }
+  res.json({ user: { ...req.user, medecin_type } });
 });
 
 // POST /api/auth/register-medecin

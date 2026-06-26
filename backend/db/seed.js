@@ -84,23 +84,23 @@ const a3 = db.prepare("SELECT id FROM assures WHERE numero_ss='SS-000003'").get(
 const a4 = db.prepare("SELECT id FROM assures WHERE numero_ss='SS-000004'").get()?.id;
 
 insertFeuille.run('FM-2024-001', a1, med1Id, '2024-01-15', 'Grippe saisonnière',
-  'Consultation générale, prise de sang', 'Remboursée', 15000, 10500, 0.7, 'virement',
+  'Consultation générale, prise de sang', 'Remboursée', 15000, 15000, 1.0, 'virement',
   'Remboursement effectué par virement CMR Bank');
 
 insertFeuille.run('FM-2024-002', a2, med1Id, '2024-02-20', 'Hypertension artérielle',
-  'ECG, bilan biologique', 'Complétée', 25000, 17500, 0.7, 'especes', null);
+  'ECG, bilan biologique', 'Complétée', 25000, 25000, 1.0, 'especes', null);
 
 insertFeuille.run('FM-2024-003', a3, med2Id, '2024-03-10', 'Lombalgie chronique',
-  'Radio lombaire, kinésithérapie x5', 'Incomplète', 40000, null, 0.7, null, null);
+  'Radio lombaire, kinésithérapie x5', 'Incomplète', 40000, null, 1.0, null, null);
 
 insertFeuille.run('FM-2024-004', a4, med2Id, '2024-04-05', 'Diabète type 2',
-  'Glycémie, HbA1c', 'Incomplète', 20000, null, 0.8, null, 'Ordonnance manquante');
+  'Glycémie, HbA1c', 'Incomplète', 20000, null, 1.0, null, 'Ordonnance manquante');
 
 insertFeuille.run('FM-2024-005', a1, med1Id, '2024-05-12', 'Rhinite allergique',
-  'Tests cutanés allergènes', 'Rejetée', 18000, null, 0.7, null, 'Dossier incomplet - délai dépassé');
+  'Tests cutanés allergènes', 'Rejetée', 18000, null, 1.0, null, 'Dossier incomplet - délai dépassé');
 
 insertFeuille.run('FM-2024-006', a2, med2Id, '2024-06-01', 'Bronchite aiguë',
-  'Radiographie pulmonaire', 'Incomplète', 12000, null, 0.7, null, null);
+  'Radiographie pulmonaire', 'Incomplète', 12000, null, 1.0, null, null);
 
 // ── Remboursement ──────────────────────────────────────────────
 const f1 = db.prepare("SELECT id FROM feuilles_maladie WHERE reference='FM-2024-001'").get()?.id;
