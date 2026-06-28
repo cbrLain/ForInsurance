@@ -53,6 +53,47 @@ router.get('/', authenticate, async (req, res) => {
   res.json(await db.prepare(sql).all(...params));
 });
 
+// GET /api/feuilles/search?q= — Autocomplete de références (AVANT /:id)
+router.get('/search', authenticate, async (req, res) => {
+  const db = getDb();
+  const { q } = req.query;
+  if (!q || q.length < 2) return res.json([]);
+
+  let sql = `SELECT f.id, f.reference, f.statut,
+    pa.nom || ' ' || pa.prenom AS assure_nom,
+    pm.nom || ' ' || pm.prenom AS medecin_nom
+    FROM feuilles_maladie f
+    JOIN assures a ON a.id = f.assure_id
+    JOIN personnes pa ON pa.id = a.personne_id
+    JOIN medecins m ON m.id = f.medecin_id
+    JOIN personnes pm ON pm.id = m.personne_id
+    WHERE (f.reference LIKE ? OR pa.nom LIKE ? OR pm.nom LIKE ? OR a.numero_ss LIKE ?)`;
+
+  const params = [`%${q}%`, `%${q}%`, `%${q}%`, `%${q}%`];
+
+  if (req.user.role === 'medecin') {
+    const med = await db.prepare('SELECT id FROM medecins WHERE utilisateur_id=?').get(req.user.id);
+    if (med) { sql += ' AND f.medecin_id = ?'; params.push(med.id); }
+  }
+
+  sql += ' ORDER BY f.created_at DESC LIMIT 10';
+  res.json(await db.prepare(sql).all(...params));
+});
+
+// GET /api/feuilles/reference/:ref — Recherche par référence (AVANT /:id)
+router.get('/reference/:ref', authenticate, async (req, res) => {
+  const db = getDb();
+  const row = await db.prepare(`${FM_SELECT} WHERE f.reference = ?`).get(req.params.ref);
+  if (!row) return res.status(404).json({ error: 'Feuille introuvable.' });
+  if (req.user.role === 'medecin') {
+    const med = await db.prepare('SELECT id FROM medecins WHERE utilisateur_id=?').get(req.user.id);
+    if (!med || row.medecin_id !== med.id) return res.status(403).json({ error: 'Accès refusé.' });
+  }
+  if (row.statut === 'Remboursée')
+    return res.status(400).json({ error: 'Remboursement déjà effectué.' });
+  res.json(row);
+});
+
 // GET /api/feuilles/:id
 router.get('/:id', authenticate, async (req, res) => {
   const db  = getDb();
@@ -109,48 +150,6 @@ router.patch('/:id/statut', authenticate, async (req, res) => {
 
   broadcast('data-change', { resource: 'feuilles' });
   res.json({ message: `Statut mis à jour : ${statut}.` });
-});
-
-// GET /api/feuilles/reference/:ref — Recherche par référence (pour compléter)
-router.get('/reference/:ref', authenticate, async (req, res) => {
-  const db = getDb();
-  const row = await db.prepare(`${FM_SELECT} WHERE f.reference = ?`).get(req.params.ref);
-  if (!row) return res.status(404).json({ error: 'Feuille introuvable.' });
-  // Un médecin ne voit que ses propres feuilles
-  if (req.user.role === 'medecin') {
-    const med = await db.prepare('SELECT id FROM medecins WHERE utilisateur_id=?').get(req.user.id);
-    if (!med || row.medecin_id !== med.id) return res.status(403).json({ error: 'Accès refusé.' });
-  }
-  if (row.statut === 'Remboursée')
-    return res.status(400).json({ error: 'Remboursement déjà effectué.' });
-  res.json(row);
-});
-
-// GET /api/feuilles/search?q= — Autocomplete de références
-router.get('/search', authenticate, async (req, res) => {
-  const db = getDb();
-  const { q } = req.query;
-  if (!q || q.length < 2) return res.json([]);
-
-  let sql = `SELECT f.id, f.reference, f.statut,
-    pa.nom || ' ' || pa.prenom AS assure_nom,
-    pm.nom || ' ' || pm.prenom AS medecin_nom
-    FROM feuilles_maladie f
-    JOIN assures a ON a.id = f.assure_id
-    JOIN personnes pa ON pa.id = a.personne_id
-    JOIN medecins m ON m.id = f.medecin_id
-    JOIN personnes pm ON pm.id = m.personne_id
-    WHERE (f.reference LIKE ? OR pa.nom LIKE ? OR pm.nom LIKE ? OR a.numero_ss LIKE ?)`;
-
-  const params = [`%${q}%`, `%${q}%`, `%${q}%`, `%${q}%`];
-
-  if (req.user.role === 'medecin') {
-    const med = await db.prepare('SELECT id FROM medecins WHERE utilisateur_id=?').get(req.user.id);
-    if (med) { sql += ' AND f.medecin_id = ?'; params.push(med.id); }
-  }
-
-  sql += ' ORDER BY f.created_at DESC LIMIT 10';
-  res.json(await db.prepare(sql).all(...params));
 });
 
 // PATCH /api/feuilles/:id/completer — Compléter (assureur)
