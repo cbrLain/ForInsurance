@@ -1,5 +1,5 @@
 -- ============================================================
---  SCHEMA SQLite — Organisme de Sécurité Sociale (ENSPY 2025)
+--  SCHEMA SQLite — Organisme de Sécurité Sociale
 -- ============================================================
 
 CREATE TABLE IF NOT EXISTS utilisateurs (

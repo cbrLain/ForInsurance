@@ -1,7 +1,7 @@
 {
   "name": "securasante-backend",
   "version": "1.0.0",
-  "description": "API REST — Organisme de Sécurité Sociale (ENSPY 2025/2026)",
+  "description": "API REST — Organisme de Sécurité Sociale",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

@@ -267,7 +267,7 @@ async function viewFacture(rembId) {
     const { remboursement: r, assure: a, feuille: f, medecin: m } = await Api.getFacture(rembId);
     Modal.wide(`Facture de remboursement : ${r.feuille_ref}`, `
       <div class="prt-title">FACTURE DE REMBOURSEMENT<br>
-        <small style="font-size:.72rem;color:var(--text-muted)">Organisme de Sécurité Sociale : ENSPY</small>
+        <small style="font-size:.72rem;color:var(--text-muted)">Organisme de Sécurité Sociale</small>
       </div>
       <div class="prt-section">
         <h4>Assuré</h4>

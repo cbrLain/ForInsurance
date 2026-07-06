@@ -1,6 +1,5 @@
 # 🏥 SecuraSanté — Système d'Information pour Organisme de Sécurité Sociale
 
-> **ENSPY — Génie Informatique 3ème année · Groupe 4 · 2025/2026**  
 > Projet tuteuré CSI — Conception de Systèmes d'Information
 
 ---
@@ -300,29 +299,4 @@ curl http://localhost:3001/api/feuilles \
 
 ---
 
-## 👥 Équipe — Groupe 4 ENSPY
 
-| Nom | Matricule |
-|---|---|
-| NOUMSSI CHEGUIEU Elvira *(Chef)* | 23P620 |
-| NSOBE KENGNE Chamberlain | 23P619 |
-| ABONDO MARK Cedrick | 23P303 |
-| ACHINGUI PHILIPPE Sharon | 20P301 |
-| ASSAM ESSI Camille Georg. | 23P488 |
-| BAKOTCHA Loïc | 21P320 |
-| BILONGO MINLO Laurent Ra. | 23P284 |
-| DJOKAM MFOMO Franck Cha. | 23P224 |
-| KIKI DANIEL Bryan | 23P682 |
-| MAWAMBA DJOMO Princesse | 23P629 |
-| MCHOUROUPUO LA' Ahmed A. | 22P473 |
-| MEGOUEO Davy | 23P427 |
-| MOAMOASSE Lorryl Pierre | 18P113 |
-| ONDOA MANGA Harry Johan | 23P262 |
-| TACHAGO EUGÉNIE Rebecca | 23P463 |
-| TALLA TEYO Sylvain | 23P646 |
-| TSAFACK DJOUKENG Miderli | 23P572 |
-| WAFO TEGUO Vitric Valère | 22P446 |
-
----
-
-*SecuraSanté — ENSPY · Génie Informatique 3ème année · 2025/2026*
