@@ -99,10 +99,6 @@ async function loadHistoriqueOperations(q = '') {
     const stats = await Api.getStats();
     const items = [];
 
-    if (operationsFilter === 'all' || operationsFilter === 'feuilles') {
-      const statsActive = await Api.getStats().catch(() => null);
-    }
-
     const feuilles = await Api.getFeuilles(q ? { q } : {});
     const remb = await Api.getRemboursements(q);
 

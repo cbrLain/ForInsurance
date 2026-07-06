@@ -145,4 +145,3 @@ console.log('    medecin03  → medecin123   | KIKI Daniel (Spécialiste - Cardi
 console.log('    medecin04  → medecin123   | TALLA TEYO Sylvain (Spécialiste - Neurologie)');
 console.log('    medecin05  → medecin123   | WAFO TEGUO Vitric (Spécialiste - Dermatologie)');
 console.log('    medecin06  → medecin123   | ONDOA MANGA Harry Johan (Généraliste)');
-console.log('    MED0006    → medecin123   | EMAILTEST Check (Généraliste)');

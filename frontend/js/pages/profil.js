@@ -9,8 +9,8 @@ async function loadMonProfil() {
   const statsEl = document.getElementById('profil-stats');
 
   if (role === 'medecin') {
-    const medecins = await Api.getMedecins(user.nom);
-    const med = medecins.find(m => m.nom === user.nom && m.prenom === user.prenom) || medecins[0];
+    const medecins = await Api.getMedecins();
+    const med = medecins.find(m => m.identifiant === user.identifiant);
 
     const infos = [
       { label: 'Identifiant', val: `<code style="color:var(--text-muted)">${user.identifiant}</code>` },

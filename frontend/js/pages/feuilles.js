@@ -31,15 +31,6 @@ function renderFeuilles(rows) {
   `).join('');
 }
 
-async function ouvrirDossier(id) {
-  if (!confirm('Ouvrir ce dossier ? Il passera en "Incomplète".')) return;
-  try {
-    await Api.changerStatut(id, 'Incomplète');
-    toast('Dossier ouvert : Incomplète', 'success');
-    loadFeuilles();
-  } catch(e) { toast(e.message, 'error'); }
-}
-
 async function changerStatutFeuille(id, statut, notes) {
   try {
     await Api.changerStatut(id, statut, notes);

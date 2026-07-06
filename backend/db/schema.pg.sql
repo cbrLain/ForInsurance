@@ -26,6 +26,7 @@ CREATE TABLE IF NOT EXISTS medecins (
   id            SERIAL PRIMARY KEY,
   personne_id   INTEGER REFERENCES personnes(id) ON DELETE CASCADE,
   identifiant   TEXT UNIQUE NOT NULL,
+  num_agrement  TEXT,
   type          TEXT CHECK(type IN ('generaliste','specialiste')) NOT NULL,
   specialite    TEXT,
   utilisateur_id INTEGER REFERENCES utilisateurs(id)
@@ -100,4 +101,18 @@ CREATE TABLE IF NOT EXISTS prescription_consultation (
   specialite_requise TEXT NOT NULL,
   urgence           TEXT CHECK(urgence IN ('normale','urgente')) DEFAULT 'normale',
   motif             TEXT
+);
+
+CREATE TABLE IF NOT EXISTS demandes_inscription (
+  id                SERIAL PRIMARY KEY,
+  nom               TEXT NOT NULL,
+  prenom            TEXT NOT NULL,
+  email             TEXT NOT NULL,
+  telephone         TEXT,
+  num_agrement      TEXT,
+  type              TEXT CHECK(type IN ('generaliste','specialiste')) NOT NULL,
+  specialite        TEXT,
+  statut            TEXT CHECK(statut IN ('en_attente','approuvee','rejetee')) DEFAULT 'en_attente',
+  motif_rejet       TEXT,
+  created_at        TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
