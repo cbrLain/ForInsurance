@@ -43,7 +43,7 @@ router.get('/me', authenticate, async (req, res) => {
 });
 
 // POST /api/auth/register-assureur (admin only)
-router.post('/register-assureur', authenticate, requireRole('admin'), async (req, res) => {
+router.post('/register-assureur', authenticate, requireRole('admin', 'assureur'), async (req, res) => {
   const { nom, prenom } = req.body;
   if (!nom || !prenom)
     return res.status(400).json({ error: 'Nom et prénom requis.' });
@@ -197,7 +197,7 @@ router.patch('/password', authenticate, async (req, res) => {
 });
 
 // GET /api/auth/assureurs — Lister tous les comptes assureur (admin only)
-router.get('/assureurs', authenticate, requireRole('admin'), async (req, res) => {
+router.get('/assureurs', authenticate, requireRole('admin', 'assureur'), async (req, res) => {
   const db = getDb();
   const users = await db.prepare(
     "SELECT id, identifiant, nom, prenom, created_at FROM utilisateurs WHERE role='assureur' ORDER BY created_at DESC"
