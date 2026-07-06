@@ -592,146 +592,137 @@ ul{list-style:none}
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 80px 48px 60px;
+  padding: 32px 40px;
   background: rgba(255,255,255,.04);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border-right: 1px solid rgba(255,255,255,.06);
-  overflow-y: auto;
 }
 .login-left-inner {
-  max-width: 480px;
+  max-width: 420px;
   width: 100%;
   display: flex;
   flex-direction: column;
   gap: 0;
 }
 .ll-logo {
-  font-size: 1.2rem;
+  font-size: 1rem;
   font-weight: 800;
   color: #f8fafc;
   display: flex;
   align-items: center;
-  gap: 10px;
-  letter-spacing: -.4px;
+  gap: 8px;
+  letter-spacing: -.3px;
+  margin-bottom: 16px;
 }
-.ll-logo i { color: #3b82f6; }
-.login-left-content { margin: 48px 0; }
+.ll-logo i { color: #3b82f6; font-size: 1rem; }
 .ll-badge {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  padding: 6px 16px;
+  gap: 6px;
+  padding: 4px 14px;
   border-radius: 999px;
   background: rgba(59,130,246,.12);
   color: #60a5fa;
-  font-size: .78rem;
+  font-size: .7rem;
   font-weight: 600;
   border: 1px solid rgba(59,130,246,.2);
-  margin-bottom: 22px;
+  margin-bottom: 14px;
+  width: fit-content;
 }
-.ll-badge i { font-size: .7rem; }
+.ll-badge i { font-size: .65rem; }
 .ll-title {
-  font-size: 2.2rem;
+  font-size: 1.5rem;
   font-weight: 800;
   color: #f8fafc;
   line-height: 1.15;
-  margin-bottom: 18px;
-  letter-spacing: -.5px;
+  margin-bottom: 12px;
+  letter-spacing: -.4px;
 }
 .ll-desc {
-  font-size: .92rem;
+  font-size: .82rem;
   color: rgba(255,255,255,.55);
-  line-height: 1.7;
-  margin-bottom: 32px;
+  line-height: 1.5;
+  margin-bottom: 20px;
 }
-.ll-benefits { display: flex; flex-direction: column; gap: 12px; }
+.ll-benefits { display: flex; flex-direction: column; gap: 6px; }
 .ll-benefit {
-  font-size: .85rem;
+  font-size: .78rem;
   color: rgba(255,255,255,.6);
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
-.ll-benefit i { color: #22c55e; font-size: 15px; }
-.login-left-bottom { margin-top: auto; }
-.ll-quote {
-  font-size: .82rem;
-  color: rgba(255,255,255,.3);
-  font-style: italic;
-  border-left: 2px solid rgba(59,130,246,.3);
-  padding-left: 16px;
-}
+.ll-benefit i { color: #22c55e; font-size: 13px; }
 
 /* ── Right side ───────────────────────────────────────── */
 .login-right {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 60px 48px;
-  overflow-y: auto;
+  padding: 32px 40px;
 }
 .login-card {
-  width: 420px;
-  max-width: 94vw;
+  width: 380px;
+  max-width: 92vw;
   background: rgba(255,255,255,.06);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   border: 1px solid rgba(255,255,255,.1);
-  border-radius: 20px;
-  padding: 40px 36px;
+  border-radius: 16px;
+  padding: 28px 28px;
   box-shadow: 0 20px 60px rgba(0,0,0,.3);
   animation: lFadeUp .5s;
 }
-.lc-header { text-align: center; margin-bottom: 24px; }
+.lc-header { text-align: center; margin-bottom: 16px; }
 .lc-icon {
-  width: 52px;
-  height: 52px;
-  border-radius: 14px;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
   background: rgba(59,130,246,.12);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 22px;
+  font-size: 18px;
   color: #60a5fa;
-  margin: 0 auto 16px;
+  margin: 0 auto 10px;
 }
 .lc-title {
-  font-size: 1.4rem;
+  font-size: 1.2rem;
   font-weight: 700;
   color: #f8fafc;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 .lc-sub {
-  font-size: .88rem;
+  font-size: .8rem;
   color: rgba(255,255,255,.5);
 }
 
 /* Role tabs */
 .lc-role-tabs {
   display: flex;
-  gap: 6px;
-  margin-bottom: 24px;
-  padding: 4px;
-  border-radius: 10px;
+  gap: 4px;
+  margin-bottom: 16px;
+  padding: 3px;
+  border-radius: 8px;
   background: rgba(0,0,0,.15);
 }
 .lc-rtab {
   flex: 1;
-  padding: 9px 12px;
+  padding: 7px 10px;
   text-align: center;
-  font-size: .8rem;
+  font-size: .75rem;
   font-weight: 500;
   background: transparent;
   color: rgba(255,255,255,.45);
   border: none;
   cursor: pointer;
   transition: all .2s;
-  border-radius: 8px;
+  border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 5px;
 }
 .lc-rtab.active {
   background: rgba(59,130,246,.2);
@@ -742,13 +733,13 @@ ul{list-style:none}
 
 /* Form */
 .lc-form { display: flex; flex-direction: column; gap: 0; }
-.lc-field { margin-bottom: 18px; }
+.lc-field { margin-bottom: 14px; }
 .lc-field label {
   display: block;
-  font-size: .78rem;
+  font-size: .74rem;
   font-weight: 600;
   color: rgba(255,255,255,.7);
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 .lc-input-wrap {
   position: relative;
@@ -757,18 +748,18 @@ ul{list-style:none}
 }
 .lc-input-icon {
   position: absolute;
-  left: 14px;
-  font-size: 14px;
+  left: 12px;
+  font-size: 13px;
   color: rgba(255,255,255,.3);
   pointer-events: none;
 }
 .lc-input-wrap input {
   width: 100%;
-  padding: 12px 14px 12px 40px;
-  font-size: .9rem;
+  padding: 10px 12px 10px 36px;
+  font-size: .85rem;
   background: rgba(0,0,0,.2);
   border: 1px solid rgba(255,255,255,.1);
-  border-radius: 10px;
+  border-radius: 8px;
   color: #f8fafc;
   outline: none;
   transition: all .2s;
@@ -776,7 +767,7 @@ ul{list-style:none}
 .lc-input-wrap input::placeholder { color: rgba(255,255,255,.25); }
 .lc-input-wrap input:focus {
   border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59,130,246,.15);
+  box-shadow: 0 0 0 3px rgba(59,130,246,.1);
   background: rgba(0,0,0,.25);
 }
 .lc-input-wrap input:-webkit-autofill {
@@ -785,108 +776,33 @@ ul{list-style:none}
 }
 .lc-pw-toggle {
   position: absolute;
-  right: 10px;
+  right: 8px;
   background: none;
   border: none;
   color: rgba(255,255,255,.3);
-  font-size: 16px;
-  padding: 8px;
+  font-size: 14px;
+  padding: 6px;
   cursor: pointer;
   transition: color .2s;
 }
 .lc-pw-toggle:hover { color: rgba(255,255,255,.6); }
 
-/* Options row */
-.lc-options {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 22px;
-}
-.lc-checkbox {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: .8rem;
-  color: rgba(255,255,255,.55);
-  cursor: pointer;
-}
-.lc-checkbox input[type="checkbox"] {
-  width: 16px;
-  height: 16px;
-  accent-color: #3b82f6;
-  cursor: pointer;
-}
-.lc-forgot {
-  font-size: .8rem;
-  color: rgba(59,130,246,.7);
-  text-decoration: none;
-  font-weight: 500;
-  transition: color .2s;
-}
-.lc-forgot:hover { color: #60a5fa; }
-
 /* Login button */
 .lc-btn {
-  height: 48px;
-  font-size: .95rem;
+  height: 42px;
+  font-size: .9rem;
   font-weight: 600;
-  border-radius: 10px;
+  border-radius: 8px;
   background: #2563eb;
   border-color: #2563eb;
   transition: all .2s;
+  margin-top: 4px;
 }
 .lc-btn:hover {
   background: #1d4ed8;
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(37,99,235,.3);
 }
-
-/* Divider */
-.lc-divider {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  margin: 20px 0;
-}
-.lc-divider::before, .lc-divider::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: rgba(255,255,255,.08);
-}
-.lc-divider span {
-  font-size: .78rem;
-  color: rgba(255,255,255,.25);
-  font-weight: 500;
-}
-
-/* No account text */
-.lc-no-account { text-align: center; }
-.lc-no-account p {
-  font-size: .82rem;
-  color: rgba(255,255,255,.5);
-  margin-bottom: 4px;
-}
-.lc-no-account small {
-  font-size: .74rem;
-  color: rgba(255,255,255,.3);
-  line-height: 1.4;
-}
-
-/* Security footer inside card */
-.lc-security {
-  margin-top: 24px;
-  padding-top: 16px;
-  border-top: 1px solid rgba(255,255,255,.06);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: .72rem;
-  color: rgba(255,255,255,.35);
-  justify-content: center;
-}
-.lc-security i { font-size: 13px; color: rgba(59,130,246,.4); }
 
 /* Login page footer */
 .login-footer {
@@ -895,26 +811,27 @@ ul{list-style:none}
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 20px;
-  padding: 16px 28px;
-  font-size: .74rem;
-  color: rgba(255,255,255,.3);
+  gap: 16px;
+  padding: 10px 28px;
+  font-size: .7rem;
+  color: rgba(255,255,255,.25);
   background: rgba(0,0,0,.15);
+  flex-shrink: 0;
 }
 .login-footer a {
-  color: rgba(255,255,255,.3);
+  color: rgba(255,255,255,.25);
   text-decoration: none;
   transition: color .2s;
 }
-.login-footer a:hover { color: rgba(255,255,255,.6); }
+.login-footer a:hover { color: rgba(255,255,255,.5); }
 
 @media(max-width:900px){
   .login-container { grid-template-columns: 1fr; }
   .login-left { display: none; }
-  .login-right { padding: 80px 24px 60px; }
-  .login-card { padding: 32px 24px; }
+  .login-right { padding: 40px 20px; }
+  .login-card { padding: 24px 20px; width: 360px; }
   .login-back { top: 14px; left: 16px; padding: 8px 14px; font-size: .8rem; }
-  .login-footer { gap: 14px; flex-wrap: wrap; }
+  .login-footer { gap: 12px; padding: 8px 16px; }
 }
 
 /* ── REGISTER SCREEN ─────────────────────────────────── */

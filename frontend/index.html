@@ -6,7 +6,7 @@
   <title>ForInsurance : Sécurité Sociale</title>
   <meta name="description" content="ForInsurance - Votre sécurité sociale au Cameroun"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"/>
-  <link rel="stylesheet" href="css/main.css?v=8"/>
+  <link rel="stylesheet" href="css/main.css?v=9"/>
 </head>
 <body>
 <div id="app">
@@ -181,35 +181,26 @@
   </footer>
 </div>
 
-  <!-- ══ ÉCRAN DE CONNEXION (Premium) ══════════════════════ -->
+  <!-- ══ ÉCRAN DE CONNEXION ══════════════════════════════════ -->
   <div id="screen-login" class="screen hidden">
     <button class="login-back" onclick="showLanding()"><i class="fas fa-arrow-left"></i> ForInsurance</button>
 
     <div class="login-container">
-      <!-- Partie gauche : présentation -->
       <div class="login-left">
         <div class="login-left-inner">
-          <div class="login-left-top">
-            <div class="ll-logo"><i class="fas fa-shield-alt"></i> ForInsurance</div>
-          </div>
-          <div class="login-left-content">
-            <div class="ll-badge"><i class="fas fa-shield-alt"></i> Plateforme sécurisée</div>
-            <h1 class="ll-title">Bienvenue sur ForInsurance</h1>
-            <p class="ll-desc">Connectez-vous à votre espace sécurisé afin de gérer efficacement les consultations médicales, les feuilles de maladie, les prescriptions et les remboursements dans un environnement moderne, fiable et entièrement sécurisé.</p>
-            <div class="ll-benefits">
-              <div class="ll-benefit"><i class="fas fa-check-circle"></i> Gestion centralisée</div>
-              <div class="ll-benefit"><i class="fas fa-check-circle"></i> Données hautement sécurisées</div>
-              <div class="ll-benefit"><i class="fas fa-check-circle"></i> Traitement rapide des dossiers</div>
-              <div class="ll-benefit"><i class="fas fa-check-circle"></i> Interface moderne et intuitive</div>
-            </div>
-          </div>
-          <div class="login-left-bottom">
-            <p class="ll-quote">Une plateforme unique pour simplifier la gestion de la sécurité sociale.</p>
+          <div class="ll-logo"><i class="fas fa-shield-alt"></i> ForInsurance</div>
+          <div class="ll-badge"><i class="fas fa-shield-alt"></i> Plateforme sécurisée</div>
+          <h1 class="ll-title">Bienvenue sur ForInsurance</h1>
+          <p class="ll-desc">Connectez-vous à votre espace sécurisé pour gérer consultations, feuilles de maladie, prescriptions et remboursements.</p>
+          <div class="ll-benefits">
+            <div class="ll-benefit"><i class="fas fa-check-circle"></i> Gestion centralisée</div>
+            <div class="ll-benefit"><i class="fas fa-check-circle"></i> Données hautement sécurisées</div>
+            <div class="ll-benefit"><i class="fas fa-check-circle"></i> Traitement rapide des dossiers</div>
+            <div class="ll-benefit"><i class="fas fa-check-circle"></i> Interface moderne et intuitive</div>
           </div>
         </div>
       </div>
 
-      <!-- Partie droite : formulaire -->
       <div class="login-right">
         <div class="login-card">
           <div class="lc-header">
@@ -247,29 +238,11 @@
             </div>
             <div id="login-err" class="alert alert-error hidden"></div>
 
-            <div class="lc-options">
-              <label class="lc-checkbox">
-                <input type="checkbox" checked/> <span>Se souvenir de moi</span>
-              </label>
-              <a href="#" class="lc-forgot" onclick="return false">Mot de passe oublié ?</a>
-            </div>
-
             <button type="submit" class="btn btn-primary btn-full lc-btn" id="btn-login">
               <span class="btn-text">Se connecter</span>
               <i class="fas fa-spinner btn-spinner hidden" style="animation: spin 1s linear infinite"></i>
             </button>
-
-            <div class="lc-divider"><span>OU</span></div>
-
-            <div class="lc-no-account">
-              <p>Vous n'avez pas de compte ?</p>
-              <small>Les comptes sont créés uniquement par l'administrateur de la sécurité sociale.</small>
-            </div>
           </form>
-
-          <div class="lc-security">
-            <i class="fas fa-shield-alt"></i> Vos informations sont protégées grâce à un système d'authentification sécurisé.
-          </div>
         </div>
       </div>
     </div>
