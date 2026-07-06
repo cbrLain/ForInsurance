@@ -105,8 +105,8 @@ async function viewMedecin(id) {
   } catch(e) { toast(e.message, 'error'); }
 }
 
-document.getElementById('btn-add-medecin').onclick = showAddMedecin;
-document.getElementById('q-medecins').addEventListener('input', e => {
+document.getElementById('btn-add-medecin')?.addEventListener('click', showAddMedecin);
+document.getElementById('q-medecins')?.addEventListener('input', e => {
   clearTimeout(window._qm);
   window._qm = setTimeout(() => loadMedecins(e.target.value), 400);
 });

@@ -152,4 +152,64 @@ router.patch('/demandes/:id', authenticate, async (req, res) => {
   res.json({ message: 'Médecin inscrit avec succès.', identifiant });
 });
 
+// PATCH /api/auth/password — Changer le mot de passe
+router.patch('/password', authenticate, async (req, res) => {
+  const { ancien_mot_de_passe, nouveau_mot_de_passe, confirmation } = req.body;
+  if (!ancien_mot_de_passe || !nouveau_mot_de_passe || !confirmation)
+    return res.status(400).json({ error: 'Ancien mot de passe, nouveau mot de passe et confirmation requis.' });
+  if (nouveau_mot_de_passe !== confirmation)
+    return res.status(400).json({ error: 'Les nouveaux mots de passe ne correspondent pas.' });
+  if (nouveau_mot_de_passe.length < 8)
+    return res.status(400).json({ error: 'Le mot de passe doit contenir au moins 8 caractères.' });
+  if (!/[a-zA-Z]/.test(nouveau_mot_de_passe) || !/[0-9]/.test(nouveau_mot_de_passe))
+    return res.status(400).json({ error: 'Le mot de passe doit contenir des lettres et des chiffres.' });
+
+  const db = getDb();
+  const user = await db.prepare('SELECT * FROM utilisateurs WHERE id = ?').get(req.user.id);
+  if (!user || !bcrypt.compareSync(ancien_mot_de_passe, user.mot_de_passe))
+    return res.status(401).json({ error: 'Ancien mot de passe incorrect.' });
+
+  const hash = bcrypt.hashSync(nouveau_mot_de_passe, 10);
+  await db.prepare('UPDATE utilisateurs SET mot_de_passe = ? WHERE id = ?').run(hash, req.user.id);
+  res.json({ message: 'Mot de passe modifié avec succès.' });
+});
+
+// PATCH /api/auth/profil — Modifier les infos personnelles
+router.patch('/profil', authenticate, async (req, res) => {
+  const { adresse, telephone, email } = req.body;
+  const db = getDb();
+
+  if (req.user.role === 'medecin') {
+    const med = await db.prepare('SELECT personne_id FROM medecins WHERE utilisateur_id=?').get(req.user.id);
+    if (med && med.personne_id) {
+      const updates = [];
+      const params = [];
+      if (adresse !== undefined) { updates.push('adresse = ?'); params.push(adresse); }
+      if (telephone !== undefined) { updates.push('telephone = ?'); params.push(telephone); }
+      if (email !== undefined) { updates.push('email = ?'); params.push(email); }
+      if (updates.length) {
+        params.push(med.personne_id);
+        await db.prepare(`UPDATE personnes SET ${updates.join(', ')} WHERE id = ?`).run(...params);
+      }
+    }
+  } else {
+    const p = await db.prepare('SELECT id FROM personnes WHERE nom=? AND prenom=?').get(req.user.nom, req.user.prenom);
+    if (p) {
+      const updates = [];
+      const params = [];
+      if (telephone !== undefined) { updates.push('telephone = ?'); params.push(telephone); }
+      if (email !== undefined) { updates.push('email = ?'); params.push(email); }
+      if (updates.length) {
+        params.push(p.id);
+        await db.prepare(`UPDATE personnes SET ${updates.join(', ')} WHERE id = ?`).run(...params);
+      }
+    } else {
+      await db.prepare('INSERT INTO personnes (nom, prenom, telephone, email) VALUES (?, ?, ?, ?)')
+        .run(req.user.nom, req.user.prenom, telephone || null, email || null);
+    }
+  }
+
+  res.json({ message: 'Profil mis à jour avec succès.' });
+});
+
 module.exports = router;

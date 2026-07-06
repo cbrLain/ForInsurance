@@ -62,17 +62,45 @@ document.getElementById('login-form').addEventListener('submit', async e => {
   }
 });
 
-function switchLandingTab(tab) {
-  document.querySelectorAll('.ltab').forEach(t => t.classList.remove('active'));
-  document.querySelector(`.ltab[data-ltab="${tab}"]`).classList.add('active');
-  document.querySelectorAll('.ltab-content').forEach(c => c.classList.remove('active'));
-  document.getElementById('ltab-' + tab).classList.add('active');
+function togglePassword() {
+  const pw = document.getElementById('f-pw');
+  const eye = document.getElementById('pw-eye');
+  if (pw.type === 'password') {
+    pw.type = 'text';
+    eye.classList.replace('fa-eye', 'fa-eye-slash');
+  } else {
+    pw.type = 'password';
+    eye.classList.replace('fa-eye-slash', 'fa-eye');
+  }
 }
 
+function toggleLandingMenu() {
+  document.getElementById('l-nav').classList.toggle('mob-open');
+}
+
+// Scroll → header opaque
+document.addEventListener('scroll', () => {
+  const h = document.querySelector('.l-header');
+  if (h) h.classList.toggle('scrolled', window.scrollY > 40);
+}, { passive: true });
+
+// Navigation douce des ancres
+document.querySelector('#l-nav')?.addEventListener('click', e => {
+  const a = e.target.closest('.l-nav-link');
+  if (a) {
+    e.preventDefault();
+    document.querySelectorAll('.l-nav-link').forEach(l => l.classList.remove('active'));
+    a.classList.add('active');
+    document.getElementById('l-nav')?.classList.remove('mob-open');
+    const target = a.getAttribute('href');
+    if (target) document.querySelector(target)?.scrollIntoView({ behavior: 'smooth' });
+  }
+});
+
 function setLoginRole(role) {
-  document.querySelectorAll('.rtab').forEach(t => t.classList.remove('active'));
-  document.querySelector(`.rtab[data-role="${role}"]`).classList.add('active');
-  document.getElementById('f-id').placeholder = role === 'assureur' ? 'Identifiant assureur' : 'Identifiant médecin';
+  document.querySelectorAll('.lc-rtab').forEach(t => t.classList.remove('active'));
+  document.querySelector(`.lc-rtab[data-role="${role}"]`).classList.add('active');
+  document.getElementById('f-id').placeholder = role === 'assureur' ? 'Entrez votre identifiant' : 'Entrez votre identifiant';
 }
 
 function showRegisterScreen() {
@@ -191,15 +219,25 @@ function navigateTo(page) {
   if (el) el.classList.add('active');
 
   // Titre
-  const titles = {
-    'dashboard':          'Tableau de bord',
-    'assures':            'Gestion des Assurés',
-    'feuilles':           'Feuilles de Maladie',
-    'remboursements':     'Remboursements',
-    'mes-feuilles':       'Mes Feuilles de Maladie',
-    'prescriptions-med':  'Prescriptions Médicaments',
-    'consultations-spec': 'Consultations Spécialistes',
+  const baseTitles = {
+    'dashboard':                 'Tableau de bord',
+    'assures':                   'Gestion des assurés',
+    'medecins':                  'Gestion des médecins',
+    'feuilles':                  'Gestion des feuilles de maladie',
+    'remboursements':            'Gestion des remboursements',
+    'mes-feuilles':              'Mes feuilles de maladie',
+    'prescriptions-med':         'Prescription de médicaments',
+    'consultations-spec':        'Prescription vers un spécialiste',
+    'mon-profil':                'Mon profil',
+    'patients':                  'Gestion des patients',
+    'historique-consultations':  'Historique des consultations',
+    'historique':                'Historique des opérations',
+    'recherche':                 'Recherche',
   };
+  const titles = { ...baseTitles };
+  if (page === 'mon-profil' && currentUser?.role === 'assureur') {
+    titles['mon-profil'] = 'Mon profil · Assureur';
+  }
   document.getElementById('page-title').textContent = titles[page] || page;
   currentPage = page;
 
@@ -213,13 +251,19 @@ function navigateTo(page) {
 function loadPage(page) {
   const role = currentUser?.role;
   switch(page) {
-    case 'dashboard':          loadDashboard(role); break;
-    case 'assures':            loadAssures(); break;
-    case 'feuilles':           loadFeuilles(); break;
-    case 'remboursements':     loadRemboursements(); break;
-    case 'mes-feuilles':       loadMesFeuilles(); break;
-    case 'prescriptions-med':  loadPrescriptionsMed(); break;
-    case 'consultations-spec': loadConsultationsSpec(); break;
+    case 'dashboard':                 loadDashboard(role); break;
+    case 'assures':                   loadAssures(); break;
+    case 'medecins':                  loadMedecins(); break;
+    case 'feuilles':                  loadFeuilles(); break;
+    case 'remboursements':            loadRemboursements(); break;
+    case 'mes-feuilles':              loadMesFeuilles(); break;
+    case 'prescriptions-med':         loadPrescriptionsMed(); break;
+    case 'consultations-spec':        loadConsultationsSpec(); break;
+    case 'mon-profil':                loadMonProfil(); break;
+    case 'patients':                  loadPatients(); break;
+    case 'historique-consultations':  loadHistoriqueConsultations(); break;
+    case 'historique':                loadHistoriqueOperations(); break;
+    case 'recherche':                 loadRecherche(); break;
   }
 }
 

@@ -143,12 +143,17 @@ http://localhost:3001
 
 ## 🔑 Comptes de démonstration
 
-| Rôle | Identifiant | Mot de passe | Accès |
-|---|---|---|---|
-| 🧑‍💼 Assureur | `assureur01` | `assureur123` | Assurés, Médecins, Feuilles, Remboursements |
-| 🧑‍💼 Assureur | `assureur02` | `assureur123` | Idem |
-| 👨‍⚕️ Médecin | `medecin01` | `medecin123` | Feuilles de maladie, Prescriptions |
-| 👨‍⚕️ Médecin | `medecin02` | `medecin123` | Idem |
+| Rôle | Identifiant | Mot de passe | Titulaire | Accès |
+|---|---|---|---|---|
+| 🧑‍💼 Admin | `admin` | `AdminForInsurance2025!` | Admin SYSTEM | Accès assureur complet |
+| 🧑‍💼 Assureur | `assureur01` | `assureur123` | NOUMSSI Elvira | Assurés, Médecins, Feuilles, Remboursements |
+| 🧑‍💼 Assureur | `assureur02` | `assureur123` | ABONDO Mark | Idem |
+| 👨‍⚕️ Médecin | `medecin01` | `medecin123` | MAWAMBA Princesse (Généraliste) | Feuilles de maladie, Prescriptions |
+| 👨‍⚕️ Médecin | `medecin02` | `medecin123` | BILONGO Laurent (Généraliste) | Idem |
+| 👨‍⚕️ Médecin | `medecin03` | `medecin123` | KIKI Daniel (Spécialiste - Cardiologie) | Idem |
+| 👨‍⚕️ Médecin | `medecin04` | `medecin123` | TALLA TEYO Sylvain (Spécialiste - Neurologie) | Idem |
+| 👨‍⚕️ Médecin | `medecin05` | `medecin123` | WAFO TEGUO Vitric (Spécialiste - Dermatologie) | Idem |
+| 👨‍⚕️ Médecin | `medecin06` | `medecin123` | ONDOA MANGA Harry Johan (Généraliste) | Idem |
 
 ---
 

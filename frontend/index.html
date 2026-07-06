@@ -6,157 +6,278 @@
   <title>ForInsurance : Sécurité Sociale</title>
   <meta name="description" content="ForInsurance - Votre sécurité sociale au Cameroun"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"/>
-  <link rel="stylesheet" href="css/main.css?v=3"/>
+  <link rel="stylesheet" href="css/main.css?v=8"/>
 </head>
 <body>
 <div id="app">
 
 <!-- ==========================================
-     LANDING PAGE
+     LANDING PAGE (Premium)
 =========================================== -->
 <div id="screen-landing" class="screen">
-  <div class="landing-nav">
-    <div class="landing-logo"><i class="fas fa-shield-alt"></i> ForInsurance</div>
-    <div class="l-tabs">
-      <button class="ltab active" data-ltab="about" onclick="switchLandingTab('about')">À propos</button>
-      <button class="ltab" data-ltab="roles" onclick="switchLandingTab('roles')">Assurés & Médecins</button>
-    </div>
-    <button class="btn btn-outline" style="border-color:#fff;color:#fff" onclick="showLogin()">Espace Connecté <i class="fas fa-arrow-right"></i></button>
-  </div>
-
-  <!-- Tab: À propos -->
-  <div id="ltab-about" class="ltab-content active">
-    <div class="landing-hero">
-      <div class="hero-text">
-        <div class="hero-badge">Organisme de Sécurité Sociale</div>
-        <h1>ForInsurance : votre santé, notre engagement.</h1>
-        <p>Rejoignez le réseau de sécurité sociale qui protege vous et votre famille. Accedez à des soins de qualite, beneficiez de remboursements rapides et suivez vos dossiers en toute transparence.</p>
+  <!-- Header Sticky -->
+  <header class="l-header">
+    <div class="l-header-inner">
+      <div class="l-header-left">
+        <div class="l-logo"><i class="fas fa-shield-alt"></i> ForInsurance</div>
+      </div>
+      <nav class="l-nav" id="l-nav">
+        <a href="#hero" class="l-nav-link active">Accueil</a>
+        <a href="#espaces" class="l-nav-link">Fonctionnalités</a>
+        <a href="#pourquoi" class="l-nav-link">À propos</a>
+        <a href="#footer" class="l-nav-link">Contact</a>
+      </nav>
+      <div class="l-header-right">
+        <button class="btn btn-primary btn-sm" onclick="showLogin()">Se connecter <i class="fas fa-arrow-right"></i></button>
+        <button class="l-menu-btn" id="l-menu-btn" onclick="toggleLandingMenu()"><i class="fas fa-bars"></i></button>
       </div>
     </div>
+  </header>
 
-    <div class="l-section l-features">
-      <h2 class="l-section-title">Pourquoi choisir ForInsurance ?</h2>
-      <div class="feat-grid">
-        <div class="feat">
-          <div class="feat-icon"><i class="fas fa-bolt"></i></div>
+  <!-- Hero Section -->
+  <section id="hero" class="l-hero">
+    <div class="l-hero-inner">
+      <div class="l-hero-left">
+        <div class="l-hero-badge"><i class="fas fa-shield-alt"></i> Plateforme sécurisée</div>
+        <h1 class="l-hero-title">Simplifiez la gestion des consultations médicales et des remboursements avec ForInsurance</h1>
+        <p class="l-hero-desc">ForInsurance est une plateforme intelligente conçue pour les organismes de sécurité sociale et les médecins. Elle centralise la gestion des assurés, des consultations médicales, des prescriptions, des feuilles de maladie et des remboursements dans une interface unique, rapide et entièrement sécurisée.</p>
+        <div class="l-hero-actions">
+          <button class="btn btn-primary btn-lg" onclick="showLogin()">Se connecter <i class="fas fa-arrow-right"></i></button>
+          <button class="btn btn-outline btn-lg" onclick="document.getElementById('espaces').scrollIntoView({behavior:'smooth'})">Découvrir la plateforme <i class="fas fa-chevron-down"></i></button>
+        </div>
+        <div class="l-hero-trust">
+          <span><i class="fas fa-check-circle" style="color:#22c55e"></i> Données sécurisées</span>
+          <span><i class="fas fa-check-circle" style="color:#22c55e"></i> Traitement rapide</span>
+          <span><i class="fas fa-check-circle" style="color:#22c55e"></i> Conforme aux procédures</span>
+          <span><i class="fas fa-check-circle" style="color:#22c55e"></i> Interface moderne</span>
+        </div>
+      </div>
+      <div class="l-hero-right">
+        <div class="l-hcard l-hcard-1">
+          <div class="l-hcard-icon"><i class="fas fa-users"></i></div>
+          <div class="l-hcard-body">
+            <h4>Gestion des assurés</h4>
+            <p>Inscription et suivi des assurés.</p>
+          </div>
+        </div>
+        <div class="l-hcard l-hcard-2">
+          <div class="l-hcard-icon"><i class="fas fa-stethoscope"></i></div>
+          <div class="l-hcard-body">
+            <h4>Consultations médicales</h4>
+            <p>Enregistrement des consultations réalisées par les médecins généralistes et spécialistes.</p>
+          </div>
+        </div>
+        <div class="l-hcard l-hcard-3">
+          <div class="l-hcard-icon"><i class="fas fa-pills"></i></div>
+          <div class="l-hcard-body">
+            <h4>Prescriptions</h4>
+            <p>Prescription de médicaments et orientation vers un spécialiste.</p>
+          </div>
+        </div>
+        <div class="l-hcard l-hcard-4">
+          <div class="l-hcard-icon"><i class="fas fa-file-medical-alt"></i></div>
+          <div class="l-hcard-body">
+            <h4>Feuilles de maladie</h4>
+            <p>Création et validation des feuilles de maladie.</p>
+          </div>
+        </div>
+        <div class="l-hcard l-hcard-5">
+          <div class="l-hcard-icon"><i class="fas fa-wallet"></i></div>
+          <div class="l-hcard-body">
+            <h4>Remboursements</h4>
+            <p>Calcul automatique des remboursements selon les règles de la sécurité sociale.</p>
+          </div>
+        </div>
+        <div class="l-hcard l-hcard-6">
+          <div class="l-hcard-icon"><i class="fas fa-shield-alt"></i></div>
+          <div class="l-hcard-body">
+            <h4>Sécurité</h4>
+            <p>Toutes les données sont protégées et accessibles uniquement aux utilisateurs autorisés.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section: Choisissez votre espace -->
+  <section id="espaces" class="l-section l-espaces">
+    <div class="l-section-inner">
+      <h2 class="l-section-title">Accédez à votre espace</h2>
+      <p class="l-section-sub">Choisissez votre profil pour accéder aux fonctionnalités adaptées à votre métier.</p>
+      <div class="l-espaces-grid">
+        <div class="l-espace-card">
+          <div class="l-espace-icon"><i class="fas fa-user-md"></i></div>
+          <h3>Espace Médecin</h3>
+          <p>Le médecin peut consulter les dossiers des patients, enregistrer des consultations, prescrire des médicaments, orienter un patient vers un spécialiste et enregistrer des feuilles de maladie.</p>
+          <button class="btn btn-primary btn-lg" onclick="showLogin()">Accéder à l'espace Médecin <i class="fas fa-arrow-right"></i></button>
+        </div>
+        <div class="l-espace-card">
+          <div class="l-espace-icon"><i class="fas fa-user-cog"></i></div>
+          <h3>Espace Assureur</h3>
+          <p>L'assureur gère les assurés, les médecins, les médecins traitants, les feuilles de maladie et les remboursements selon les procédures de la sécurité sociale.</p>
+          <button class="btn btn-outline btn-lg" onclick="showLogin()">Accéder à l'espace Assureur <i class="fas fa-arrow-right"></i></button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section: Pourquoi ForInsurance ? -->
+  <section id="pourquoi" class="l-section l-why">
+    <div class="l-section-inner">
+      <h2 class="l-section-title">Pourquoi ForInsurance ?</h2>
+      <div class="l-why-grid">
+        <div class="l-why-card">
+          <div class="l-why-icon"><i class="fas fa-lock"></i></div>
+          <h3>Sécurité maximale</h3>
+          <p>Toutes les informations médicales sont protégées.</p>
+        </div>
+        <div class="l-why-card">
+          <div class="l-why-icon"><i class="fas fa-database"></i></div>
+          <h3>Gestion centralisée</h3>
+          <p>Toutes les opérations sont regroupées dans une seule plateforme.</p>
+        </div>
+        <div class="l-why-card">
+          <div class="l-why-icon"><i class="fas fa-bolt"></i></div>
           <h3>Traitement rapide</h3>
-          <p>Les feuilles de maladie sont traitées en quelques clics. Les remboursements sont effectués sans délai.</p>
+          <p>Réduction des délais de traitement des dossiers.</p>
         </div>
-        <div class="feat">
-          <div class="feat-icon"><i class="fas fa-file-invoice"></i></div>
-          <h3>Suivi transparent</h3>
-          <p>Assurés et médecins peuvent suivre l'état des dossiers à chaque étape : de la création au remboursement.</p>
-        </div>
-        <div class="feat">
-          <div class="feat-icon"><i class="fas fa-prescription-bottle-alt"></i></div>
-          <h3>Prescriptions numeriques</h3>
-          <p>Prescrivez des médicaments ou demandez des consultations spécialisées directement depuis la plateforme.</p>
-        </div>
-        <div class="feat">
-          <div class="feat-icon"><i class="fas fa-shield-alt"></i></div>
-          <h3>Securite des donnees</h3>
-          <p>Les donnees medicales et personnelles sont stockees dans un environnement hautement securise.</p>
+        <div class="l-why-card">
+          <div class="l-why-icon"><i class="fas fa-mouse-pointer"></i></div>
+          <h3>Interface intuitive</h3>
+          <p>Une expérience utilisateur simple, moderne et fluide.</p>
         </div>
       </div>
     </div>
+  </section>
 
-    <div class="l-section l-contact">
-      <h2 class="l-section-title">Vous souhaitez devenir assuré ?</h2>
-      <p class="l-section-desc">Contactez-nous pour qu'un agent ForInsurance vous enregistre et vous attribue votre numéro de sécurité sociale.</p>
-      <div class="contact-card">
-        <i class="fas fa-envelope"></i>
-        <a href="https://mail.google.com/mail/?view=cm&fs=1&to=forinsurance237@gmail.com" target="_blank">forinsurance237@gmail.com <i class="fas fa-external-link-alt" style="font-size:12px"></i></a>
+  <!-- Footer -->
+  <footer id="footer" class="l-footer">
+    <div class="l-footer-inner">
+      <div class="l-footer-col l-footer-brand">
+        <div class="l-logo"><i class="fas fa-shield-alt"></i> ForInsurance</div>
+        <p>ForInsurance est une plateforme numérique dédiée à la gestion des consultations médicales, des prescriptions, des feuilles de maladie et des remboursements de la sécurité sociale.</p>
+      </div>
+      <div class="l-footer-col">
+        <h4>Navigation</h4>
+        <ul>
+          <li><a href="#hero">Accueil</a></li>
+          <li><a href="#espaces">Fonctionnalités</a></li>
+          <li><a href="#pourquoi">À propos</a></li>
+          <li><a href="#footer">Contact</a></li>
+        </ul>
+      </div>
+      <div class="l-footer-col">
+        <h4>Informations</h4>
+        <ul>
+          <li><a href="https://mail.google.com/mail/?view=cm&fs=1&to=forinsurance237@gmail.com" target="_blank"><i class="fas fa-envelope"></i> forinsurance237@gmail.com</a></li>
+          <li><i class="fas fa-phone"></i> +237 699 000 000</li>
+          <li><i class="fas fa-map-marker-alt"></i> Yaoundé, Cameroun</li>
+        </ul>
       </div>
     </div>
-  </div>
-
-  <!-- Tab: Assurés & Médecins -->
-  <div id="ltab-roles" class="ltab-content">
-    <div class="l-section">
-      <h2 class="l-section-title">Une plateforme pour tous les acteurs</h2>
-      <p class="l-section-desc">ForInsurance est conçue pour les agents de sécurité sociale et les professionnels de santé. Chacun dispose d'outils adaptés à ses besoins.</p>
-      <div class="role-cards">
-        <div class="role-card">
-          <div class="role-icon"><i class="fas fa-user-cog"></i></div>
-          <h3>Assureurs</h3>
-          <p>Les agents de sécurité sociale gèrent les inscriptions, traitent les feuilles de maladie, valident les remboursements et supervisent l'ensemble du parcours de soins des assurés.</p>
-          <ul>
-            <li><i class="fas fa-check-circle"></i> Inscrire et gérer les assurés</li>
-            <li><i class="fas fa-check-circle"></i> Traiter les feuilles de maladie</li>
-            <li><i class="fas fa-check-circle"></i> Effectuer les remboursements</li>
-            <li><i class="fas fa-check-circle"></i> Consulter les statistiques</li>
-          </ul>
-        </div>
-        <div class="role-card">
-          <div class="role-icon"><i class="fas fa-user-md"></i></div>
-          <h3>Médecins</h3>
-          <p>Les professionnels de santé créent et transmettent les feuilles de maladie, prescrivent des médicaments et orientent les patients vers des spécialistes.</p>
-          <ul>
-            <li><i class="fas fa-check-circle"></i> Créer des feuilles de maladie</li>
-            <li><i class="fas fa-check-circle"></i> Prescrire des médicaments</li>
-            <li><i class="fas fa-check-circle"></i> Orienter vers un spécialiste</li>
-            <li><i class="fas fa-check-circle"></i> Suivre l'état des dossiers</li>
-          </ul>
-        </div>
-      </div>
+    <div class="l-footer-bottom">
+      <p>&copy; 2026 ForInsurance — Tous droits réservés.</p>
     </div>
-
-    <div class="l-section l-cta">
-      <h2>Déjà inscrit ?</h2>
-      <p>Authentifiez-vous pour accéder à votre espace de travail.</p>
-      <button class="btn btn-lg" style="background:#fff;color:#667eea;font-weight:700;border:none" onclick="showLogin()">S'authentifier <i class="fas fa-arrow-right"></i></button>
-    </div>
-  </div>
-
-  <div class="l-footer">
-    <p>ForInsurance · Organisme de Sécurité Sociale · ENSPY 2025/2026</p>
-    <p style="font-size:.75rem;opacity:.5;margin-top:4px">Plateforme de gestion des remboursements médicaux</p>
-  </div>
+  </footer>
 </div>
 
-  <!-- ══ ÉCRAN DE CONNEXION ══════════════════════════════════ -->
+  <!-- ══ ÉCRAN DE CONNEXION (Premium) ══════════════════════ -->
   <div id="screen-login" class="screen hidden">
-    <div style="position:absolute;top:20px;left:30px;">
-      <button class="btn btn-secondary" onclick="showLanding()"><i class="fas fa-arrow-left"></i> ForInsurance</button>
-    </div>
-    <div class="login-wrapper">
-      <div class="login-card">
-        <div class="login-logo">
-          <i class="fas fa-shield-alt logo-icon"></i>
-          <h1 class="logo-title">ForInsurance</h1>
-          <p class="logo-sub">Organisme de Sécurité Sociale · ENSPY 2025/2026</p>
-        </div>
+    <button class="login-back" onclick="showLanding()"><i class="fas fa-arrow-left"></i> ForInsurance</button>
 
-        <div class="role-tabs">
-          <button class="rtab active" data-role="assureur" onclick="setLoginRole('assureur')">
-            <i class="fas fa-user-cog"></i> Assureur
-          </button>
-          <button class="rtab" data-role="medecin" onclick="setLoginRole('medecin')">
-            <i class="fas fa-user-md"></i> Médecin
-          </button>
-        </div>
-
-        <form id="login-form">
-          <div class="form-group">
-            <label for="f-id">Identifiant</label>
-            <input id="f-id" type="text" placeholder="Identifiant" autocomplete="username"/>
+    <div class="login-container">
+      <!-- Partie gauche : présentation -->
+      <div class="login-left">
+        <div class="login-left-inner">
+          <div class="login-left-top">
+            <div class="ll-logo"><i class="fas fa-shield-alt"></i> ForInsurance</div>
           </div>
-          <div class="form-group">
-            <label for="f-pw">Mot de passe</label>
-            <input id="f-pw" type="password" placeholder="••••••••" autocomplete="current-password"/>
+          <div class="login-left-content">
+            <div class="ll-badge"><i class="fas fa-shield-alt"></i> Plateforme sécurisée</div>
+            <h1 class="ll-title">Bienvenue sur ForInsurance</h1>
+            <p class="ll-desc">Connectez-vous à votre espace sécurisé afin de gérer efficacement les consultations médicales, les feuilles de maladie, les prescriptions et les remboursements dans un environnement moderne, fiable et entièrement sécurisé.</p>
+            <div class="ll-benefits">
+              <div class="ll-benefit"><i class="fas fa-check-circle"></i> Gestion centralisée</div>
+              <div class="ll-benefit"><i class="fas fa-check-circle"></i> Données hautement sécurisées</div>
+              <div class="ll-benefit"><i class="fas fa-check-circle"></i> Traitement rapide des dossiers</div>
+              <div class="ll-benefit"><i class="fas fa-check-circle"></i> Interface moderne et intuitive</div>
+            </div>
           </div>
-          <div id="login-err" class="alert alert-error hidden"></div>
-          <button type="submit" class="btn btn-primary btn-full" id="btn-login">
-            <span class="btn-text">Se connecter</span>
-            <i class="fas fa-spinner btn-spinner hidden" style="animation: spin 1s linear infinite"></i>
-          </button>
-        </form>
-
-        <div class="login-register-link">
-          Vous êtes médecin et n'avez pas encore de compte ?
-          <a href="#" onclick="showRegisterScreen();return false">Créer un compte <i class="fas fa-external-link-alt"></i></a>
+          <div class="login-left-bottom">
+            <p class="ll-quote">Une plateforme unique pour simplifier la gestion de la sécurité sociale.</p>
+          </div>
         </div>
       </div>
+
+      <!-- Partie droite : formulaire -->
+      <div class="login-right">
+        <div class="login-card">
+          <div class="lc-header">
+            <div class="lc-icon"><i class="fas fa-lock"></i></div>
+            <h2 class="lc-title">Connexion</h2>
+            <p class="lc-sub">Accédez à votre espace personnel.</p>
+          </div>
+
+          <div class="lc-role-tabs">
+            <button class="lc-rtab active" data-role="assureur" onclick="setLoginRole('assureur')">
+              <i class="fas fa-user-cog"></i> Assureur
+            </button>
+            <button class="lc-rtab" data-role="medecin" onclick="setLoginRole('medecin')">
+              <i class="fas fa-user-md"></i> Médecin
+            </button>
+          </div>
+
+          <form id="login-form" class="lc-form">
+            <div class="lc-field">
+              <label for="f-id">Identifiant</label>
+              <div class="lc-input-wrap">
+                <i class="fas fa-user lc-input-icon"></i>
+                <input id="f-id" type="text" placeholder="Entrez votre identifiant" autocomplete="username"/>
+              </div>
+            </div>
+            <div class="lc-field">
+              <label for="f-pw">Mot de passe</label>
+              <div class="lc-input-wrap">
+                <i class="fas fa-lock lc-input-icon"></i>
+                <input id="f-pw" type="password" placeholder="Entrez votre mot de passe" autocomplete="current-password"/>
+                <button type="button" class="lc-pw-toggle" onclick="togglePassword()" tabindex="-1">
+                  <i class="fas fa-eye" id="pw-eye"></i>
+                </button>
+              </div>
+            </div>
+            <div id="login-err" class="alert alert-error hidden"></div>
+
+            <div class="lc-options">
+              <label class="lc-checkbox">
+                <input type="checkbox" checked/> <span>Se souvenir de moi</span>
+              </label>
+              <a href="#" class="lc-forgot" onclick="return false">Mot de passe oublié ?</a>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-full lc-btn" id="btn-login">
+              <span class="btn-text">Se connecter</span>
+              <i class="fas fa-spinner btn-spinner hidden" style="animation: spin 1s linear infinite"></i>
+            </button>
+
+            <div class="lc-divider"><span>OU</span></div>
+
+            <div class="lc-no-account">
+              <p>Vous n'avez pas de compte ?</p>
+              <small>Les comptes sont créés uniquement par l'administrateur de la sécurité sociale.</small>
+            </div>
+          </form>
+
+          <div class="lc-security">
+            <i class="fas fa-shield-alt"></i> Vos informations sont protégées grâce à un système d'authentification sécurisé.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="login-footer">
+      <span>&copy; 2026 ForInsurance</span>
+      <a href="#" onclick="return false">Politique de confidentialité</a>
+      <a href="#" onclick="return false">Conditions d'utilisation</a>
     </div>
   </div>
 
@@ -232,18 +353,28 @@
           <i class="fas fa-th-large s-icon"></i><span class="s-text">Tableau de bord</span>
         </a>
         <div id="nav-assureur" class="hidden">
+          <div class="s-label">Mon compte</div>
+          <a class="s-item" data-page="mon-profil"><i class="fas fa-id-card s-icon"></i><span class="s-text">Mon profil</span></a>
           <div class="s-label">Gestion</div>
-          <a class="s-item" data-page="assures"><i class="fas fa-users s-icon"></i><span class="s-text">Assurés</span></a>
-          <div class="s-label">Remboursements</div>
-          <a class="s-item" data-page="feuilles"><i class="fas fa-file-medical-alt s-icon"></i><span class="s-text">Feuilles de maladie</span></a>
-          <a class="s-item" data-page="remboursements"><i class="fas fa-credit-card s-icon"></i><span class="s-text">Remboursements</span></a>
+          <a class="s-item" data-page="assures"><i class="fas fa-users s-icon"></i><span class="s-text">Gestion des assurés</span></a>
+          <a class="s-item" data-page="medecins"><i class="fas fa-user-md s-icon"></i><span class="s-text">Gestion des médecins</span></a>
+          <a class="s-item" data-page="feuilles"><i class="fas fa-file-medical-alt s-icon"></i><span class="s-text">Gestion des feuilles de maladie</span></a>
+          <a class="s-item" data-page="remboursements"><i class="fas fa-credit-card s-icon"></i><span class="s-text">Gestion des remboursements</span></a>
+          <div class="s-label">Suivi</div>
+          <a class="s-item" data-page="historique"><i class="fas fa-history s-icon"></i><span class="s-text">Historique des opérations</span></a>
+          <a class="s-item" data-page="recherche"><i class="fas fa-search s-icon"></i><span class="s-text">Recherche</span></a>
         </div>
         <div id="nav-medecin" class="hidden">
-          <div class="s-label">Mes dossiers</div>
+          <div class="s-label">Mon profil</div>
+          <a class="s-item" data-page="mon-profil"><i class="fas fa-id-card s-icon"></i><span class="s-text">Mon profil</span></a>
+          <div class="s-label">Patients</div>
+          <a class="s-item" data-page="patients"><i class="fas fa-user-injured s-icon"></i><span class="s-text">Gestion des patients</span></a>
+          <div class="s-label">Actes médicaux</div>
           <a class="s-item" data-page="mes-feuilles"><i class="fas fa-file-invoice s-icon"></i><span class="s-text">Feuilles de maladie</span></a>
-          <div class="s-label">Prescriptions</div>
-          <a class="s-item" data-page="prescriptions-med"><i class="fas fa-prescription-bottle-alt s-icon"></i><span class="s-text">Médicaments</span></a>
-          <a class="s-item" data-page="consultations-spec"><i class="fas fa-microscope s-icon"></i><span class="s-text">Consultations Spéc.</span></a>
+          <a class="s-item" data-page="prescriptions-med"><i class="fas fa-prescription-bottle-alt s-icon"></i><span class="s-text">Prescription de médicaments</span></a>
+          <a class="s-item" data-page="consultations-spec"><i class="fas fa-microscope s-icon"></i><span class="s-text">Prescription vers un spécialiste</span></a>
+          <div class="s-label">Historique</div>
+          <a class="s-item" data-page="historique-consultations"><i class="fas fa-clock s-icon"></i><span class="s-text">Historique des consultations</span></a>
         </div>
       </nav>
       <div class="s-foot">
@@ -287,6 +418,25 @@
           <div class="card">
             <div class="card-hd"><h3>Activité récente</h3></div>
             <div class="card-bd" id="activity-list"></div>
+          </div>
+        </section>
+
+        <!-- MÉDECINS (Assureur) -->
+        <section id="page-medecins" class="page">
+          <div class="page-bar">
+            <div style="position:relative;flex:1;min-width:200px">
+              <i class="fas fa-search" style="position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:13px"></i>
+              <input class="search" id="q-medecins" placeholder="Rechercher un médecin…" style="padding-left:32px"/>
+            </div>
+            <button class="btn btn-primary" id="btn-add-medecin"><i class="fas fa-plus"></i> Enregistrer un médecin</button>
+          </div>
+          <div class="card">
+            <div class="card-bd p0">
+              <table class="tbl" id="tbl-medecins">
+                <thead><tr><th>Identifiant</th><th>Nom complet</th><th>Type</th><th>Spécialité</th><th>Téléphone</th><th>Actions</th></tr></thead>
+                <tbody id="tbody-medecins"></tbody>
+              </table>
+            </div>
           </div>
         </section>
 
@@ -404,6 +554,89 @@
           </div></div>
         </section>
 
+        <!-- MON PROFIL -->
+        <section id="page-mon-profil" class="page">
+          <div class="card">
+            <div class="card-hd"><h3><i class="fas fa-id-card"></i> Mes informations</h3></div>
+            <div class="card-bd" id="profil-content">
+              <div class="det-grid" id="profil-det"></div>
+            </div>
+          </div>
+          <div class="card" style="margin-top:12px">
+            <div class="card-hd"><h3><i class="fas fa-file-invoice"></i> Statistiques personnelles</h3></div>
+            <div class="card-bd" id="profil-stats"></div>
+          </div>
+        </section>
+
+        <!-- GESTION DES PATIENTS -->
+        <section id="page-patients" class="page">
+          <div class="page-bar">
+            <div style="position:relative;flex:1;min-width:200px">
+              <i class="fas fa-search" style="position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:13px"></i>
+              <input class="search" id="q-patients" placeholder="Rechercher un patient (nom, N° SS)…" style="padding-left:32px"/>
+            </div>
+          </div>
+          <div class="card"><div class="card-bd p0">
+            <table class="tbl">
+              <thead><tr><th>N° Sécurité Sociale</th><th>Nom complet</th><th>Naissance</th><th>Médecin traitant</th><th>Statut</th><th>Actions</th></tr></thead>
+              <tbody id="tbody-patients"></tbody>
+            </table>
+          </div></div>
+        </section>
+
+        <!-- HISTORIQUE DES CONSULTATIONS (Médecin) -->
+        <section id="page-historique-consultations" class="page">
+          <div class="page-bar">
+            <div style="position:relative;flex:1;min-width:200px">
+              <i class="fas fa-search" style="position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:13px"></i>
+              <input class="search" id="q-historique" placeholder="Rechercher (patient, référence)…" style="padding-left:32px"/>
+            </div>
+            <div class="filter-tabs" id="ft-historique">
+              <button class="ftab active" data-v="all">Tout</button>
+              <button class="ftab" data-v="feuilles">Feuilles de maladie</button>
+              <button class="ftab" data-v="prescriptions">Prescriptions</button>
+            </div>
+          </div>
+          <div class="card"><div class="card-bd p0">
+            <table class="tbl">
+              <thead><tr><th>Date</th><th>Patient</th><th>Détail</th><th>Statut</th><th>Actions</th></tr></thead>
+              <tbody id="tbody-historique"></tbody>
+            </table>
+          </div></div>
+        </section>
+
+        <!-- HISTORIQUE DES OPÉRATIONS (Assureur) -->
+        <section id="page-historique" class="page">
+          <div class="page-bar">
+            <div style="position:relative;flex:1;min-width:200px">
+              <i class="fas fa-search" style="position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:13px"></i>
+              <input class="search" id="q-operations" placeholder="Rechercher…" style="padding-left:32px"/>
+            </div>
+            <div class="filter-tabs" id="ft-operations">
+              <button class="ftab active" data-v="all">Tout</button>
+              <button class="ftab" data-v="feuilles">Feuilles</button>
+              <button class="ftab" data-v="remboursements">Remboursements</button>
+              <button class="ftab" data-v="demandes">Demandes</button>
+            </div>
+          </div>
+          <div class="card"><div class="card-bd">
+            <div id="operations-list" class="activity-list"></div>
+          </div></div>
+        </section>
+
+        <!-- RECHERCHE GLOBALE -->
+        <section id="page-recherche" class="page">
+          <div class="card">
+            <div class="card-bd">
+              <div class="form-group" style="position:relative">
+                <i class="fas fa-search" style="position:absolute;left:14px;top:18px;color:var(--text-muted);font-size:15px"></i>
+                <input id="q-global" placeholder="Rechercher dans toute l'application (assuré, médecin, feuille, remboursement…) : tapez au moins 2 caractères" style="padding-left:38px;font-size:1rem;height:50px"/>
+              </div>
+            </div>
+          </div>
+          <div id="global-results"></div>
+        </section>
+
       </div>
     </main>
   </div>
@@ -433,6 +666,10 @@
 <script src="js/pages/feuilles.js"></script>
 <script src="js/pages/remboursements.js"></script>
 <script src="js/pages/prescriptions.js"></script>
+<script src="js/pages/profil.js"></script>
+<script src="js/pages/patients.js"></script>
+<script src="js/pages/historique.js"></script>
+<script src="js/pages/recherche.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>
