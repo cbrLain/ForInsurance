@@ -48,6 +48,9 @@ function wrapSql(sql) {
   // changes() → 1 (simplifié)
   adapted = adapted.replace(/changes\(\)/gi, '1');
 
+  // LIKE → ILIKE (PostgreSQL LIKE est sensible à la casse, SQLite non)
+  adapted = adapted.replace(/\bLIKE\b/gi, 'ILIKE');
+
   return adapted;
 }
 

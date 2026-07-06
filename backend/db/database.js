@@ -1,6 +1,5 @@
 // db/database.js — PostgreSQL (via pg) ou SQLite (fallback local)
 const { initPg, getPgDb } = require('./pg-database');
-const { initSqlite, getSqliteDb } = require('./sqlite-database');
 
 let _api = null;
 let _mode = null;
@@ -12,6 +11,7 @@ async function initDb() {
     _mode = 'pg';
   } else {
     console.log('🗄️  Aucun DATABASE_URL → SQLite local');
+    const { initSqlite } = require('./sqlite-database');
     _api = await initSqlite();
     _mode = 'sqlite';
   }
