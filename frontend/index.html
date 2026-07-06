@@ -617,7 +617,37 @@
             <div class="card-bd">
               <div class="form-group" style="position:relative">
                 <i class="fas fa-search" style="position:absolute;left:14px;top:18px;color:var(--text-muted);font-size:15px"></i>
-                <input id="q-global" placeholder="Rechercher dans toute l'application (assuré, médecin, feuille, remboursement…) : tapez au moins 2 caractères" style="padding-left:38px;font-size:1rem;height:50px"/>
+                <input id="q-global" placeholder="Mot-clé (nom, NSS, référence…) : au moins 2 caractères" style="padding-left:38px;font-size:1rem;height:50px"/>
+              </div>
+              <div class="form-row" style="margin-top:10px;gap:8px;flex-wrap:wrap">
+                <div class="form-group" style="flex:1;min-width:130px">
+                  <label style="font-size:.72rem;color:var(--text-muted)">Du</label>
+                  <input id="rf-date-from" type="date" class="search" style="height:36px;font-size:.82rem"/>
+                </div>
+                <div class="form-group" style="flex:1;min-width:130px">
+                  <label style="font-size:.72rem;color:var(--text-muted)">Au</label>
+                  <input id="rf-date-to" type="date" class="search" style="height:36px;font-size:.82rem"/>
+                </div>
+                <div class="form-group" style="flex:1;min-width:130px">
+                  <label style="font-size:.72rem;color:var(--text-muted)">Statut feuille</label>
+                  <select id="rf-statut" class="search" style="height:36px;font-size:.82rem">
+                    <option value="">Tous</option>
+                    <option value="Incomplète">Incomplète</option>
+                    <option value="Complétée">Complétée</option>
+                    <option value="Remboursée">Remboursée</option>
+                    <option value="Rejetée">Rejetée</option>
+                  </select>
+                </div>
+                <div class="form-group" style="flex:1;min-width:130px">
+                  <label style="font-size:.72rem;color:var(--text-muted)">Catégorie</label>
+                  <select id="rf-category" class="search" style="height:36px;font-size:.82rem">
+                    <option value="">Tout</option>
+                    <option value="assures">Assurés</option>
+                    <option value="medecins">Médecins</option>
+                    <option value="feuilles">Feuilles</option>
+                    <option value="remboursements">Remboursements</option>
+                  </select>
+                </div>
               </div>
             </div>
           </div>

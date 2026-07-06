@@ -33,7 +33,7 @@ const FM_SELECT = `
 // GET /api/feuilles
 router.get('/', authenticate, async (req, res) => {
   const db = getDb();
-  const { q, statut, assure_id, medecin_id, page, limit } = req.query;
+  const { q, statut, assure_id, medecin_id, page, limit, date_from, date_to } = req.query;
   let sql = FM_SELECT + ' WHERE 1=1';
   const params = [];
 
@@ -45,6 +45,8 @@ router.get('/', authenticate, async (req, res) => {
   if (statut && statut !== 'all') { sql += ' AND f.statut = ?'; params.push(statut); }
   if (assure_id) { sql += ' AND f.assure_id = ?'; params.push(assure_id); }
   if (medecin_id) { sql += ' AND f.medecin_id = ?'; params.push(medecin_id); }
+  if (date_from) { sql += ' AND f.date_consultation >= ?'; params.push(date_from); }
+  if (date_to) { sql += ' AND f.date_consultation <= ?'; params.push(date_to + ' 23:59:59'); }
   if (q) {
     sql += ' AND (f.reference LIKE ? OR pa.nom LIKE ? OR pm.nom LIKE ? OR a.numero_ss LIKE ?)';
     const like = `%${q}%`;

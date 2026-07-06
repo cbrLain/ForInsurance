@@ -19,9 +19,11 @@ const REMB_SELECT = `
 // GET /api/remboursements
 router.get('/', authenticate, requireRole('assureur'), async (req, res) => {
   const db = getDb();
-  const { q, page, limit } = req.query;
+  const { q, page, limit, date_from, date_to } = req.query;
   let sql = REMB_SELECT + ' WHERE 1=1';
   const params = [];
+  if (date_from) { sql += ' AND r.date_remboursement >= ?'; params.push(date_from); }
+  if (date_to) { sql += ' AND r.date_remboursement <= ?'; params.push(date_to + ' 23:59:59'); }
   if (q) {
     sql += ' AND (f.reference LIKE ? OR pa.nom LIKE ? OR a.numero_ss LIKE ?)';
     const like = `%${q}%`;
