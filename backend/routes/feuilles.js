@@ -166,8 +166,8 @@ router.patch('/:id/completer', authenticate, requireRole('assureur'), async (req
 
   const feuille = await db.prepare('SELECT * FROM feuilles_maladie WHERE id=?').get(req.params.id);
   if (!feuille) return res.status(404).json({ error: 'Feuille introuvable.' });
-  if (['Remboursée','Rejetée'].includes(feuille.statut))
-    return res.status(400).json({ error: `Impossible de compléter une feuille ${feuille.statut}.` });
+  if (['Complétée','Remboursée','Rejetée'].includes(feuille.statut))
+    return res.status(400).json({ error: `Impossible de compléter une feuille déjà « ${feuille.statut} ».` });
 
   await db.prepare(`UPDATE feuilles_maladie SET montant_remboursement=?, mode_paiement=?, notes=COALESCE(?,notes),
     statut=CASE WHEN statut='Incomplète' THEN 'Complétée' ELSE statut END,
