@@ -311,16 +311,16 @@
 
   <!-- ══ APPLICATION PRINCIPALE ════════════════════════════ -->
   <div id="screen-app" class="screen hidden">
-    <aside class="sidebar" id="sidebar">
+    <aside class="sidebar" id="sidebar" role="complementary" aria-label="Barre latérale">
       <div class="sidebar-head">
-        <i class="fas fa-shield-alt s-logo"></i>
+        <i class="fas fa-shield-alt s-logo" aria-hidden="true"></i>
         <div class="s-brand">
           <div class="s-title">ForInsurance</div>
           <div class="s-sub" id="s-role">—</div>
         </div>
-        <button id="btn-collapse" class="btn-collapse" title="Réduire"><i class="fas fa-chevron-left"></i></button>
+        <button id="btn-collapse" class="btn-collapse" title="Réduire" aria-label="Réduire la barre latérale"><i class="fas fa-chevron-left" aria-hidden="true"></i></button>
       </div>
-      <nav id="sidebar-nav" class="s-nav">
+      <nav id="sidebar-nav" class="s-nav" aria-label="Navigation principale">
         <div class="s-label">Principal</div>
         <a class="s-item active" data-page="dashboard">
           <i class="fas fa-th-large s-icon"></i><span class="s-text">Tableau de bord</span>
@@ -356,14 +356,14 @@
           <div id="s-uname">—</div>
           <div id="s-urole" class="s-urole">—</div>
         </div>
-        <button id="btn-logout" class="btn-logout" title="Déconnexion"><i class="fas fa-sign-out-alt"></i></button>
+        <button id="btn-logout" class="btn-logout" title="Déconnexion" aria-label="Se déconnecter"><i class="fas fa-sign-out-alt" aria-hidden="true"></i></button>
       </div>
     </aside>
 
     <main class="main">
       <header class="topbar">
         <div class="topbar-l" style="display:flex;align-items:center;gap:10px">
-          <button id="btn-menu" class="btn-menu" style="background:none;font-size:22px;padding:4px"><i class="fas fa-bars"></i></button>
+          <button id="btn-menu" class="btn-menu" style="background:none;font-size:22px;padding:4px" aria-label="Ouvrir le menu"><i class="fas fa-bars" aria-hidden="true"></i></button>
           <h2 id="page-title" class="page-title">Tableau de bord</h2>
         </div>
         <div class="topbar-r">
@@ -629,13 +629,13 @@
   </div>
 
   <!-- MODAL -->
-  <div id="modal" class="modal-overlay hidden">
+  <div id="modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
     <div class="modal-box" id="modal-box">
       <div class="modal-hd">
         <h3 id="modal-title">—</h3>
-        <button id="modal-close" class="modal-close"><i class="fas fa-times"></i></button>
+        <button id="modal-close" class="modal-close" aria-label="Fermer la fenêtre"><i class="fas fa-times" aria-hidden="true"></i></button>
       </div>
-      <div class="modal-bd" id="modal-bd"></div>
+      <div class="modal-bd" id="modal-bd" tabindex="-1"></div>
       <div class="modal-ft" id="modal-ft"></div>
     </div>
   </div>
