@@ -84,7 +84,8 @@ async function loadDemandesInscription() {
 }
 
 async function approuverDemande(id) {
-  if (!confirm('Approuver cette demande ? Un email sera envoyé avec les identifiants.')) return;
+  const ok = await confirmDialog('Approuver cette demande ? Un email sera envoyé avec les identifiants.', { danger: false, confirmText: 'Approuver', icon: 'fas fa-check-circle' });
+  if (!ok) return;
   try {
     const res = await fetch('/api/auth/demandes/' + id, {
       method: 'PATCH',
@@ -100,7 +101,7 @@ async function approuverDemande(id) {
 }
 
 async function rejeterDemande(id) {
-  const motif = prompt('Motif du rejet (optionnel) :');
+  const motif = await promptDialog('Motif du rejet (optionnel) :', { title: 'Rejeter la demande', placeholder: 'Motif…' });
   if (motif === null) return;
   try {
     const res = await fetch('/api/auth/demandes/' + id, {

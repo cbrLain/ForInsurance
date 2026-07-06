@@ -82,6 +82,48 @@ function setLoader(tbodyId, cols) {
   if (tb) tb.innerHTML = `<tr><td colspan="${cols}" class="loader"><i class="fas fa-spinner" style="animation: spin 1s linear infinite"></i> Chargement…</td></tr>`;
 }
 
+// ── Confirmation dialog ───────────────────────────────────────
+function confirmDialog(msg, opts = {}) {
+  return new Promise(resolve => {
+    const icon = opts.icon || 'fas fa-exclamation-triangle';
+    const confirmText = opts.confirmText || 'Confirmer';
+    const cancelText = opts.cancelText || 'Annuler';
+    const danger = opts.danger !== false;
+    Modal.open(
+      opts.title || 'Confirmation',
+      `<div style="text-align:center;padding:12px 0">
+        <i class="${icon}" style="font-size:2.8rem;color:${danger ? 'var(--danger)' : 'var(--accent)'};margin-bottom:12px;display:block"></i>
+        <p style="font-size:.95rem;color:var(--text);line-height:1.5">${msg}</p>
+      </div>`,
+      `<button class="btn btn-secondary" id="confirm-cancel">${cancelText}</button>
+       <button class="btn ${danger ? 'btn-danger' : 'btn-primary'}" id="confirm-ok">${confirmText}</button>`
+    );
+    document.getElementById('confirm-cancel').onclick = () => { Modal.close(); resolve(false); };
+    document.getElementById('confirm-ok').onclick = () => { Modal.close(); resolve(true); };
+  });
+}
+
+// ── Prompt dialog (simple text input) ─────────────────────────
+function promptDialog(msg, opts = {}) {
+  return new Promise(resolve => {
+    const placeholder = opts.placeholder || '';
+    Modal.open(
+      opts.title || 'Saisie',
+      `<div style="text-align:center;padding:8px 0">
+        <p style="font-size:.9rem;color:var(--text-muted);margin-bottom:12px">${msg}</p>
+        <input id="prompt-input" style="width:100%;padding:10px 12px;border-radius:6px;border:1px solid var(--border);background:rgba(255,255,255,.06);color:var(--text);font-size:14px" placeholder="${placeholder}" autofocus/>
+      </div>`,
+      `<button class="btn btn-secondary" id="prompt-cancel">Annuler</button>
+       <button class="btn btn-primary" id="prompt-ok">Valider</button>`
+    );
+    document.getElementById('prompt-cancel').onclick = () => { Modal.close(); resolve(null); };
+    document.getElementById('prompt-ok').onclick = () => {
+      const val = document.getElementById('prompt-input').value.trim();
+      Modal.close(); resolve(val || '');
+    };
+  });
+}
+
 // ── Pagination ────────────────────────────────────────────────
 function renderPagination(containerId, { page, totalPages, total, limit }, onPageChange) {
   const c = document.getElementById(containerId);

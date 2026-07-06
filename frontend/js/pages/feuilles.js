@@ -297,7 +297,8 @@ function renderMesFeuilles(rows) {
 }
 
 async function supprimerFeuille(id) {
-  if (!confirm('Supprimer cette feuille ?')) return;
+  const ok = await confirmDialog('Supprimer (rejeter) cette feuille de maladie ?', { danger: true });
+  if (!ok) return;
   await changerStatutFeuille(id, 'Rejetée');
 }
 

@@ -92,7 +92,8 @@ async function viewAssure(id) {
 }
 
 async function deleteAssure(id) {
-  if (!confirm('Supprimer cet assuré ?')) return;
+  const ok = await confirmDialog('Supprimer cet assuré et toutes ses données associées ?', { danger: true });
+  if (!ok) return;
   try {
     await Api.deleteAssure(id);
     toast('Assuré supprimé.', 'success');
