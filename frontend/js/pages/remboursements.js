@@ -1,9 +1,13 @@
 /* js/pages/remboursements.js */
-async function loadRemboursements(q = '') {
+let rembPage = 1;
+
+async function loadRemboursements(q = '', pg) {
+  if (pg !== undefined) rembPage = pg;
   setLoader('tbody-remb', 7);
   try {
-    const rows = await Api.getRemboursements(q);
-    renderRemboursements(rows);
+    const res = await Api.getRemboursements(q, rembPage, 20);
+    renderRemboursements(res.data);
+    renderPagination('pag-remb', res, p => { rembPage = p; loadRemboursements(q); });
   } catch(e) { toast(e.message, 'error'); }
 }
 
@@ -325,6 +329,7 @@ function imprimerFacture() {
 
 document.getElementById('q-remb').addEventListener('input', e => {
   clearTimeout(window._qr);
+  rembPage = 1;
   const v = e.target.value;
   if (!v) { loadRemboursements(''); return; }
   window._qr = setTimeout(() => loadRemboursements(v), 300);

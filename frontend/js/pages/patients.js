@@ -1,11 +1,15 @@
 /* js/pages/patients.js — Gestion des patients (médecin) */
 let patientsData = [];
+let patientsPage = 1;
 
-async function loadPatients(q = '') {
+async function loadPatients(q = '', pg) {
+  if (pg !== undefined) patientsPage = pg;
   setLoader('tbody-patients', 6);
   try {
-    patientsData = await Api.getAssures(q);
-    renderPatients(patientsData);
+    const res = await Api.getAssures(q, patientsPage, 20);
+    patientsData = res.data;
+    renderPatients(res.data);
+    renderPagination('pag-patients', res, p => { patientsPage = p; loadPatients(q); });
   } catch(e) { toast(e.message, 'error'); }
 }
 
@@ -101,6 +105,7 @@ async function viewDossierPatient(id) {
 document.getElementById('q-patients').addEventListener('input', e => {
   clearTimeout(window._qp);
   const v = e.target.value;
+  patientsPage = 1;
   if (!v) { loadPatients(''); return; }
   window._qp = setTimeout(() => loadPatients(v), 300);
 });

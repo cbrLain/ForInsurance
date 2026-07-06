@@ -1,15 +1,19 @@
 /* js/pages/feuilles.js */
 let feuillesFilter = 'all';
+let feuillesPage = 1;
+let mfeuillesPage = 1;
 
 /* ── Assureur : toutes les feuilles ───────────────────────── */
-async function loadFeuilles(q = '') {
+async function loadFeuilles(q = '', pg) {
+  if (pg !== undefined) feuillesPage = pg;
   setLoader('tbody-feuilles', 7);
   try {
-    const params = {};
+    const params = { page: feuillesPage, limit: 20 };
     if (q) params.q = q;
     if (feuillesFilter !== 'all') params.statut = feuillesFilter;
-    const rows = await Api.getFeuilles(params);
-    renderFeuilles(rows);
+    const res = await Api.getFeuilles(params);
+    renderFeuilles(res.data);
+    renderPagination('pag-feuilles', res, p => { feuillesPage = p; loadFeuilles(q); });
   } catch(e) { toast(e.message, 'error'); }
 }
 
@@ -249,22 +253,28 @@ document.getElementById('ft-feuilles').addEventListener('click', e => {
   document.querySelectorAll('#ft-feuilles .ftab').forEach(t => t.classList.remove('active'));
   tab.classList.add('active');
   feuillesFilter = tab.dataset.v;
+  feuillesPage = 1;
   loadFeuilles(document.getElementById('q-feuilles').value);
 });
 
 document.getElementById('q-feuilles').addEventListener('input', e => {
   clearTimeout(window._qf);
   const v = e.target.value;
+  feuillesPage = 1;
   if (!v) { loadFeuilles(''); return; }
   window._qf = setTimeout(() => loadFeuilles(v), 300);
 });
 
 /* ── Médecin : ses propres feuilles ──────────────────────── */
-async function loadMesFeuilles(q = '') {
+async function loadMesFeuilles(q = '', pg) {
+  if (pg !== undefined) mfeuillesPage = pg;
   setLoader('tbody-mfeuilles', 6);
   try {
-    const rows = await Api.getFeuilles(q ? { q } : {});
-    renderMesFeuilles(rows);
+    const params = { page: mfeuillesPage, limit: 20 };
+    if (q) params.q = q;
+    const res = await Api.getFeuilles(params);
+    renderMesFeuilles(res.data);
+    renderPagination('pag-mfeuilles', res, p => { mfeuillesPage = p; loadMesFeuilles(q); });
   } catch(e) { toast(e.message, 'error'); }
 }
 
@@ -377,6 +387,7 @@ document.getElementById('btn-add-feuille').onclick = showAddFeuille;
 document.getElementById('q-mfeuilles').addEventListener('input', e => {
   clearTimeout(window._qmf);
   const v = e.target.value;
+  mfeuillesPage = 1;
   if (!v) { loadMesFeuilles(''); return; }
   window._qmf = setTimeout(() => loadMesFeuilles(v), 300);
 });

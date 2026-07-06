@@ -31,7 +31,7 @@ const Api = {
   me:     ()       => Api.get('/auth/me'),
 
   // Assurés
-  getAssures:  (q)   => Api.get('/assures' + (q ? `?q=${encodeURIComponent(q)}` : '')),
+  getAssures:  (q, page, limit)   => Api.get('/assures?' + new URLSearchParams({...(q&&{q}), ...(page&&{page}), ...(limit&&{limit})})),
   getAssure:   (id)  => Api.get('/assures/' + id),
   addAssure:   (d)   => Api.post('/assures', d),
   updateAssure:(id,d)=> Api.put('/assures/' + id, d),
@@ -39,7 +39,7 @@ const Api = {
   deleteAssure:  (id)  => Api.delete('/assures/' + id),
 
   // Médecins
-  getMedecins: (q,type) => Api.get('/medecins?' + new URLSearchParams({...(q&&{q}), ...(type&&{type})})),
+  getMedecins: (q, type, page, limit) => Api.get('/medecins?' + new URLSearchParams({...(q&&{q}), ...(type&&{type}), ...(page&&{page}), ...(limit&&{limit})})),
   getMedecin:  (id) => Api.get('/medecins/' + id),
   addMedecin:  (d)  => Api.post('/medecins', d),
   updateMedecin:(id,d)=> Api.put('/medecins/'+id, d),
@@ -53,7 +53,7 @@ const Api = {
   completerFeuille:(id,d)=> Api.patch('/feuilles/'+id+'/completer', d),
 
   // Remboursements
-  getRemboursements:(q)=> Api.get('/remboursements'+(q?`?q=${encodeURIComponent(q)}`:'')),
+  getRemboursements:(q, page, limit)=> Api.get('/remboursements?' + new URLSearchParams({...(q&&{q}), ...(page&&{page}), ...(limit&&{limit})})),
   getRemboursement: (id)=> Api.get('/remboursements/'+id),
   effectuerRemboursement:(d)=> Api.post('/remboursements', d),
   getFacture: (id) => Api.get('/remboursements/'+id+'/facture'),

@@ -3,6 +3,7 @@ const router = require('express').Router();
 const { getDb } = require('../db/database');
 const { authenticate, requireRole } = require('../middleware/auth');
 const { broadcast } = require('../socket');
+const { paginate } = require('./paginate');
 
 const MED_SELECT = `
   SELECT m.id, m.identifiant, m.num_agrement, m.type, m.specialite,
@@ -14,7 +15,7 @@ const MED_SELECT = `
 // GET /api/medecins
 router.get('/', authenticate, async (req, res) => {
   const db = getDb();
-  const { q, type } = req.query;
+  const { q, type, page, limit } = req.query;
   let sql = MED_SELECT + ' WHERE 1=1';
   const params = [];
   if (type) { sql += ' AND m.type = ?'; params.push(type); }
@@ -24,7 +25,7 @@ router.get('/', authenticate, async (req, res) => {
     params.push(like, like, like, like, like);
   }
   sql += ' ORDER BY p.nom';
-  res.json(await db.prepare(sql).all(...params));
+  res.json(paginate(db, sql, params, page, limit));
 });
 
 // GET /api/medecins/:id

@@ -1,11 +1,17 @@
 /* js/pages/prescriptions.js */
+let prescPage = 1;
+let consultPage = 1;
 
 /* ══ PRESCRIPTIONS MÉDICAMENTS ══════════════════════════════ */
-async function loadPrescriptionsMed(q = '') {
+async function loadPrescriptionsMed(q = '', pg) {
+  if (pg !== undefined) prescPage = pg;
   setLoader('tbody-presc', 5);
   try {
-    const rows = await Api.getPrescriptions(q ? { type: 'medicaments', q } : { type: 'medicaments' });
-    renderPrescriptionsMed(rows);
+    const params = { type: 'medicaments', page: prescPage, limit: 20 };
+    if (q) params.q = q;
+    const res = await Api.getPrescriptions(params);
+    renderPrescriptionsMed(res.data);
+    renderPagination('pag-presc', res, p => { prescPage = p; loadPrescriptionsMed(q); });
   } catch(e) { toast(e.message, 'error'); }
 }
 
@@ -173,16 +179,21 @@ document.getElementById('btn-add-presc').onclick = showAddPrescription;
 document.getElementById('q-presc').addEventListener('input', e => {
   clearTimeout(window._qpr);
   const v = e.target.value;
+  prescPage = 1;
   if (!v) { loadPrescriptionsMed(''); return; }
   window._qpr = setTimeout(() => loadPrescriptionsMed(v), 300);
 });
 
 /* ══ CONSULTATIONS SPÉCIALISTE ══════════════════════════════ */
-async function loadConsultationsSpec(q = '') {
+async function loadConsultationsSpec(q = '', pg) {
+  if (pg !== undefined) consultPage = pg;
   setLoader('tbody-consult', 6);
   try {
-    const rows = await Api.getPrescriptions(q ? { type: 'consultation_specialiste', q } : { type: 'consultation_specialiste' });
-    renderConsultationsSpec(rows);
+    const params = { type: 'consultation_specialiste', page: consultPage, limit: 20 };
+    if (q) params.q = q;
+    const res = await Api.getPrescriptions(params);
+    renderConsultationsSpec(res.data);
+    renderPagination('pag-consult', res, p => { consultPage = p; loadConsultationsSpec(q); });
   } catch(e) { toast(e.message, 'error'); }
 }
 
@@ -311,6 +322,7 @@ document.getElementById('btn-add-consult').onclick = showAddConsultation;
 document.getElementById('q-consult').addEventListener('input', e => {
   clearTimeout(window._qcs);
   const v = e.target.value;
+  consultPage = 1;
   if (!v) { loadConsultationsSpec(''); return; }
   window._qcs = setTimeout(() => loadConsultationsSpec(v), 300);
 });

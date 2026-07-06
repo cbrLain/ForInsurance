@@ -4,6 +4,7 @@ const bcrypt = require('bcryptjs');
 const { getDb } = require('../db/database');
 const { authenticate, requireRole } = require('../middleware/auth');
 const { broadcast } = require('../socket');
+const { paginate } = require('./paginate');
 const { sendMail } = require('../services/email');
 
 const ASSURE_SELECT = `
@@ -20,17 +21,16 @@ const ASSURE_SELECT = `
 // GET /api/assures
 router.get('/', authenticate, async (req, res) => {
   const db = getDb();
-  const { q } = req.query;
-  let rows;
+  const { q, page, limit } = req.query;
+  const like = q ? `%${q}%` : null;
+  let sql = `${ASSURE_SELECT} WHERE a.actif=1`;
+  const params = [];
   if (q) {
-    const like = `%${q}%`;
-    rows = await db.prepare(`${ASSURE_SELECT}
-      WHERE a.actif=1 AND (a.numero_ss LIKE ? OR p.nom LIKE ? OR p.prenom LIKE ?)
-      ORDER BY p.nom`).all(like, like, like);
-  } else {
-    rows = await db.prepare(`${ASSURE_SELECT} WHERE a.actif=1 ORDER BY p.nom`).all();
+    sql += ' AND (a.numero_ss LIKE ? OR p.nom LIKE ? OR p.prenom LIKE ?)';
+    params.push(like, like, like);
   }
-  res.json(rows);
+  sql += ' ORDER BY p.nom';
+  res.json(paginate(db, sql, params, page, limit));
 });
 
 // GET /api/assures/:id

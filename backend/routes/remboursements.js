@@ -3,6 +3,7 @@ const router = require('express').Router();
 const { getDb } = require('../db/database');
 const { authenticate, requireRole } = require('../middleware/auth');
 const { broadcast } = require('../socket');
+const { paginate } = require('./paginate');
 
 const REMB_SELECT = `
   SELECT r.*, f.reference AS feuille_ref,
@@ -18,7 +19,7 @@ const REMB_SELECT = `
 // GET /api/remboursements
 router.get('/', authenticate, requireRole('assureur'), async (req, res) => {
   const db = getDb();
-  const { q } = req.query;
+  const { q, page, limit } = req.query;
   let sql = REMB_SELECT + ' WHERE 1=1';
   const params = [];
   if (q) {
@@ -27,7 +28,7 @@ router.get('/', authenticate, requireRole('assureur'), async (req, res) => {
     params.push(like, like, like);
   }
   sql += ' ORDER BY r.date_remboursement DESC';
-  res.json(await db.prepare(sql).all(...params));
+  res.json(paginate(db, sql, params, page, limit));
 });
 
 // GET /api/remboursements/:id

@@ -1,11 +1,15 @@
 /* js/pages/assures.js */
 let assuresData = [];
+let assuresPage = 1;
 
-async function loadAssures(q = '') {
+async function loadAssures(q = '', pg) {
+  if (pg !== undefined) assuresPage = pg;
   setLoader('tbody-assures', 6);
   try {
-    assuresData = await Api.getAssures(q);
-    renderAssures(assuresData);
+    const res = await Api.getAssures(q, assuresPage, 20);
+    assuresData = res.data;
+    renderAssures(res.data);
+    renderPagination('pag-assures', res, p => { assuresPage = p; loadAssures(q); });
   } catch(e) { toast(e.message, 'error'); }
 }
 
@@ -101,6 +105,7 @@ document.getElementById('btn-add-medecin-traitant').onclick = showAddMedecinTrai
 document.getElementById('q-assures').addEventListener('input', (e) => {
   clearTimeout(window._qt);
   const v = e.target.value;
+  assuresPage = 1;
   if (!v) { loadAssures(''); return; }
   window._qt = setTimeout(() => loadAssures(v), 300);
 });

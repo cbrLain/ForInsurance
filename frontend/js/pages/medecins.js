@@ -1,9 +1,13 @@
 /* js/pages/medecins.js */
-async function loadMedecins(q = '') {
+let medecinsPage = 1;
+
+async function loadMedecins(q = '', pg) {
+  if (pg !== undefined) medecinsPage = pg;
   setLoader('tbody-medecins', 6);
   try {
-    const rows = await Api.getMedecins(q);
-    renderMedecins(rows);
+    const res = await Api.getMedecins(q, null, medecinsPage, 20);
+    renderMedecins(res.data);
+    renderPagination('pag-medecins', res, p => { medecinsPage = p; loadMedecins(q); });
   } catch(e) { toast(e.message, 'error'); }
 }
 
@@ -108,5 +112,6 @@ async function viewMedecin(id) {
 document.getElementById('btn-add-medecin')?.addEventListener('click', showAddMedecin);
 document.getElementById('q-medecins')?.addEventListener('input', e => {
   clearTimeout(window._qm);
+  medecinsPage = 1;
   window._qm = setTimeout(() => loadMedecins(e.target.value), 400);
 });

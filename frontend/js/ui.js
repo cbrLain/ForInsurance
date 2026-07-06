@@ -82,6 +82,43 @@ function setLoader(tbodyId, cols) {
   if (tb) tb.innerHTML = `<tr><td colspan="${cols}" class="loader"><i class="fas fa-spinner" style="animation: spin 1s linear infinite"></i> Chargement…</td></tr>`;
 }
 
+// ── Pagination ────────────────────────────────────────────────
+function renderPagination(containerId, { page, totalPages, total, limit }, onPageChange) {
+  const c = document.getElementById(containerId);
+  if (!c) return;
+  if (totalPages <= 1) { c.innerHTML = ''; return; }
+
+  let html = '<div class="pagination">';
+  html += `<button class="pg-first" ${page <= 1 ? 'disabled' : ''}><i class="fas fa-angle-double-left"></i></button>`;
+  html += `<button class="pg-prev" ${page <= 1 ? 'disabled' : ''}><i class="fas fa-angle-left"></i></button>`;
+
+  const start = Math.max(1, page - 2);
+  const end = Math.min(totalPages, page + 2);
+  if (start > 1) { html += '<button class="pg-num" data-p="1">1</button><span style="color:var(--text-dim);padding:0 4px">…</span>'; }
+  for (let i = start; i <= end; i++) {
+    html += `<button class="pg-num ${i === page ? 'active' : ''}" data-p="${i}">${i}</button>`;
+  }
+  if (end < totalPages) { html += '<span style="color:var(--text-dim);padding:0 4px">…</span>'; html += `<button class="pg-num" data-p="${totalPages}">${totalPages}</button>`; }
+
+  html += `<button class="pg-next" ${page >= totalPages ? 'disabled' : ''}><i class="fas fa-angle-right"></i></button>`;
+  html += `<button class="pg-last" ${page >= totalPages ? 'disabled' : ''}><i class="fas fa-angle-double-right"></i></button>`;
+  html += `<span class="p-info">${total} résultat${total !== 1 ? 's' : ''}</span>`;
+  html += '</div>';
+  c.innerHTML = html;
+
+  c.querySelectorAll('button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      let p;
+      if (btn.classList.contains('pg-first')) p = 1;
+      else if (btn.classList.contains('pg-prev')) p = page - 1;
+      else if (btn.classList.contains('pg-next')) p = page + 1;
+      else if (btn.classList.contains('pg-last')) p = totalPages;
+      else p = parseInt(btn.dataset.p);
+      if (p && p !== page) onPageChange(p);
+    });
+  });
+}
+
 // ── Mini chart (canvas donut) ─────────────────────────────────
 function drawDonut(canvasId, data) {
   const canvas = document.getElementById(canvasId);

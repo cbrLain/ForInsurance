@@ -3,6 +3,7 @@ const router = require('express').Router();
 const { getDb } = require('../db/database');
 const { authenticate, requireRole } = require('../middleware/auth');
 const { broadcast } = require('../socket');
+const { paginate } = require('./paginate');
 
 // Transitions d'état autorisées
 const TRANSITIONS = {
@@ -32,7 +33,7 @@ const FM_SELECT = `
 // GET /api/feuilles
 router.get('/', authenticate, async (req, res) => {
   const db = getDb();
-  const { q, statut, assure_id, medecin_id } = req.query;
+  const { q, statut, assure_id, medecin_id, page, limit } = req.query;
   let sql = FM_SELECT + ' WHERE 1=1';
   const params = [];
 
@@ -50,7 +51,7 @@ router.get('/', authenticate, async (req, res) => {
     params.push(like, like, like, like);
   }
   sql += ' ORDER BY f.created_at DESC';
-  res.json(await db.prepare(sql).all(...params));
+  res.json(paginate(db, sql, params, page, limit));
 });
 
 // GET /api/feuilles/search?q= — Autocomplete de références (AVANT /:id)

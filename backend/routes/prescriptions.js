@@ -3,6 +3,7 @@ const router = require('express').Router();
 const { getDb } = require('../db/database');
 const { authenticate, requireRole } = require('../middleware/auth');
 const { broadcast } = require('../socket');
+const { paginate } = require('./paginate');
 
 // GET /api/prescriptions
 router.get('/', authenticate, async (req, res) => {
@@ -25,7 +26,7 @@ router.get('/', authenticate, async (req, res) => {
     if (med) { sql += ' AND pr.medecin_id = ?'; params.push(med.id); }
   }
 
-  const { type, q } = req.query;
+  const { type, q, page, limit } = req.query;
   if (type) { sql += ' AND pr.type = ?'; params.push(type); }
   if (q) {
     sql += ' AND (pa.nom LIKE ? OR a.numero_ss LIKE ?)';
@@ -33,10 +34,10 @@ router.get('/', authenticate, async (req, res) => {
     params.push(like, like);
   }
   sql += ' ORDER BY pr.created_at DESC';
-  const prescriptions = await db.prepare(sql).all(...params);
+  const result = paginate(db, sql, params, page, limit);
 
   // Enrichit chaque prescription avec ses lignes
-  const prescriptionsEnrichies = await Promise.all(prescriptions.map(async p => {
+  result.data = await Promise.all(result.data.map(async p => {
     if (p.type === 'medicaments') {
       p.medicaments = await db.prepare('SELECT * FROM prescription_medicaments WHERE prescription_id=?').all(p.id);
     } else {
@@ -51,7 +52,7 @@ router.get('/', authenticate, async (req, res) => {
     return p;
   }));
 
-  res.json(prescriptionsEnrichies);
+  res.json(result);
 });
 
 // GET /api/prescriptions/:id
