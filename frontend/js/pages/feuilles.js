@@ -212,6 +212,12 @@ function showCompleterByRef() {
     const form = document.getElementById('c-form');
     try {
       const feuille = await Api.getFeuilleByRef(ref);
+      if (feuille.statut !== 'Incomplète') {
+        info.innerHTML = `<i class="fas fa-times-circle"></i> Cette feuille est déjà « ${feuille.statut} ». Seules les feuilles Incomplètes peuvent être complétées.`;
+        info.style.color = 'var(--danger)';
+        form.style.display = 'none';
+        return;
+      }
       info.innerHTML = `<i class="fas fa-check-circle"></i> ${feuille.assure_nom} — ${feuille.diagnostic}`;
       info.style.color = 'var(--primary)';
       form.style.display = 'block';

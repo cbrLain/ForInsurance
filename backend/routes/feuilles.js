@@ -92,8 +92,8 @@ router.get('/reference/:ref', authenticate, async (req, res) => {
     const med = await db.prepare('SELECT id FROM medecins WHERE utilisateur_id=?').get(req.user.id);
     if (!med || row.medecin_id !== med.id) return res.status(403).json({ error: 'Accès refusé.' });
   }
-  if (row.statut === 'Remboursée')
-    return res.status(400).json({ error: 'Remboursement déjà effectué.' });
+  if (row.statut !== 'Incomplète')
+    return res.status(400).json({ error: `La feuille est déjà « ${row.statut} ». Seules les feuilles Incomplètes peuvent être complétées.` });
   res.json(row);
 });
 
