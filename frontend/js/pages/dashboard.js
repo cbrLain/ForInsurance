@@ -58,8 +58,8 @@ async function loadDashboard(role) {
           maintainAspectRatio: true,
           plugins: { legend: { display: false } },
           scales: {
-            x: { grid: { display: false }, ticks: { stepSize: 1, color: '#fff' } },
-            y: { grid: { display: false }, ticks: { color: '#fff' } }
+            x: { border: { color: '#fff' }, grid: { display: false }, ticks: { stepSize: 1, color: '#fff' } },
+            y: { border: { color: '#fff' }, grid: { display: false }, ticks: { color: '#fff' } }
           }
         }
       });
