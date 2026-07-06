@@ -98,6 +98,8 @@ async function doGlobalSearch(f) {
         const feuillesParams = { q };
         if (statut) feuillesParams.statut = statut;
         if (!category && statut) feuillesParams.statut = statut;
+        if (date_from) feuillesParams.date_from = date_from;
+        if (date_to) feuillesParams.date_to = date_to;
         const feuilles = await Api.getFeuilles(feuillesParams);
         const list = feuilles.data || feuilles;
         const filtered = date_from || date_to
@@ -133,7 +135,10 @@ async function doGlobalSearch(f) {
 
     if (role === 'assureur' && shouldShow('remboursements')) {
       try {
-        const remb = await Api.getRemboursements(q);
+        const rembParams = { q };
+        if (date_from) rembParams.date_from = date_from;
+        if (date_to) rembParams.date_to = date_to;
+        const remb = await Api.getRemboursements(rembParams);
         const list = remb.data || remb;
         const filtered = date_from || date_to
           ? list.filter(r => {

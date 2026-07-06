@@ -100,7 +100,7 @@ async function loadHistoriqueOperations(q = '') {
     const items = [];
 
     const feuilles = (await Api.getFeuilles(q ? { q } : {})).data;
-    const remb = (await Api.getRemboursements(q)).data;
+    const remb = (await Api.getRemboursements(q ? { q } : {})).data;
 
     if (operationsFilter === 'all' || operationsFilter === 'feuilles') {
       feuilles.slice(0, 30).forEach(f => {

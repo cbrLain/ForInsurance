@@ -196,6 +196,15 @@ router.patch('/password', authenticate, async (req, res) => {
   res.json({ message: 'Mot de passe modifié avec succès.' });
 });
 
+// GET /api/auth/assureurs — Lister tous les comptes assureur (admin only)
+router.get('/assureurs', authenticate, requireRole('admin'), async (req, res) => {
+  const db = getDb();
+  const users = db.prepare(
+    "SELECT id, identifiant, nom, prenom, created_at FROM utilisateurs WHERE role='assureur' ORDER BY created_at DESC"
+  ).all();
+  res.json(users);
+});
+
 // PATCH /api/auth/profil — Modifier les infos personnelles
 router.patch('/profil', authenticate, async (req, res) => {
   const { adresse, telephone, email } = req.body;

@@ -53,7 +53,7 @@ const Api = {
   completerFeuille:(id,d)=> Api.patch('/feuilles/'+id+'/completer', d),
 
   // Remboursements
-  getRemboursements:(q, page, limit)=> Api.get('/remboursements?' + new URLSearchParams({...(q&&{q}), ...(page&&{page}), ...(limit&&{limit})})),
+  getRemboursements:(params={})=> Api.get('/remboursements?' + new URLSearchParams(params)),
   getRemboursement: (id)=> Api.get('/remboursements/'+id),
   effectuerRemboursement:(d)=> Api.post('/remboursements', d),
   getFacture: (id) => Api.get('/remboursements/'+id+'/facture'),

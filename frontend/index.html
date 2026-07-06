@@ -341,7 +341,7 @@
           <a class="s-item" data-page="mon-profil"><i class="fas fa-id-card s-icon"></i><span class="s-text">Mon profil</span></a>
           <div class="s-label">Administration</div>
           <a class="s-item" data-page="medecins"><i class="fas fa-user-md s-icon"></i><span class="s-text">Gestion des médecins</span></a>
-          <a class="s-item" data-page="admin-comptes"><i class="fas fa-user-plus s-icon"></i><span class="s-text">Ajouter un assureur</span></a>
+          <a class="s-item" data-page="admin-comptes"><i class="fas fa-users-cog s-icon"></i><span class="s-text">Gestion des assureurs</span></a>
           <div class="s-label">Supervision</div>
           <a class="s-item" data-page="assures"><i class="fas fa-users s-icon"></i><span class="s-text">Gestion des assurés</span></a>
           <a class="s-item" data-page="feuilles"><i class="fas fa-file-medical-alt s-icon"></i><span class="s-text">Gestion des feuilles</span></a>
@@ -389,27 +389,16 @@
         <section id="page-dashboard" class="page active">
           <div id="stats-grid" class="stats-grid"></div>
 
-          <div id="demandes-section" class="hidden" style="margin-bottom:16px">
-            <div class="card">
-              <div class="card-hd">
-                <h3>Demandes d'inscription <span class="demandes-badge badge badge-warning" style="margin-left:8px">0</span></h3>
-              </div>
-              <div class="card-bd" id="demandes-list">
-                <div class="empty"><i class="fas fa-inbox"></i><h4>Aucune demande</h4></div>
-              </div>
-            </div>
-          </div>
-
-          <div class="card">
-            <div class="card-hd"><h3>Activité récente</h3></div>
-            <div class="card-bd" id="activity-list"></div>
-          </div>
-
-          <div class="card">
+          <div class="card" style="margin-top:16px">
             <div class="card-hd"><h3>Répartition par statut</h3></div>
             <div class="card-bd" style="text-align:center;padding:16px">
-              <canvas id="chart-statut" width="300" height="300" style="max-width:100%;height:auto"></canvas>
+              <canvas id="chart-statut" width="220" height="220" style="max-width:260px;height:auto;margin:0 auto"></canvas>
             </div>
+          </div>
+
+          <div class="card" style="margin-top:16px">
+            <div class="card-hd"><h3>Activité récente</h3></div>
+            <div class="card-bd" id="activity-list"></div>
           </div>
         </section>
 
@@ -468,6 +457,7 @@
               <button class="ftab" data-v="Remboursée">Remboursées</button>
               <button class="ftab" data-v="Rejetée">Rejetées</button>
             </div>
+            <button class="btn btn-secondary" id="btn-filter-feuilles"><i class="fas fa-calendar-alt"></i> Filtrer</button>
             <button class="btn btn-success" id="btn-completer-feuille"><i class="fas fa-pen"></i> Compléter une feuille</button>
           </div>
           <div class="card"><div class="card-bd p0">
@@ -486,6 +476,7 @@
               <i class="fas fa-search" style="position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:13px"></i>
               <input class="search" id="q-remb" placeholder="Référence, assuré…" style="padding-left:32px"/>
             </div>
+            <button class="btn btn-secondary" id="btn-filter-remb"><i class="fas fa-calendar-alt"></i> Filtrer</button>
             <button class="btn btn-success" id="btn-effectuer-remb"><i class="fas fa-credit-card"></i> Effectuer un remboursement</button>
           </div>
           <div class="card"><div class="card-bd p0">
@@ -666,29 +657,41 @@
           <div id="global-results"></div>
         </section>
 
-        <!-- ADMIN : AJOUTER UN ASSUREUR -->
+        <!-- ADMIN : GESTION DES ASSUREURS -->
         <section id="page-admin-comptes" class="page">
+          <div class="page-bar">
+            <button class="btn btn-primary" id="btn-add-assureur"><i class="fas fa-user-plus"></i> Ajouter un assureur</button>
+          </div>
           <div class="card">
-            <div class="card-hd"><h3><i class="fas fa-user-plus"></i> Créer un compte assureur</h3></div>
-            <div class="card-bd">
-              <p style="color:var(--text-muted);font-size:.82rem;margin-bottom:14px">
-                Remplissez les informations ci-dessous pour créer un nouveau compte assureur.
-                Les identifiants de connexion seront affichés après validation.
-              </p>
-              <div class="form-row">
-                <div class="form-group">
-                  <label>Nom *</label>
-                  <input id="ac-nom" placeholder="Nom de famille" style="text-transform:uppercase"/>
+            <div class="card-hd"><h3><i class="fas fa-users"></i> Liste des assureurs</h3></div>
+            <div class="card-bd p0">
+              <table class="tbl">
+                <thead><tr><th>Identifiant</th><th>Nom</th><th>Prénom</th><th>Date de création</th></tr></thead>
+                <tbody id="tbody-assureurs"></tbody>
+              </table>
+            </div>
+          </div>
+          <div id="ac-add-section" style="display:none">
+            <div class="card" style="margin-top:12px">
+              <div class="card-hd"><h3><i class="fas fa-user-plus"></i> Créer un compte assureur</h3></div>
+              <div class="card-bd">
+                <p style="color:var(--text-muted);font-size:.82rem;margin-bottom:14px">
+                  Les identifiants de connexion seront affichés après validation.
+                </p>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label>Nom *</label>
+                    <input id="ac-nom" placeholder="Nom de famille" style="text-transform:uppercase"/>
+                  </div>
+                  <div class="form-group">
+                    <label>Prénom *</label>
+                    <input id="ac-prenom" placeholder="Prénom"/>
+                  </div>
                 </div>
-                <div class="form-group">
-                  <label>Prénom *</label>
-                  <input id="ac-prenom" placeholder="Prénom"/>
-                </div>
+                <div id="ac-err" class="alert alert-error hidden" style="margin-top:10px"></div>
+                <button class="btn btn-primary" id="btn-submit-assureur"><i class="fas fa-save"></i> Créer le compte</button>
+                <button class="btn btn-secondary" id="btn-cancel-assureur">Annuler</button>
               </div>
-              <div id="ac-err" class="alert alert-error hidden" style="margin-top:10px"></div>
-              <button class="btn btn-primary" id="btn-add-assureur" style="margin-top:14px">
-                <i class="fas fa-save"></i> Créer le compte
-              </button>
             </div>
           </div>
         </section>
@@ -714,6 +717,7 @@
 
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script src="/socket.io/socket.io.js"></script>
 <script src="js/api.js"></script>
 <script src="js/ui.js"></script>

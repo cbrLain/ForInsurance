@@ -1,6 +1,8 @@
 /* js/pages/feuilles.js */
 let feuillesFilter = 'all';
 let feuillesPage = 1;
+let fellesDateFrom = '';
+let fellesDateTo = '';
 let mfeuillesPage = 1;
 
 /* ── Assureur : toutes les feuilles ───────────────────────── */
@@ -11,6 +13,8 @@ async function loadFeuilles(q = '', pg) {
     const params = { page: feuillesPage, limit: 20 };
     if (q) params.q = q;
     if (feuillesFilter !== 'all') params.statut = feuillesFilter;
+    if (fellesDateFrom) params.date_from = fellesDateFrom;
+    if (fellesDateTo) params.date_to = fellesDateTo;
     const res = await Api.getFeuilles(params);
     renderFeuilles(res.data);
     renderPagination('pag-feuilles', res, p => { feuillesPage = p; loadFeuilles(q); });
@@ -269,6 +273,37 @@ document.getElementById('q-feuilles').addEventListener('input', e => {
   feuillesPage = 1;
   if (!v) { loadFeuilles(''); return; }
   window._qf = setTimeout(() => loadFeuilles(v), 300);
+});
+
+document.getElementById('btn-filter-feuilles')?.addEventListener('click', () => {
+  Modal.open('Filtrer par date', `
+    <div style="padding:8px 0">
+      <label style="font-size:.82rem;font-weight:600;display:block;margin-bottom:4px">Date début</label>
+      <input type="date" id="modal-feuilles-from" class="search" style="width:100%;margin-bottom:12px" value="${fellesDateFrom}"/>
+      <label style="font-size:.82rem;font-weight:600;display:block;margin-bottom:4px">Date fin</label>
+      <input type="date" id="modal-feuilles-to" class="search" style="width:100%;margin-bottom:16px" value="${fellesDateTo}"/>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-primary" id="modal-feuilles-apply" style="flex:1">Appliquer</button>
+        <button class="btn btn-secondary" id="modal-feuilles-clear" style="flex:1">Effacer</button>
+      </div>
+    </div>
+  `, '');
+  setTimeout(() => {
+    document.getElementById('modal-feuilles-apply')?.addEventListener('click', () => {
+      fellesDateFrom = document.getElementById('modal-feuilles-from').value;
+      fellesDateTo = document.getElementById('modal-feuilles-to').value;
+      Modal.close();
+      feuillesPage = 1;
+      loadFeuilles(document.getElementById('q-feuilles').value);
+    });
+    document.getElementById('modal-feuilles-clear')?.addEventListener('click', () => {
+      fellesDateFrom = '';
+      fellesDateTo = '';
+      Modal.close();
+      feuillesPage = 1;
+      loadFeuilles(document.getElementById('q-feuilles').value);
+    });
+  }, 50);
 });
 
 /* ── Médecin : ses propres feuilles ──────────────────────── */

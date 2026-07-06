@@ -1,11 +1,19 @@
 /* js/pages/remboursements.js */
 let rembPage = 1;
+let rembDateFrom = '';
+let rembDateTo = '';
 
 async function loadRemboursements(q = '', pg) {
   if (pg !== undefined) rembPage = pg;
   setLoader('tbody-remb', 7);
   try {
-    const res = await Api.getRemboursements(q, rembPage, 20);
+    const params = {};
+    if (q) params.q = q;
+    if (rembPage) params.page = rembPage;
+    params.limit = 20;
+    if (rembDateFrom) params.date_from = rembDateFrom;
+    if (rembDateTo) params.date_to = rembDateTo;
+    const res = await Api.getRemboursements(params);
     renderRemboursements(res.data);
     renderPagination('pag-remb', res, p => { rembPage = p; loadRemboursements(q); });
   } catch(e) { toast(e.message, 'error'); }
@@ -333,6 +341,37 @@ document.getElementById('q-remb').addEventListener('input', e => {
   const v = e.target.value;
   if (!v) { loadRemboursements(''); return; }
   window._qr = setTimeout(() => loadRemboursements(v), 300);
+});
+
+document.getElementById('btn-filter-remb')?.addEventListener('click', () => {
+  Modal.open('Filtrer par date', `
+    <div style="padding:8px 0">
+      <label style="font-size:.82rem;font-weight:600;display:block;margin-bottom:4px">Date début</label>
+      <input type="date" id="modal-remb-from" class="search" style="width:100%;margin-bottom:12px" value="${rembDateFrom}"/>
+      <label style="font-size:.82rem;font-weight:600;display:block;margin-bottom:4px">Date fin</label>
+      <input type="date" id="modal-remb-to" class="search" style="width:100%;margin-bottom:16px" value="${rembDateTo}"/>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-primary" id="modal-remb-apply" style="flex:1">Appliquer</button>
+        <button class="btn btn-secondary" id="modal-remb-clear" style="flex:1">Effacer</button>
+      </div>
+    </div>
+  `, '');
+  setTimeout(() => {
+    document.getElementById('modal-remb-apply')?.addEventListener('click', () => {
+      rembDateFrom = document.getElementById('modal-remb-from').value;
+      rembDateTo = document.getElementById('modal-remb-to').value;
+      Modal.close();
+      rembPage = 1;
+      loadRemboursements(document.getElementById('q-remb').value);
+    });
+    document.getElementById('modal-remb-clear')?.addEventListener('click', () => {
+      rembDateFrom = '';
+      rembDateTo = '';
+      Modal.close();
+      rembPage = 1;
+      loadRemboursements(document.getElementById('q-remb').value);
+    });
+  }, 50);
 });
 
 document.getElementById('btn-effectuer-remb').onclick = showEffectuerRemboursement;
