@@ -1068,8 +1068,8 @@ ul{list-style:none}
 
 /* ── MODAL ────────────────────────────────────────────── */
 .modal-overlay{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.6);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:20px}
-.modal-box{background:rgba(15,23,42,.95);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);width:100%;max-width:520px;max-height:90vh;border-radius:14px;display:flex;flex-direction:column;box-shadow:var(--shadow-xl);border:1px solid var(--border);color:#f1f5f9}
-.modal-box.wide{max-width:700px}
+.modal-box{background:rgba(15,23,42,.95);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);width:100%;max-width:620px;max-height:90vh;border-radius:14px;display:flex;flex-direction:column;box-shadow:var(--shadow-xl);border:1px solid var(--border);color:#f1f5f9}
+.modal-box.wide{max-width:860px}
 @media(max-width:540px){.modal-box{max-width:96vw}.modal-overlay{padding:10px}}
 .modal-hd{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);flex-shrink:0}
 .modal-hd h3{font-size:1rem;font-weight:600;color:#f1f5f9}
