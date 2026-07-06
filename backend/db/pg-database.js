@@ -37,14 +37,16 @@ function wrapSql(sql) {
   // INSERT OR IGNORE → INSERT ... ON CONFLICT DO NOTHING (PostgreSQL)
   adapted = adapted.replace(/INSERT\s+OR\s+IGNORE\s+(INTO\s+\w+(?:\s*\([^)]*\))?\s*VALUES\s*\([^)]*\))/gi, 'INSERT $1 ON CONFLICT DO NOTHING');
 
+  // Ajoute RETURNING id aux INSERT pour que run() renvoie l'id créé
+  if (/^\s*INSERT\s+/i.test(adapted) && !/\bRETURNING\b/i.test(adapted)) {
+    adapted = adapted.replace(/;\s*$/, '') + ' RETURNING id';
+  }
+
   // last_insert_rowid() → LASTVAL()
   adapted = adapted.replace(/last_insert_rowid\(\)/gi, 'LASTVAL()');
 
   // changes() → 1 (simplifié)
   adapted = adapted.replace(/changes\(\)/gi, '1');
-
-  // CURRENT_TIMESTAMP sans quotes
-  // already compatible
 
   return adapted;
 }

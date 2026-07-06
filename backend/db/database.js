@@ -23,15 +23,17 @@ async function initDb() {
     require('./seed');
   }
 
-  // Nettoyage : table résiduelle d'une migration antérieure échouée
-  try {
-    const old = _api.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='utilisateurs_old'").get();
-    if (old) {
-      console.log('🧹 Nettoyage : utilisateurs_old détectée, restauration...');
-      _api.prepare('DROP TABLE IF EXISTS utilisateurs_old').run();
-      console.log('✅ utilisateurs_old supprimée.');
-    }
-  } catch {}
+  // Nettoyage : table résiduelle d'une migration antérieure échouée (SQLite seulement)
+  if (_mode === 'sqlite') {
+    try {
+      const old = _api.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='utilisateurs_old'").get();
+      if (old) {
+        console.log('🧹 Nettoyage : utilisateurs_old détectée, restauration...');
+        _api.prepare('DROP TABLE IF EXISTS utilisateurs_old').run();
+        console.log('✅ utilisateurs_old supprimée.');
+      }
+    } catch {}
+  }
 
   // Migration : attribuer le rôle admin à l'utilisateur 'admin'
   try {
