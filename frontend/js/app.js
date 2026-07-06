@@ -221,10 +221,11 @@ function showLogin() {
 function navigateTo(page) {
   // Cache toutes les pages
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  // Met à jour nav
+  // Met à jour nav — uniquement l'élément visible (pas dans un bloc .hidden)
   document.querySelectorAll('.s-item').forEach(i => i.classList.remove('active'));
-  const navItem = document.querySelector(`.s-item[data-page="${page}"]`);
-  if (navItem) navItem.classList.add('active');
+  const all = document.querySelectorAll(`.s-item[data-page="${page}"]`);
+  const visible = [...all].find(el => el.offsetParent !== null);
+  if (visible) visible.classList.add('active');
 
   // Affiche la page
   const el = document.getElementById('page-' + page);
