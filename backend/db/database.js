@@ -20,7 +20,7 @@ async function initDb() {
   const row = await _api.prepare('SELECT COUNT(*) AS n FROM utilisateurs').get();
   if (!row || row.n === '0' || row.n === 0) {
     console.log('📦 Base vide — exécution du seed...');
-    require('./seed');
+    await require('./seed').seed();
   }
 
   // Nettoyage : table résiduelle d'une migration antérieure échouée (SQLite seulement)
