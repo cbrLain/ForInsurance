@@ -49,14 +49,14 @@ router.post('/register-assureur', authenticate, requireRole('admin'), async (req
     return res.status(400).json({ error: 'Nom et prénom requis.' });
 
   const db = getDb();
-  const last = db.prepare("SELECT identifiant FROM utilisateurs WHERE identifiant LIKE 'ASSR-%' ORDER BY id DESC LIMIT 1").get();
+  const last = await db.prepare("SELECT identifiant FROM utilisateurs WHERE identifiant LIKE 'ASSR-%' ORDER BY id DESC LIMIT 1").get();
   const nextNum = last ? parseInt(last.identifiant.split('-')[1]) + 1 : 1;
   const identifiant = 'ASSR-' + String(nextNum).padStart(3, '0');
 
   const pwPlain = Math.random().toString(36).slice(-10);
   const mot_de_passe = bcrypt.hashSync(pwPlain, 10);
 
-  const uInfo = db.prepare(
+  const uInfo = await db.prepare(
     "INSERT INTO utilisateurs (identifiant, mot_de_passe, role, nom, prenom) VALUES (?, ?, 'assureur', ?, ?)"
   ).run(identifiant, mot_de_passe, nom.toUpperCase(), prenom);
 
@@ -71,11 +71,11 @@ router.post('/register-medecin', async (req, res) => {
     return res.status(400).json({ error: 'Champs obligatoires : nom, prenom, email, agrement, type.' });
 
   const db = getDb();
-  const existing = db.prepare('SELECT id FROM demandes_inscription WHERE email = ? AND statut = \'en_attente\'').get(email);
+  const existing = await db.prepare('SELECT id FROM demandes_inscription WHERE email = ? AND statut = \'en_attente\'').get(email);
   if (existing)
     return res.status(409).json({ error: 'Une demande est déjà en attente pour cet email.' });
 
-  db.prepare(`INSERT INTO demandes_inscription (nom, prenom, email, telephone, num_agrement, type, specialite)
+  await db.prepare(`INSERT INTO demandes_inscription (nom, prenom, email, telephone, num_agrement, type, specialite)
     VALUES (?, ?, ?, ?, ?, ?, ?)`).run(nom, prenom, email, telephone || null, agrement, type, specialite || null);
 
   try {
@@ -95,12 +95,12 @@ router.post('/register-medecin', async (req, res) => {
 });
 
 // GET /api/auth/demandes
-router.get('/demandes', authenticate, (req, res) => {
+router.get('/demandes', authenticate, async (req, res) => {
   if (req.user.role !== 'assureur' && req.user.role !== 'admin' && req.user.identifiant !== 'admin')
     return res.status(403).json({ error: 'Accès réservé aux assureurs.' });
 
   const db = getDb();
-  const demandes = db.prepare('SELECT * FROM demandes_inscription ORDER BY created_at DESC').all();
+  const demandes = await db.prepare('SELECT * FROM demandes_inscription ORDER BY created_at DESC').all();
   res.json(demandes);
 });
 
@@ -114,13 +114,13 @@ router.patch('/demandes/:id', authenticate, async (req, res) => {
     return res.status(400).json({ error: 'Statut invalide (approuvee ou rejetee).' });
 
   const db = getDb();
-  const demande = db.prepare('SELECT * FROM demandes_inscription WHERE id = ?').get(req.params.id);
+  const demande = await db.prepare('SELECT * FROM demandes_inscription WHERE id = ?').get(req.params.id);
   if (!demande) return res.status(404).json({ error: 'Demande introuvable.' });
   if (demande.statut !== 'en_attente')
     return res.status(400).json({ error: 'Demande déjà traitée.' });
 
   if (statut === 'rejetee') {
-    db.prepare('UPDATE demandes_inscription SET statut = ?, motif_rejet = ? WHERE id = ?')
+    await db.prepare('UPDATE demandes_inscription SET statut = ?, motif_rejet = ? WHERE id = ?')
       .run('rejetee', motif_rejet || null, req.params.id);
     try {
       await sendMail({
@@ -142,20 +142,20 @@ router.patch('/demandes/:id', authenticate, async (req, res) => {
   const mot_de_passe = bcrypt.hashSync(pwPlain, 10);
 
   const insertUser = db.prepare('INSERT INTO utilisateurs (identifiant, mot_de_passe, role, nom, prenom) VALUES (?, ?, \'medecin\', ?, ?)');
-  const userResult = insertUser.run(identifiant, mot_de_passe, demande.nom, demande.prenom);
+  const userResult = await insertUser.run(identifiant, mot_de_passe, demande.nom, demande.prenom);
 
   // Vérifier si la personne existe déjà
-  let personne = db.prepare('SELECT id FROM personnes WHERE nom = ? AND prenom = ?').get(demande.nom, demande.prenom);
+  let personne = await db.prepare('SELECT id FROM personnes WHERE nom = ? AND prenom = ?').get(demande.nom, demande.prenom);
   if (!personne) {
-    const pRes = db.prepare('INSERT INTO personnes (nom, prenom, email, telephone) VALUES (?, ?, ?, ?)')
+    const pRes = await db.prepare('INSERT INTO personnes (nom, prenom, email, telephone) VALUES (?, ?, ?, ?)')
       .run(demande.nom, demande.prenom, demande.email, demande.telephone);
     personne = { id: pRes.lastInsertRowid };
   }
 
-  db.prepare('INSERT INTO medecins (personne_id, identifiant, num_agrement, type, specialite, utilisateur_id) VALUES (?, ?, ?, ?, ?, ?)')
+  await db.prepare('INSERT INTO medecins (personne_id, identifiant, num_agrement, type, specialite, utilisateur_id) VALUES (?, ?, ?, ?, ?, ?)')
     .run(personne.id, identifiant, demande.num_agrement, demande.type, demande.specialite, userResult.lastInsertRowid);
 
-  db.prepare('UPDATE demandes_inscription SET statut = ? WHERE id = ?').run('approuvee', req.params.id);
+  await db.prepare('UPDATE demandes_inscription SET statut = ? WHERE id = ?').run('approuvee', req.params.id);
 
   try {
     await sendMail({
@@ -199,7 +199,7 @@ router.patch('/password', authenticate, async (req, res) => {
 // GET /api/auth/assureurs — Lister tous les comptes assureur (admin only)
 router.get('/assureurs', authenticate, requireRole('admin'), async (req, res) => {
   const db = getDb();
-  const users = db.prepare(
+  const users = await db.prepare(
     "SELECT id, identifiant, nom, prenom, created_at FROM utilisateurs WHERE role='assureur' ORDER BY created_at DESC"
   ).all();
   res.json(users);
