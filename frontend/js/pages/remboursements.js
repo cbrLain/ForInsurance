@@ -294,9 +294,7 @@ async function viewFacture(rembId) {
         <span style="font-size:.95rem;font-weight:700">Montant total remboursé</span>
         <span class="prt-amount">${fmtMoney(r.montant)}</span>
       </div>
-      <div style="text-align:center;font-size:.7rem;color:var(--text-dim);margin-top:16px">
-        Document généré le ${fmtDateTime(new Date())} · ForInsurance : ENSPY 2025/2026
-      </div>
+
     `, `
       <button class="btn btn-secondary" onclick="Modal.close()">Fermer</button>
       <button class="btn btn-primary" onclick="imprimerFacture()"><i class="fas fa-print"></i> Imprimer</button>
