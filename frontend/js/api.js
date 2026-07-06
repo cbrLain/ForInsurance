@@ -63,6 +63,9 @@ const Api = {
   addPrescriptionMed:(d)=> Api.post('/prescriptions/medicaments', d),
   addConsultationSpec:(d)=> Api.post('/prescriptions/consultation-specialiste', d),
 
+  // Comptes (admin)
+  addAssureur: (d) => Api.post('/auth/register-assureur', d),
+
   // Stats
   getStats: () => Api.get('/stats'),
 };

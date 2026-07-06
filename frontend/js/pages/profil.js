@@ -9,7 +9,7 @@ async function loadMonProfil() {
   const statsEl = document.getElementById('profil-stats');
 
   if (role === 'medecin') {
-    const medecins = await Api.getMedecins();
+    const medecins = (await Api.getMedecins()).data;
     const med = medecins.find(m => m.identifiant === user.identifiant);
 
     const infos = [
@@ -67,7 +67,7 @@ async function loadMonProfil() {
 
 async function getOrFetchPersonne(user) {
   try {
-    const ppl = await Api.get('/assures?q=' + encodeURIComponent(user.nom));
+    const ppl = (await Api.get('/assures?q=' + encodeURIComponent(user.nom))).data;
     const match = ppl.find(p => p.nom === user.nom && p.prenom === user.prenom);
     if (match) return match;
   } catch {}

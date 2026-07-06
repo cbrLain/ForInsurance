@@ -94,7 +94,7 @@ const rechercherAssurePresc = (function() {
     info.style.color = 'var(--text-muted)';
     _prescTimers[prefix] = setTimeout(async () => {
       try {
-        const rows = await Api.getAssures(nss);
+        const rows = (await Api.getAssures(nss)).data;
         const match = rows.find(a => a.numero_ss === nss);
         if (match) {
           info.style.color = 'var(--primary)';
@@ -148,8 +148,7 @@ async function submitPrescriptionMed() {
 
 async function viewPrescription(id) {
   try {
-    const p = await Api.getPrescriptions({ type: 'medicaments' });
-    // find by id in the list or fetch individually
+    const p = (await Api.getPrescriptions({ type: 'medicaments' })).data;
     const presc = p.find(x => x.id === id);
     if (!presc) { toast('Prescription introuvable.', 'error'); return; }
     Modal.wide(`Prescription #${id} : ${presc.assure_nom}`, `
@@ -221,7 +220,7 @@ function renderConsultationsSpec(rows) {
 
 function showAddConsultation() {
   Api.getMedecins('', 'specialiste').then(specialistes => {
-    const opts = specialistes.map(m =>
+    const opts = specialistes.data.map(m =>
       `<option value="${m.id}">${m.nom} ${m.prenom} : ${m.specialite}</option>`
     ).join('');
 
@@ -298,7 +297,7 @@ async function submitConsultationSpec() {
 
 async function viewConsultation(id) {
   try {
-    const rows = await Api.getPrescriptions({ type: 'consultation_specialiste' });
+    const rows = (await Api.getPrescriptions({ type: 'consultation_specialiste' })).data;
     const p    = rows.find(x => x.id === id);
     if (!p) { toast('Prescription introuvable.', 'error'); return; }
     const c = p.consultation || {};

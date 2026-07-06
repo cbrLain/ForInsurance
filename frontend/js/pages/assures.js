@@ -191,11 +191,11 @@ async function showAddMedecinTraitant() {
       clearTimeout(timer);
       const el = document.getElementById('amt-sa-results');
       const q = document.getElementById('amt-sa').value.trim();
-      if (!q || q.length < 2) { el.innerHTML = ''; return; }
+      if (!q) { el.innerHTML = ''; return; }
       el.innerHTML = '<div class="search-item disabled"><i class="fas fa-spinner fa-spin"></i> Recherche…</div>';
       timer = setTimeout(async () => {
         try {
-          const rows = await Api.getAssures(q);
+          const rows = (await Api.getAssures(q)).data;
           el.innerHTML = rows.length
             ? rows.map(a => `<div class="search-item" onclick="window._amtPickAssure(${a.id},'${a.nom}','${a.prenom}','${a.numero_ss}')">
                 <strong>${a.nom} ${a.prenom}</strong><br><small>${a.numero_ss}</small>
@@ -224,11 +224,11 @@ async function showAddMedecinTraitant() {
       clearTimeout(timer);
       const el = document.getElementById('amt-sm-results');
       const q = document.getElementById('amt-sm').value.trim();
-      if (!q || q.length < 2) { el.innerHTML = ''; return; }
+      if (!q) { el.innerHTML = ''; return; }
       el.innerHTML = '<div class="search-item disabled"><i class="fas fa-spinner fa-spin"></i> Recherche…</div>';
       timer = setTimeout(async () => {
         try {
-          const rows = await Api.getMedecins(q, 'generaliste');
+          const rows = (await Api.getMedecins(q, 'generaliste')).data;
           el.innerHTML = rows.length
             ? rows.map(m => `<div class="search-item" onclick="window._amtPickMedecin(${m.id},'${m.nom}','${m.prenom}','${m.identifiant}')">
                 <strong>Dr. ${m.nom} ${m.prenom}</strong><br><small>${m.identifiant}</small>

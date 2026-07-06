@@ -11,7 +11,7 @@ socket.on('disconnect', () => console.log('🔌 Socket déconnecté'));
 socket.on('data-change', (payload) => {
   try {
     const user = JSON.parse(localStorage.getItem('ss_user') || 'null');
-    if (payload.resource === 'demandes' && user?.role === 'assureur') {
+    if (payload.resource === 'demandes' && (user?.role === 'assureur' || user?.role === 'admin')) {
       toast('📩 Nouvelle demande d\'inscription reçue !', 'info', 6000);
     }
     if (currentPage) loadPage(currentPage);
@@ -173,16 +173,28 @@ function showApp(user) {
   const initials = (user.prenom[0] + user.nom[0]).toUpperCase();
   document.getElementById('s-avatar').textContent  = initials;
   document.getElementById('s-uname').textContent   = `${user.prenom} ${user.nom}`;
-  document.getElementById('s-role').innerHTML      = user.role === 'assureur' ? '<i class="fas fa-user-cog"></i> Assureur' : '<i class="fas fa-stethoscope"></i> Médecin';
-  document.getElementById('s-urole').textContent   = user.role === 'assureur' ? 'Agent ForInsurance' : 'Professionnel de santé';
+  const isAdmin = user.role === 'admin' || user.identifiant === 'admin';
+  if (isAdmin) {
+    document.getElementById('s-role').innerHTML = '<i class="fas fa-shield-alt"></i> Administrateur';
+    document.getElementById('s-urole').textContent = 'Super Admin';
+  } else if (user.role === 'assureur') {
+    document.getElementById('s-role').innerHTML = '<i class="fas fa-user-cog"></i> Assureur';
+    document.getElementById('s-urole').textContent = 'Agent ForInsurance';
+  } else {
+    document.getElementById('s-role').innerHTML = '<i class="fas fa-stethoscope"></i> Médecin';
+    document.getElementById('s-urole').textContent = 'Professionnel de santé';
+  }
 
   // Navigation selon rôle
-  if (user.role === 'assureur') {
+  document.getElementById('nav-assureur').classList.add('hidden');
+  document.getElementById('nav-medecin').classList.add('hidden');
+  document.getElementById('nav-admin').classList.add('hidden');
+  if (isAdmin) {
+    document.getElementById('nav-admin').classList.remove('hidden');
+  } else if (user.role === 'assureur') {
     document.getElementById('nav-assureur').classList.remove('hidden');
-    document.getElementById('nav-medecin').classList.add('hidden');
   } else {
     document.getElementById('nav-medecin').classList.remove('hidden');
-    document.getElementById('nav-assureur').classList.add('hidden');
   }
 
   navigateTo('dashboard');
@@ -233,10 +245,14 @@ function navigateTo(page) {
     'historique-consultations':  'Historique des consultations',
     'historique':                'Historique des opérations',
     'recherche':                 'Recherche',
+    'admin-comptes':             'Gestion des comptes',
   };
   const titles = { ...baseTitles };
   if (page === 'mon-profil' && currentUser?.role === 'assureur') {
     titles['mon-profil'] = 'Mon profil · Assureur';
+  }
+  if (page === 'mon-profil' && (currentUser?.role === 'admin' || currentUser?.identifiant === 'admin')) {
+    titles['mon-profil'] = 'Mon profil · Administrateur';
   }
   document.getElementById('page-title').textContent = titles[page] || page;
   currentPage = page;
@@ -264,6 +280,7 @@ function loadPage(page) {
     case 'historique-consultations':  loadHistoriqueConsultations(); break;
     case 'historique':                loadHistoriqueOperations(); break;
     case 'recherche':                 loadRecherche(); break;
+    case 'admin-comptes':             loadAdminComptes(); break;
   }
 }
 

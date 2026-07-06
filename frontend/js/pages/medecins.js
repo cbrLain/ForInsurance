@@ -85,9 +85,23 @@ async function submitAddMedecin() {
     err.classList.remove('hidden'); return;
   }
   try {
-    await Api.addMedecin(data);
-    Modal.close(); toast('Médecin enregistré avec succès !', 'success');
-    loadMedecins();
+    const res = await Api.addMedecin(data);
+    Modal.close();
+    Modal.open('✅ Compte médecin créé avec succès', `
+      <div style="text-align:center;padding:12px 0">
+        <p style="color:var(--text-muted);margin-bottom:16px">Veuillez communiquer ces identifiants au médecin.</p>
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:20px;display:inline-block;text-align:left;min-width:260px">
+          <div style="margin-bottom:12px">
+            <div style="font-size:.72rem;color:var(--text-muted);font-weight:600;text-transform:uppercase;margin-bottom:2px">Identifiant</div>
+            <div style="font-size:1.1rem;font-weight:700;color:var(--text);font-family:monospace">${res.identifiant}</div>
+          </div>
+          <div>
+            <div style="font-size:.72rem;color:var(--text-muted);font-weight:600;text-transform:uppercase;margin-bottom:2px">Mot de passe</div>
+            <div style="font-size:1.1rem;font-weight:700;color:var(--accent);font-family:monospace">${res.mot_de_passe}</div>
+          </div>
+        </div>
+      </div>
+    `, `<button class="btn btn-primary" onclick="Modal.close();loadMedecins()"> Fermer</button>`);
   } catch(e) { err.textContent = e.message; err.classList.remove('hidden'); }
 }
 
@@ -112,6 +126,8 @@ async function viewMedecin(id) {
 document.getElementById('btn-add-medecin')?.addEventListener('click', showAddMedecin);
 document.getElementById('q-medecins')?.addEventListener('input', e => {
   clearTimeout(window._qm);
+  const v = e.target.value;
   medecinsPage = 1;
-  window._qm = setTimeout(() => loadMedecins(e.target.value), 400);
+  if (!v) { loadMedecins(''); return; }
+  window._qm = setTimeout(() => loadMedecins(v), 400);
 });

@@ -177,7 +177,7 @@ function showCompleterByRef() {
       const results = document.getElementById('c-results');
       const form = document.getElementById('c-form');
       form.style.display = 'none';
-      if (ref.length < 2) { results.style.display = 'none'; results.innerHTML = ''; return; }
+      if (!ref) { results.style.display = 'none'; results.innerHTML = ''; return; }
       results.innerHTML = '<div class="autocomplete-item disabled"><i class="fas fa-spinner fa-spin"></i> Recherche…</div>';
       results.style.display = 'block';
       timer = setTimeout(async () => {
@@ -342,7 +342,7 @@ const rechercherAssureParNSS = (function() {
     info.style.color = 'var(--text-muted)';
     timer = setTimeout(async () => {
       try {
-        const rows = await Api.getAssures(nss);
+        const rows = (await Api.getAssures(nss)).data;
         const match = rows.find(a => a.numero_ss === nss);
         if (match) {
           info.innerHTML = `<i class="fas fa-check-circle"></i> ${match.nom} ${match.prenom}`;

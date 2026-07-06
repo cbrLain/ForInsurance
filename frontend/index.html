@@ -330,11 +330,23 @@
           <a class="s-item" data-page="mon-profil"><i class="fas fa-id-card s-icon"></i><span class="s-text">Mon profil</span></a>
           <div class="s-label">Gestion</div>
           <a class="s-item" data-page="assures"><i class="fas fa-users s-icon"></i><span class="s-text">Gestion des assurés</span></a>
-          <a class="s-item" data-page="medecins"><i class="fas fa-user-md s-icon"></i><span class="s-text">Gestion des médecins</span></a>
           <a class="s-item" data-page="feuilles"><i class="fas fa-file-medical-alt s-icon"></i><span class="s-text">Gestion des feuilles de maladie</span></a>
           <a class="s-item" data-page="remboursements"><i class="fas fa-credit-card s-icon"></i><span class="s-text">Gestion des remboursements</span></a>
           <div class="s-label">Suivi</div>
           <a class="s-item" data-page="historique"><i class="fas fa-history s-icon"></i><span class="s-text">Historique des opérations</span></a>
+          <a class="s-item" data-page="recherche"><i class="fas fa-search s-icon"></i><span class="s-text">Recherche</span></a>
+        </div>
+        <div id="nav-admin" class="hidden">
+          <div class="s-label">Mon compte</div>
+          <a class="s-item" data-page="mon-profil"><i class="fas fa-id-card s-icon"></i><span class="s-text">Mon profil</span></a>
+          <div class="s-label">Administration</div>
+          <a class="s-item" data-page="medecins"><i class="fas fa-user-md s-icon"></i><span class="s-text">Gestion des médecins</span></a>
+          <a class="s-item" data-page="admin-comptes"><i class="fas fa-user-plus s-icon"></i><span class="s-text">Ajouter un assureur</span></a>
+          <div class="s-label">Supervision</div>
+          <a class="s-item" data-page="assures"><i class="fas fa-users s-icon"></i><span class="s-text">Gestion des assurés</span></a>
+          <a class="s-item" data-page="feuilles"><i class="fas fa-file-medical-alt s-icon"></i><span class="s-text">Gestion des feuilles</span></a>
+          <a class="s-item" data-page="remboursements"><i class="fas fa-credit-card s-icon"></i><span class="s-text">Gestion des remboursements</span></a>
+          <a class="s-item" data-page="historique"><i class="fas fa-history s-icon"></i><span class="s-text">Historique</span></a>
           <a class="s-item" data-page="recherche"><i class="fas fa-search s-icon"></i><span class="s-text">Recherche</span></a>
         </div>
         <div id="nav-medecin" class="hidden">
@@ -654,6 +666,33 @@
           <div id="global-results"></div>
         </section>
 
+        <!-- ADMIN : AJOUTER UN ASSUREUR -->
+        <section id="page-admin-comptes" class="page">
+          <div class="card">
+            <div class="card-hd"><h3><i class="fas fa-user-plus"></i> Créer un compte assureur</h3></div>
+            <div class="card-bd">
+              <p style="color:var(--text-muted);font-size:.82rem;margin-bottom:14px">
+                Remplissez les informations ci-dessous pour créer un nouveau compte assureur.
+                Les identifiants de connexion seront affichés après validation.
+              </p>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Nom *</label>
+                  <input id="ac-nom" placeholder="Nom de famille" style="text-transform:uppercase"/>
+                </div>
+                <div class="form-group">
+                  <label>Prénom *</label>
+                  <input id="ac-prenom" placeholder="Prénom"/>
+                </div>
+              </div>
+              <div id="ac-err" class="alert alert-error hidden" style="margin-top:10px"></div>
+              <button class="btn btn-primary" id="btn-add-assureur" style="margin-top:14px">
+                <i class="fas fa-save"></i> Créer le compte
+              </button>
+            </div>
+          </div>
+        </section>
+
       </div>
     </main>
   </div>
@@ -688,6 +727,7 @@
 <script src="js/pages/patients.js"></script>
 <script src="js/pages/historique.js"></script>
 <script src="js/pages/recherche.js"></script>
+<script src="js/pages/admin-comptes.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

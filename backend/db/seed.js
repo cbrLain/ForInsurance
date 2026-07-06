@@ -14,7 +14,7 @@ const insertUser = db.prepare(`
 `);
 const hash = (p) => bcrypt.hashSync(p, 10);
 
-insertUser.run('admin', hash('AdminForInsurance2025!'), 'assureur', 'SYSTEM', 'Admin');
+insertUser.run('admin', hash('AdminForInsurance2025!'), 'admin', 'SYSTEM', 'Admin');
 insertUser.run('assureur01', hash('assureur123'), 'assureur', 'NOUMSSI', 'Elvira');
 insertUser.run('assureur02', hash('assureur123'), 'assureur', 'ABONDO', 'Mark');
 insertUser.run('medecin01',  hash('medecin123'),  'medecin',  'MAWAMBA', 'Princesse');

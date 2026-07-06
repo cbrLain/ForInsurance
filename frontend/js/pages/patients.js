@@ -33,9 +33,9 @@ function renderPatients(rows) {
 async function viewDossierPatient(id) {
   try {
     const a = await Api.getAssure(id);
-    const feuilles = await Api.getFeuilles({ assure_id: id });
-    const prescriptions = await Api.getPrescriptions({ type: 'medicaments' });
-    const consultSpec = await Api.getPrescriptions({ type: 'consultation_specialiste' });
+    const feuilles = (await Api.getFeuilles({ assure_id: id })).data;
+    const prescriptions = (await Api.getPrescriptions({ type: 'medicaments' })).data;
+    const consultSpec = (await Api.getPrescriptions({ type: 'consultation_specialiste' })).data;
 
     const prescPatient = prescriptions.filter(p => p.assure_id === id);
     const consultPatient = consultSpec.filter(c => c.assure_id === id);

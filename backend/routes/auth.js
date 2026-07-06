@@ -4,7 +4,7 @@ const bcrypt  = require('bcryptjs');
 const jwt     = require('jsonwebtoken');
 const { getDb } = require('../db/database');
 const { sendMail } = require('../services/email');
-const { authenticate } = require('../middleware/auth');
+const { authenticate, requireRole } = require('../middleware/auth');
 const { broadcast } = require('../socket');
 
 // POST /api/auth/login
@@ -42,6 +42,28 @@ router.get('/me', authenticate, async (req, res) => {
   res.json({ user: { ...req.user, medecin_type } });
 });
 
+// POST /api/auth/register-assureur (admin only)
+router.post('/register-assureur', authenticate, requireRole('admin'), async (req, res) => {
+  const { nom, prenom } = req.body;
+  if (!nom || !prenom)
+    return res.status(400).json({ error: 'Nom et prénom requis.' });
+
+  const db = getDb();
+  const last = db.prepare("SELECT identifiant FROM utilisateurs WHERE identifiant LIKE 'ASSR-%' ORDER BY id DESC LIMIT 1").get();
+  const nextNum = last ? parseInt(last.identifiant.split('-')[1]) + 1 : 1;
+  const identifiant = 'ASSR-' + String(nextNum).padStart(3, '0');
+
+  const pwPlain = Math.random().toString(36).slice(-10);
+  const mot_de_passe = bcrypt.hashSync(pwPlain, 10);
+
+  const uInfo = db.prepare(
+    "INSERT INTO utilisateurs (identifiant, mot_de_passe, role, nom, prenom) VALUES (?, ?, 'assureur', ?, ?)"
+  ).run(identifiant, mot_de_passe, nom.toUpperCase(), prenom);
+
+  broadcast('data-change', { resource: 'utilisateurs' });
+  res.status(201).json({ id: uInfo.lastInsertRowid, identifiant, mot_de_passe: pwPlain, message: 'Compte assureur créé avec succès.' });
+});
+
 // POST /api/auth/register-medecin
 router.post('/register-medecin', async (req, res) => {
   const { nom, prenom, email, telephone, agrement, type, specialite } = req.body;
@@ -74,7 +96,7 @@ router.post('/register-medecin', async (req, res) => {
 
 // GET /api/auth/demandes
 router.get('/demandes', authenticate, (req, res) => {
-  if (req.user.role !== 'assureur')
+  if (req.user.role !== 'assureur' && req.user.role !== 'admin' && req.user.identifiant !== 'admin')
     return res.status(403).json({ error: 'Accès réservé aux assureurs.' });
 
   const db = getDb();
@@ -84,7 +106,7 @@ router.get('/demandes', authenticate, (req, res) => {
 
 // PATCH /api/auth/demandes/:id
 router.patch('/demandes/:id', authenticate, async (req, res) => {
-  if (req.user.role !== 'assureur')
+  if (req.user.role !== 'assureur' && req.user.role !== 'admin' && req.user.identifiant !== 'admin')
     return res.status(403).json({ error: 'Accès réservé aux assureurs.' });
 
   const { statut, motif_rejet } = req.body;

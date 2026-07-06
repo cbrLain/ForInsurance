@@ -23,6 +23,14 @@ async function initDb() {
     require('./seed');
   }
 
+  // Migration : attribuer le rôle admin à l'utilisateur 'admin'
+  try {
+    _api.prepare("UPDATE utilisateurs SET role='admin' WHERE identifiant='admin'").run();
+    console.log('✅ Rôle admin attribué à l\'utilisateur admin.');
+  } catch {
+    console.log('⚠️  Impossible de mettre à jour le rôle admin (contrainte CHECK). L\'admin est reconnu par son identifiant.');
+  }
+
   return _api;
 }
 

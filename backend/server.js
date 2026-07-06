@@ -1,5 +1,5 @@
 // server.js — Point d'entrée du backend SecuraSanté (PostgreSQL)
-require('dotenv').config();
+require('dotenv').config({ path: require('path').join(__dirname, '.env') });
 require('express-async-errors');
 const express = require('express');
 const http    = require('http');

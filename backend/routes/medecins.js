@@ -1,5 +1,6 @@
 // routes/medecins.js
 const router = require('express').Router();
+const bcrypt = require('bcryptjs');
 const { getDb } = require('../db/database');
 const { authenticate, requireRole } = require('../middleware/auth');
 const { broadcast } = require('../socket');
@@ -37,7 +38,7 @@ router.get('/:id', authenticate, async (req, res) => {
 });
 
 // POST /api/medecins
-router.post('/', authenticate, requireRole('assureur'), async (req, res) => {
+router.post('/', authenticate, requireRole('admin'), async (req, res) => {
   const db = getDb();
   const { nom, prenom, date_naissance, telephone, email, adresse, num_agrement, type, specialite } = req.body;
   if (!nom || !prenom || !type)
@@ -52,20 +53,28 @@ router.post('/', authenticate, requireRole('assureur'), async (req, res) => {
   const nextNum = last ? parseInt(last.identifiant.split('-')[1]) + 1 : 1;
   const identifiant = 'MED-' + String(nextNum).padStart(3, '0');
 
+  // Génération du mot de passe
+  const pwPlain = Math.random().toString(36).slice(-10);
+  const mot_de_passe = bcrypt.hashSync(pwPlain, 10);
+
   const pInfo = await db.prepare(
     'INSERT INTO personnes (nom,prenom,date_naissance,adresse,telephone,email) VALUES (?,?,?,?,?,?)'
   ).run(nom.toUpperCase(), prenom, date_naissance || null, adresse || null, telephone || null, email || null);
 
+  const uInfo = await db.prepare(
+    "INSERT INTO utilisateurs (identifiant, mot_de_passe, role, nom, prenom) VALUES (?, ?, 'medecin', ?, ?)"
+  ).run(identifiant, mot_de_passe, nom.toUpperCase(), prenom);
+
   const mInfo = await db.prepare(
-    'INSERT INTO medecins (personne_id,identifiant,num_agrement,type,specialite) VALUES (?,?,?,?,?)'
-  ).run(pInfo.lastInsertRowid, identifiant, num_agrement || null, type, specialite || null);
+    'INSERT INTO medecins (personne_id,identifiant,num_agrement,type,specialite,utilisateur_id) VALUES (?,?,?,?,?,?)'
+  ).run(pInfo.lastInsertRowid, identifiant, num_agrement || null, type, specialite || null, uInfo.lastInsertRowid);
 
   broadcast('data-change', { resource: 'medecins' });
-  res.status(201).json({ id: mInfo.lastInsertRowid, message: 'Médecin enregistré avec succès.' });
+  res.status(201).json({ id: mInfo.lastInsertRowid, identifiant, mot_de_passe: pwPlain, message: 'Médecin enregistré avec succès.' });
 });
 
 // PUT /api/medecins/:id
-router.put('/:id', authenticate, requireRole('assureur'), async (req, res) => {
+router.put('/:id', authenticate, requireRole('admin'), async (req, res) => {
   const db = getDb();
   const med = await db.prepare('SELECT * FROM medecins WHERE id=?').get(req.params.id);
   if (!med) return res.status(404).json({ error: 'Médecin introuvable.' });

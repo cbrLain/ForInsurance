@@ -20,7 +20,7 @@ function getFilters() {
   document.getElementById(id)?.addEventListener('input', () => {
     clearTimeout(globalSearchTimer);
     const f = getFilters();
-    if (!f.q || f.q.length < 2) {
+    if (!f.q) {
       document.getElementById('global-results').innerHTML = '<div class="empty"><i class="fas fa-search"></i><h4>Effectuez une recherche pour voir les résultats</h4></div>';
       return;
     }

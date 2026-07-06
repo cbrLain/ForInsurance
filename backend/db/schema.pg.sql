@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS utilisateurs (
   id          SERIAL PRIMARY KEY,
   identifiant TEXT UNIQUE NOT NULL,
   mot_de_passe TEXT NOT NULL,
-  role        TEXT CHECK(role IN ('assureur','medecin')) NOT NULL,
+  role        TEXT NOT NULL DEFAULT 'medecin',
   nom         TEXT NOT NULL,
   prenom      TEXT NOT NULL,
   created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP

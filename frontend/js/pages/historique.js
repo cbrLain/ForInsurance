@@ -6,9 +6,9 @@ let historiqueFilter = 'all';
 async function loadHistoriqueConsultations(q = '') {
   setLoader('tbody-historique', 6);
   try {
-    let feuilles = await Api.getFeuilles(q ? { q } : {});
-    let prescriptions = await Api.getPrescriptions(q ? { q, type: 'medicaments' } : { type: 'medicaments' });
-    let consults = await Api.getPrescriptions(q ? { q, type: 'consultation_specialiste' } : { type: 'consultation_specialiste' });
+    let feuilles = (await Api.getFeuilles(q ? { q } : {})).data;
+    let prescriptions = (await Api.getPrescriptions(q ? { q, type: 'medicaments' } : { type: 'medicaments' })).data;
+    let consults = (await Api.getPrescriptions(q ? { q, type: 'consultation_specialiste' } : { type: 'consultation_specialiste' })).data;
 
     let items = [];
 
@@ -99,8 +99,8 @@ async function loadHistoriqueOperations(q = '') {
     const stats = await Api.getStats();
     const items = [];
 
-    const feuilles = await Api.getFeuilles(q ? { q } : {});
-    const remb = await Api.getRemboursements(q);
+    const feuilles = (await Api.getFeuilles(q ? { q } : {})).data;
+    const remb = (await Api.getRemboursements(q)).data;
 
     if (operationsFilter === 'all' || operationsFilter === 'feuilles') {
       feuilles.slice(0, 30).forEach(f => {
@@ -173,5 +173,6 @@ document.getElementById('ft-operations')?.addEventListener('click', e => {
 document.getElementById('q-operations')?.addEventListener('input', e => {
   clearTimeout(window._qop);
   const v = e.target.value;
+  if (!v) { loadHistoriqueOperations(''); return; }
   window._qop = setTimeout(() => loadHistoriqueOperations(v), 300);
 });

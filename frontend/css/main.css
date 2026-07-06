@@ -1153,7 +1153,7 @@ ul{list-style:none}
 .btn-menu{display:none;z-index:200}
 @media(max-width:768px){
   .sidebar{position:fixed;left:-100%;transition:left .25s;box-shadow:var(--shadow-xl)}
-  .sidebar.mob-open{left:0}
+  .sidebar.mob-open{left:0;height:100dvh}
   .btn-menu{display:flex!important}
   .page-wrap{padding:16px}
   .page-title{font-size:1rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
