@@ -349,7 +349,7 @@ function showAddFeuille() {
     <div id="nf-err" class="alert alert-error hidden"></div>
   `, `
     <button class="btn btn-secondary" onclick="Modal.close()">Annuler</button>
-    <button class="btn btn-primary" onclick="submitAddFeuille()"><i class="fas fa-save"></i> Enregistrer en brouillon</button>
+    <button class="btn btn-primary" onclick="submitAddFeuille()"><i class="fas fa-save"></i> Enregistrer</button>
   `);
 
   window._nfSearch = SearchSelect.create({
