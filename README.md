@@ -1,4 +1,4 @@
-# SecuraSanté — Système d'Information pour Organisme de Sécurité Sociale
+# ForInsurance — Système d'Information pour Organisme de Sécurité Sociale
 
 > Projet tuteuré CSI — Conception de Systèmes d'Information
 
