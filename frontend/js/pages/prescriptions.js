@@ -38,12 +38,17 @@ function showAddPrescription() {
   Modal.wide('Prescrire des médicaments', `
     <div class="form-group">
       <label>N° SS de l'assuré *</label>
-      <input id="pm-nss" placeholder="1-900101-001-23" oninput="rechercherAssurePresc(this.value,'pm')"/>
+      <input id="pm-nss" placeholder="1-900101-001-23" oninput="rechercherAssure(this.value,'pm')"/>
       <div id="pm-info" style="margin-top:5px;font-size:.8rem;color:var(--primary)"></div>
     </div>
     <input type="hidden" id="pm-assure-id"/>
+    <div class="form-group">
+      <label>Feuille de maladie *</label>
+      <input id="pm-feuille-q" placeholder="Référence, patient…" oninput="rechercherFeuille(this.value,'pm')" autocomplete="off"/>
+      <div id="pm-feuille-results" class="autocomplete-list"></div>
+      <input type="hidden" id="pm-feuille-id"/>
+    </div>
     <div class="form-row">
-      <div class="form-group"><label>Feuille de maladie liée (optionnel)</label><input id="pm-feuille" placeholder="ID feuille (ex: 3)"/></div>
       <div class="form-group"><label>Date de prescription</label><input id="pm-date" type="date" value="${new Date().toISOString().split('T')[0]}"/></div>
     </div>
     <div class="form-group"><label>Notes</label><textarea id="pm-notes" rows="2" placeholder="Observations…"></textarea></div>
@@ -84,7 +89,7 @@ function addMedRow() {
 }
 
 const _prescTimers = {};
-const rechercherAssurePresc = (function() {
+const rechercherAssure = (function() {
   return function(nss, prefix) {
     const info = document.getElementById(`${prefix}-info`);
     const idF  = document.getElementById(`${prefix}-assure-id`);
@@ -110,11 +115,45 @@ const rechercherAssurePresc = (function() {
   };
 })();
 
+function rechercherFeuille(q, prefix) {
+  const container = document.getElementById(`${prefix}-feuille-results`);
+  const hidden    = document.getElementById(`${prefix}-feuille-id`);
+  if (!q || q.length < 2) { container.innerHTML = ''; container.style.display = 'none'; hidden.value = ''; return; }
+  if (_prescTimers[`${prefix}-f`]) clearTimeout(_prescTimers[`${prefix}-f`]);
+  _prescTimers[`${prefix}-f`] = setTimeout(async () => {
+    try {
+      const rows = await Api.searchFeuilles(q);
+      if (!rows.length) {
+        container.innerHTML = '<div class="autocomplete-item" style="color:var(--text-muted);cursor:default">Aucune feuille trouvée</div>';
+        container.style.display = 'block';
+        hidden.value = '';
+        return;
+      }
+      container.innerHTML = rows.map(f =>
+        `<div class="autocomplete-item" data-id="${f.id}" onclick="selectionnerFeuille(this,'${prefix}')">
+          <strong>${f.reference}</strong> — ${f.assure_nom}
+          <span class="badge" style="float:right;font-size:.7rem">${f.statut}</span>
+        </div>`
+      ).join('');
+      container.style.display = 'block';
+    } catch { container.innerHTML = ''; container.style.display = 'none'; }
+  }, 300);
+}
+
+function selectionnerFeuille(el, prefix) {
+  document.getElementById(`${prefix}-feuille-q`).value = el.textContent.trim().split('—')[0].trim();
+  document.getElementById(`${prefix}-feuille-id`).value = el.dataset.id;
+  document.getElementById(`${prefix}-feuille-results`).innerHTML = '';
+  document.getElementById(`${prefix}-feuille-results`).style.display = 'none';
+}
+
 async function submitPrescriptionMed() {
   const err = document.getElementById('pm-err');
   err.classList.add('hidden');
   const assure_id = document.getElementById('pm-assure-id').value;
   if (!assure_id) { err.textContent = 'Assuré introuvable : vérifiez le N° SS.'; err.classList.remove('hidden'); return; }
+  const feuille_id = document.getElementById('pm-feuille-id').value;
+  if (!feuille_id) { err.textContent = 'Sélectionnez une feuille de maladie.'; err.classList.remove('hidden'); return; }
 
   // Collecter les lignes médicaments
   const rows = document.querySelectorAll('.med-row');
@@ -131,10 +170,9 @@ async function submitPrescriptionMed() {
   }
   if (!medicaments.length) { err.textContent = 'Ajoutez au moins un médicament.'; err.classList.remove('hidden'); return; }
 
-  const feuilleVal = document.getElementById('pm-feuille').value.trim();
   const data = {
     assure_id:        parseInt(assure_id),
-    feuille_id:       feuilleVal ? parseInt(feuilleVal) : null,
+    feuille_id:       parseInt(feuille_id),
     date_prescription: document.getElementById('pm-date').value,
     notes:            document.getElementById('pm-notes').value.trim() || null,
     medicaments,
@@ -227,10 +265,16 @@ function showAddConsultation() {
     Modal.wide('Prescrire une consultation chez un spécialiste', `
       <div class="form-group">
         <label>N° SS de l'assuré *</label>
-        <input id="cs-nss" placeholder="1-900101-001-23" oninput="rechercherAssurePresc(this.value,'cs')"/>
+        <input id="cs-nss" placeholder="1-900101-001-23" oninput="rechercherAssure(this.value,'cs')"/>
         <div id="cs-info" style="margin-top:5px;font-size:.8rem;color:var(--primary)"></div>
       </div>
       <input type="hidden" id="cs-assure-id"/>
+      <div class="form-group">
+        <label>Feuille de maladie *</label>
+        <input id="cs-feuille-q" placeholder="Référence, patient…" oninput="rechercherFeuille(this.value,'cs')" autocomplete="off"/>
+        <div id="cs-feuille-results" class="autocomplete-list"></div>
+        <input type="hidden" id="cs-feuille-id"/>
+      </div>
       <div class="form-row">
         <div class="form-group">
           <label>Spécialité requise *</label>
@@ -256,7 +300,6 @@ function showAddConsultation() {
       </div>
       <div class="form-row">
         <div class="form-group"><label>Date de prescription</label><input id="cs-date" type="date" value="${new Date().toISOString().split('T')[0]}"/></div>
-        <div class="form-group"><label>Feuille liée (optionnel)</label><input id="cs-feuille" placeholder="ID feuille"/></div>
       </div>
       <div class="form-group"><label>Notes</label><textarea id="cs-notes" rows="2"></textarea></div>
       <div id="cs-err" class="alert alert-error hidden"></div>
@@ -275,17 +318,18 @@ async function submitConsultationSpec() {
   const motif = document.getElementById('cs-motif').value.trim();
   const spec   = document.getElementById('cs-spec').value.trim();
   if (!motif || !spec) { err.textContent = 'Spécialité et motif sont obligatoires.'; err.classList.remove('hidden'); return; }
+  const feuille_id = document.getElementById('cs-feuille-id').value;
+  if (!feuille_id) { err.textContent = 'Sélectionnez une feuille de maladie.'; err.classList.remove('hidden'); return; }
 
   const specId = document.getElementById('cs-specialiste').value;
-  const feuilleVal = document.getElementById('cs-feuille').value.trim();
   const data = {
     assure_id:         parseInt(assure_id),
+    feuille_id:        parseInt(feuille_id),
     specialiste_id:    specId ? parseInt(specId) : null,
     specialite_requise: spec,
     urgence:           document.getElementById('cs-urgence').value,
     motif,
     date_prescription: document.getElementById('cs-date').value,
-    feuille_id:        feuilleVal ? parseInt(feuilleVal) : null,
     notes:             document.getElementById('cs-notes').value.trim() || null,
   };
   try {

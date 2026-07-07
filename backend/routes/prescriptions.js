@@ -76,11 +76,14 @@ router.get('/:id', authenticate, async (req, res) => {
 router.post('/medicaments', authenticate, requireRole('medecin'), async (req, res) => {
   const db = getDb();
   const { assure_id, feuille_id, date_prescription, notes, medicaments } = req.body;
-  if (!assure_id || !medicaments?.length)
-    return res.status(400).json({ error: 'Assuré et au moins un médicament requis.' });
+  if (!assure_id || !feuille_id || !medicaments?.length)
+    return res.status(400).json({ error: 'Assuré, feuille de maladie et au moins un médicament requis.' });
 
   const assure = await db.prepare('SELECT id FROM assures WHERE id=? AND actif=1').get(assure_id);
   if (!assure) return res.status(404).json({ error: 'Assuré introuvable.' });
+
+  const feuille = await db.prepare('SELECT id FROM feuilles_maladie WHERE id=?').get(feuille_id);
+  if (!feuille) return res.status(404).json({ error: 'Feuille de maladie introuvable.' });
 
   const med = await db.prepare('SELECT id FROM medecins WHERE utilisateur_id=?').get(req.user.id);
   if (!med) return res.status(403).json({ error: 'Compte non lié à un médecin.' });
@@ -111,11 +114,14 @@ router.post('/medicaments', authenticate, requireRole('medecin'), async (req, re
 router.post('/consultation-specialiste', authenticate, requireRole('medecin'), async (req, res) => {
   const db = getDb();
   const { assure_id, feuille_id, date_prescription, notes, specialiste_id, specialite_requise, urgence, motif } = req.body;
-  if (!assure_id || !specialite_requise)
-    return res.status(400).json({ error: 'Assuré et spécialité requise requis.' });
+  if (!assure_id || !feuille_id || !specialite_requise)
+    return res.status(400).json({ error: 'Assuré, feuille de maladie et spécialité requise requis.' });
 
   const assure = await db.prepare('SELECT id FROM assures WHERE id=? AND actif=1').get(assure_id);
   if (!assure) return res.status(404).json({ error: 'Assuré introuvable.' });
+
+  const feuille = await db.prepare('SELECT id FROM feuilles_maladie WHERE id=?').get(feuille_id);
+  if (!feuille) return res.status(404).json({ error: 'Feuille de maladie introuvable.' });
 
   if (specialiste_id) {
     const spec = await db.prepare("SELECT type FROM medecins WHERE id=?").get(specialiste_id);

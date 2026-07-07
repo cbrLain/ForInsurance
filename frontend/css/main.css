@@ -1146,6 +1146,13 @@ ul{list-style:none}
 .btn-add-row{width:100%;padding:12px;background:rgba(0,0,0,.1);border:2px dashed var(--border);border-radius:var(--radius-sm);color:var(--accent);font-weight:500}
 .btn-add-row:hover{border-color:var(--accent);background:var(--accent-light)}
 
+/* ── AUTOCOMPLETE ──────────────────────────────────────── */
+.autocomplete-list{display:none;position:absolute;z-index:100;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);max-height:200px;overflow-y:auto;width:100%;box-shadow:0 4px 12px rgba(0,0,0,.3)}
+.autocomplete-item{padding:10px 12px;cursor:pointer;border-bottom:1px solid var(--border);font-size:.82rem;transition:background .15s}
+.autocomplete-item:hover{background:var(--accent-light);color:var(--accent)}
+.autocomplete-item:last-child{border-bottom:none}
+.form-group{position:relative}
+
 /* ── LOADER ───────────────────────────────────────────── */
 .loader{text-align:center;padding:40px;color:var(--accent);font-size:.85rem}
 

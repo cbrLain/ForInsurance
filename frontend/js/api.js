@@ -48,6 +48,7 @@ const Api = {
   getFeuilles: (params={}) => Api.get('/feuilles?' + new URLSearchParams(params)),
   getFeuille:  (id)  => Api.get('/feuilles/' + id),
   getFeuilleByRef: (ref) => Api.get('/feuilles/reference/' + encodeURIComponent(ref)),
+  searchFeuilles: (q) => Api.get('/feuilles/search?q=' + encodeURIComponent(q)),
   addFeuille:  (d)   => Api.post('/feuilles', d),
   changerStatut:(id,s,n)=> Api.patch('/feuilles/'+id+'/statut',{statut:s,notes:n}),
   completerFeuille:(id,d)=> Api.patch('/feuilles/'+id+'/completer', d),
