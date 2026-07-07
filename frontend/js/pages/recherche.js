@@ -133,7 +133,7 @@ async function doGlobalSearch(f) {
       } catch {}
     }
 
-    if (role === 'assureur' && shouldShow('remboursements')) {
+    if ((role === 'assureur' || role === 'admin') && shouldShow('remboursements')) {
       try {
         const rembParams = { q };
         if (date_from) rembParams.date_from = date_from;

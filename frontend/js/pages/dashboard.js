@@ -4,7 +4,7 @@ async function loadDashboard(role) {
     const d = await Api.getStats();
     const grid = document.getElementById('stats-grid');
 
-    if (role === 'assureur') {
+    if (role === 'assureur' || role === 'admin') {
       grid.innerHTML = `
         <div class="stat-card"><div class="stat-ico"><i class="fas fa-users"></i></div><div><div class="stat-val">${d.totalAssures}</div><div class="stat-lbl">Assurés actifs</div></div></div>
         <div class="stat-card"><div class="stat-ico"><i class="fas fa-user-md"></i></div><div><div class="stat-val">${d.totalMedecins}</div><div class="stat-lbl">Médecins enregistrés</div></div></div>

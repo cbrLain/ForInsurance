@@ -6,7 +6,7 @@ const { authenticate } = require('../middleware/auth');
 router.get('/', authenticate, async (req, res) => {
   const db = getDb();
 
-  if (req.user.role === 'assureur') {
+  if (req.user.role === 'assureur' || req.user.role === 'admin' || req.user.identifiant === 'admin') {
     const totalAssures    = (await db.prepare('SELECT COUNT(*) AS n FROM assures WHERE actif=1').get()).n;
     const totalMedecins   = (await db.prepare('SELECT COUNT(*) AS n FROM medecins').get()).n;
     const totalFeuilles   = (await db.prepare('SELECT COUNT(*) AS n FROM feuilles_maladie').get()).n;
