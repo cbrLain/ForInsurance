@@ -38,6 +38,7 @@ async function start() {
   app.use('/api/remboursements', require('./routes/remboursements'));
   app.use('/api/prescriptions',  require('./routes/prescriptions'));
   app.use('/api/stats',          require('./routes/stats'));
+  app.use('/api/medicaments',    require('./routes/medicaments'));
 
   // ── Frontend statique ────────────────────────────────────────
   const FRONTEND = path.join(__dirname, '../frontend');

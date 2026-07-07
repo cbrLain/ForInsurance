@@ -143,12 +143,15 @@ function submitCompleter(id) {
 function showCompleterByRef() {
   Modal.open('Compléter une feuille de maladie', `
     <p style="color:var(--text-muted);font-size:.82rem;margin-bottom:14px">
-      <strong>Étape 1 :</strong> tapez le code de la feuille — les résultats apparaissent automatiquement.
+      <strong>Étape 1 :</strong> recherchez la feuille par référence, patient ou N° SS — sélectionnez-la dans la liste.
     </p>
-    <div class="form-group" style="position:relative">
-      <label>Code de la feuille *</label>
-      <input id="c-ref" placeholder="Référence, nom assuré, N° SS…" autocomplete="off" oninput="window._cRefSearch()" onblur="setTimeout(()=>document.getElementById('c-results').style.display='none',200)" onfocus="if(this.value.length>=2)document.getElementById('c-results').style.display='block'"/>
-      <div id="c-results" class="autocomplete-dropdown" style="display:none"></div>
+    <div class="form-group">
+      <label>Feuille de maladie *</label>
+      <div class="ss-wrapper">
+        <input id="c-ref" placeholder="Référence, nom assuré, N° SS…" autocomplete="off"/>
+        <div id="c-results" class="ss-results"></div>
+        <input type="hidden" id="c-feuille-id"/>
+      </div>
       <div id="c-ref-info" style="margin-top:6px;font-size:.85rem"></div>
     </div>
     <div id="c-form" style="display:none">
@@ -173,70 +176,51 @@ function showCompleterByRef() {
     </div>
   `, `<button class="btn btn-secondary" onclick="Modal.close()">Annuler</button>`);
 
-  window._cRefSearch = (function() {
-    let timer;
-    return function() {
-      clearTimeout(timer);
-      const ref = document.getElementById('c-ref').value.trim();
-      const results = document.getElementById('c-results');
+  window._cSearch = SearchSelect.create({
+    input: document.getElementById('c-ref'),
+    hidden: document.getElementById('c-feuille-id'),
+    results: document.getElementById('c-results'),
+    minLength: 2,
+    search: async (q) => {
+      const token = localStorage.getItem('ss_token');
+      const res = await fetch('/api/feuilles/search?q=' + encodeURIComponent(q), {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+      const list = await res.json();
+      return (list || []).filter(f => f.statut === 'Incomplète').map(f => ({
+        id: f.id,
+        label: `${f.reference} — ${f.assure_nom}`,
+        reference: f.reference,
+        nom: f.reference,
+        assure_nom: f.assure_nom,
+        medecin_nom: f.medecin_nom,
+        statut: f.statut,
+        value: f.id
+      }));
+    },
+    render: (f) => `<strong>${f.reference}</strong> <span style="float:right;font-size:.75rem">${badgeStatut(f.statut)}</span><br><small>${f.assure_nom} · Dr. ${f.medecin_nom}</small>`,
+    onSelect: async (item) => {
+      const info = document.getElementById('c-ref-info');
       const form = document.getElementById('c-form');
-      form.style.display = 'none';
-      if (!ref) { results.style.display = 'none'; results.innerHTML = ''; return; }
-      results.innerHTML = '<div class="autocomplete-item disabled"><i class="fas fa-spinner fa-spin"></i> Recherche…</div>';
-      results.style.display = 'block';
-      timer = setTimeout(async () => {
-        try {
-          const token = localStorage.getItem('ss_token');
-          const res = await fetch('/api/feuilles/search?q=' + encodeURIComponent(ref), {
-            headers: { 'Authorization': 'Bearer ' + token }
-          });
-          const list = await res.json();
-          if (!list.length) {
-            results.innerHTML = '<div class="autocomplete-item disabled">Aucune feuille trouvée</div>';
-            return;
-          }
-          results.innerHTML = list.map(f => `
-            <div class="autocomplete-item" data-id="${f.id}" data-ref="${f.reference}" onclick="window._cPickFeuille(${f.id},'${f.reference}')">
-              <strong>${f.reference}</strong>
-              <span style="float:right;font-size:.75rem">${badgeStatut(f.statut)}</span>
-              <br><small>${f.assure_nom} · Dr. ${f.medecin_nom}</small>
-            </div>
-          `).join('');
-        } catch(e) {
-          results.innerHTML = '<div class="autocomplete-item disabled">Erreur de recherche</div>';
-        }
-      }, 250);
-    };
-  })();
-
-  window._cPickFeuille = async function(id, ref) {
-    document.getElementById('c-results').style.display = 'none';
-    document.getElementById('c-ref').value = ref;
-    const info = document.getElementById('c-ref-info');
-    const form = document.getElementById('c-form');
-    try {
-      const feuille = await Api.getFeuilleByRef(ref);
-      if (feuille.statut !== 'Incomplète') {
-        info.innerHTML = `<i class="fas fa-times-circle"></i> Cette feuille est déjà « ${feuille.statut} ». Seules les feuilles Incomplètes peuvent être complétées.`;
+      try {
+        const feuille = await Api.getFeuilleByRef(item.reference);
+        info.innerHTML = `<i class="fas fa-check-circle"></i> ${feuille.assure_nom} — ${feuille.diagnostic}`;
+        info.style.color = 'var(--primary)';
+        form.style.display = 'block';
+        form.dataset.feuilleId = feuille.id;
+      } catch(e) {
+        info.innerHTML = '<i class="fas fa-times-circle"></i> ' + e.message;
         info.style.color = 'var(--danger)';
         form.style.display = 'none';
-        return;
       }
-      info.innerHTML = `<i class="fas fa-check-circle"></i> ${feuille.assure_nom} — ${feuille.diagnostic}`;
-      info.style.color = 'var(--primary)';
-      form.style.display = 'block';
-      form.dataset.feuilleId = feuille.id;
-    } catch(e) {
-      info.innerHTML = '<i class="fas fa-times-circle"></i> ' + e.message;
-      info.style.color = 'var(--danger)';
-    }
-  };
+    },
+  });
 }
 
 async function submitCompleterByRef() {
   const err = document.getElementById('c-err');
   err.classList.add('hidden');
-  const id = document.getElementById('c-form').dataset.feuilleId;
+  const id = document.getElementById('c-feuille-id')?.value || document.getElementById('c-form')?.dataset?.feuilleId;
   const montant = document.getElementById('c-mont2').value;
   const mode = document.getElementById('c-mode2').value;
   if (!id) { err.textContent = 'Aucune feuille sélectionnée.'; err.classList.remove('hidden'); return; }
@@ -346,11 +330,14 @@ async function supprimerFeuille(id) {
 function showAddFeuille() {
   Modal.open('Nouvelle feuille de maladie', `
     <p style="color:var(--text-muted);font-size:.82rem;margin-bottom:14px">Enregistrez les informations de la consultation pour permettre le remboursement de l'assuré.</p>
-    <div class="form-group"><label>N° de Sécurité Sociale de l'assuré *</label>
-      <input id="nf-nss" placeholder="1-900101-001-23" oninput="rechercherAssureParNSS(this.value)"/>
-      <div id="nf-assure-info" style="margin-top:5px;font-size:.8rem;color:var(--primary)"></div>
+    <div class="form-group">
+      <label>Assuré *</label>
+      <div class="ss-wrapper">
+        <input id="nf-search" placeholder="Tapez le nom, prénom, N° SS ou téléphone…"/>
+        <div id="nf-results" class="ss-results"></div>
+      </div>
+      <input type="hidden" id="nf-assure-id"/>
     </div>
-    <input type="hidden" id="nf-assure-id"/>
     <div class="form-row">
       <div class="form-group"><label>Date de consultation *</label><input id="nf-date" type="date" value="${new Date().toISOString().split('T')[0]}"/></div>
       <div class="form-group"><label>Honoraires (FCFA)</label><input id="nf-mont" type="number" min="0" placeholder="15000" oninput="calcRemb()"/></div>
@@ -364,34 +351,26 @@ function showAddFeuille() {
     <button class="btn btn-secondary" onclick="Modal.close()">Annuler</button>
     <button class="btn btn-primary" onclick="submitAddFeuille()"><i class="fas fa-save"></i> Enregistrer en brouillon</button>
   `);
-}
 
-const rechercherAssureParNSS = (function() {
-  let timer;
-  return function(nss) {
-    clearTimeout(timer);
-    const info = document.getElementById('nf-assure-info');
-    const idField = document.getElementById('nf-assure-id');
-    if (nss.length < 5) { info.textContent = ''; info.style.color = ''; idField.value = ''; return; }
-    info.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Vérification…';
-    info.style.color = 'var(--text-muted)';
-    timer = setTimeout(async () => {
-      try {
-        const rows = (await Api.getAssures(nss)).data;
-        const match = rows.find(a => a.numero_ss === nss);
-        if (match) {
-          info.innerHTML = `<i class="fas fa-check-circle"></i> ${match.nom} ${match.prenom}`;
-          info.style.color = 'var(--primary)';
-          idField.value = match.id;
-        } else {
-          info.style.color = 'var(--danger)';
-          info.innerHTML = '<i class="fas fa-times-circle"></i> Assuré non trouvé';
-          idField.value = '';
-        }
-      } catch { info.innerHTML = ''; }
-    }, 300);
-  };
-})();
+  window._nfSearch = SearchSelect.create({
+    input: document.getElementById('nf-search'),
+    hidden: document.getElementById('nf-assure-id'),
+    results: document.getElementById('nf-results'),
+    minLength: 2,
+    search: async (q) => {
+      const res = await Api.getAssures(q);
+      return (res.data || []).map(a => ({
+        id: a.id,
+        nom: a.nom,
+        prenom: a.prenom,
+        label: `${a.nom} ${a.prenom} — ${a.numero_ss}`,
+        detail: `${a.telephone || ''}`,
+        numero_ss: a.numero_ss
+      }));
+    },
+    render: (a) => `<strong>${a.nom} ${a.prenom}</strong><br><small>${a.numero_ss} ${a.detail ? '· '+a.detail : ''}</small>`,
+  });
+}
 
 function calcRemb() {
   const mont = parseFloat(document.getElementById('nf-mont').value);

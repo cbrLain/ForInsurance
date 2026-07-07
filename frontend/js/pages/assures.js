@@ -113,6 +113,8 @@ document.getElementById('q-assures').addEventListener('input', (e) => {
 
 async function showAddMedecinTraitant() {
   const _state = { assure: null, medecin: null };
+  let _assureSearch = null;
+  let _medecinSearch = null;
 
   function render() {
     const assureHtml = _state.assure
@@ -122,9 +124,12 @@ async function showAddMedecinTraitant() {
           <button class="btn btn-sm btn-link" onclick="window._amtClearAssure()" style="margin-left:auto">Changer</button>
         </div>`
       : `<div class="form-group">
-          <label>Rechercher l'assuré (N° SS ou nom)</label>
-          <input id="amt-sa" placeholder="Saisir le numéro de sécurité sociale ou le nom…" oninput="window._amtSearchAssure()"/>
-          <div id="amt-sa-results" class="search-results"></div>
+          <label>Rechercher l'assuré (nom, prénom, N° SS ou téléphone)</label>
+          <div class="ss-wrapper">
+            <input id="amt-sa" placeholder="Tapez le nom, prénom, N° SS ou téléphone…"/>
+            <div id="amt-sa-results" class="ss-results"></div>
+            <input type="hidden" id="amt-sa-id"/>
+          </div>
         </div>`;
 
     const medHtml = !_state.assure
@@ -136,9 +141,12 @@ async function showAddMedecinTraitant() {
             <button class="btn btn-sm btn-link" onclick="window._amtClearMedecin()" style="margin-left:auto">Changer</button>
           </div>`
         : `<div class="form-group">
-            <label>Rechercher le médecin traitant (nom ou numéro d'agrément)</label>
-            <input id="amt-sm" placeholder="Saisir le nom ou numéro d'agrément…" oninput="window._amtSearchMedecin()"/>
-            <div id="amt-sm-results" class="search-results"></div>
+            <label>Rechercher le médecin traitant (nom, prénom ou numéro d'agrément)</label>
+            <div class="ss-wrapper">
+              <input id="amt-sm" placeholder="Tapez le nom, prénom ou numéro d'agrément…"/>
+              <div id="amt-sm-results" class="ss-results"></div>
+              <input type="hidden" id="amt-sm-id"/>
+            </div>
             <button class="btn btn-sm btn-link" onclick="window._amtShowNewMedecin()" style="margin-top:8px">
               <i class="fas fa-plus-circle"></i> Nouveau médecin traitant
             </button>
@@ -183,69 +191,72 @@ async function showAddMedecinTraitant() {
     `, `
       <button class="btn btn-secondary" onclick="Modal.close()">Annuler</button>
     `);
+
+    // Initialiser SearchSelect après le rendu
+    if (!_state.assure && !_assureSearch) {
+      _assureSearch = SearchSelect.create({
+        input: document.getElementById('amt-sa'),
+        hidden: document.getElementById('amt-sa-id'),
+        results: document.getElementById('amt-sa-results'),
+        minLength: 2,
+        search: async (q) => {
+          const res = await Api.getAssures(q);
+          return (res.data || []).map(a => ({
+            id: a.id,
+            nom: a.nom,
+            prenom: a.prenom,
+            label: `${a.nom} ${a.prenom} — ${a.numero_ss}`,
+            numero_ss: a.numero_ss,
+            value: a.id
+          }));
+        },
+        render: (a) => `<strong>${a.nom} ${a.prenom}</strong><br><small>${a.numero_ss}</small>`,
+        onSelect: (item) => {
+          _state.assure = { id: item.id, nom: item.nom, prenom: item.prenom, numero_ss: item.numero_ss };
+          _state.medecin = null;
+          if (_medecinSearch) { SearchSelect.destroy(_medecinSearch.id); _medecinSearch = null; }
+          render();
+        },
+      });
+    }
+
+    if (_state.assure && !_state.medecin && !_medecinSearch) {
+      _medecinSearch = SearchSelect.create({
+        input: document.getElementById('amt-sm'),
+        hidden: document.getElementById('amt-sm-id'),
+        results: document.getElementById('amt-sm-results'),
+        minLength: 2,
+        search: async (q) => {
+          const res = await Api.getMedecins(q, 'generaliste');
+          return (res.data || []).map(m => ({
+            id: m.id,
+            nom: m.nom,
+            prenom: m.prenom,
+            label: `Dr. ${m.nom} ${m.prenom} — ${m.identifiant}`,
+            identifiant: m.identifiant,
+            value: m.id
+          }));
+        },
+        render: (m) => `<strong>Dr. ${m.nom} ${m.prenom}</strong><br><small>${m.identifiant}</small>`,
+        onSelect: (item) => {
+          _state.medecin = { id: item.id, nom: item.nom, prenom: item.prenom, identifiant: item.identifiant };
+          render();
+        },
+      });
+    }
   }
-
-  window._amtSearchAssure = (function() {
-    let timer;
-    return function() {
-      clearTimeout(timer);
-      const el = document.getElementById('amt-sa-results');
-      const q = document.getElementById('amt-sa').value.trim();
-      if (!q) { el.innerHTML = ''; return; }
-      el.innerHTML = '<div class="search-item disabled"><i class="fas fa-spinner fa-spin"></i> Recherche…</div>';
-      timer = setTimeout(async () => {
-        try {
-          const rows = (await Api.getAssures(q)).data;
-          el.innerHTML = rows.length
-            ? rows.map(a => `<div class="search-item" onclick="window._amtPickAssure(${a.id},'${a.nom}','${a.prenom}','${a.numero_ss}')">
-                <strong>${a.nom} ${a.prenom}</strong><br><small>${a.numero_ss}</small>
-              </div>`).join('')
-            : '<div class="search-item disabled">Aucun assuré trouvé</div>';
-        } catch { el.innerHTML = '<div class="search-item disabled">Erreur de recherche</div>'; }
-      }, 300);
-    };
-  })();
-
-  window._amtPickAssure = function(id, nom, prenom, numSS) {
-    _state.assure = { id, nom, prenom, numero_ss: numSS };
-    _state.medecin = null;
-    render();
-  };
 
   window._amtClearAssure = function() {
     _state.assure = null;
     _state.medecin = null;
-    render();
-  };
-
-  window._amtSearchMedecin = (function() {
-    let timer;
-    return function() {
-      clearTimeout(timer);
-      const el = document.getElementById('amt-sm-results');
-      const q = document.getElementById('amt-sm').value.trim();
-      if (!q) { el.innerHTML = ''; return; }
-      el.innerHTML = '<div class="search-item disabled"><i class="fas fa-spinner fa-spin"></i> Recherche…</div>';
-      timer = setTimeout(async () => {
-        try {
-          const rows = (await Api.getMedecins(q, 'generaliste')).data;
-          el.innerHTML = rows.length
-            ? rows.map(m => `<div class="search-item" onclick="window._amtPickMedecin(${m.id},'${m.nom}','${m.prenom}','${m.identifiant}')">
-                <strong>Dr. ${m.nom} ${m.prenom}</strong><br><small>${m.identifiant}</small>
-              </div>`).join('')
-            : '<div class="search-item disabled">Aucun médecin généraliste trouvé</div>';
-        } catch { el.innerHTML = '<div class="search-item disabled">Erreur de recherche</div>'; }
-      }, 300);
-    };
-  })();
-
-  window._amtPickMedecin = function(id, nom, prenom, identifiant) {
-    _state.medecin = { id, nom, prenom, identifiant };
+    if (_assureSearch) { SearchSelect.destroy(_assureSearch.id); _assureSearch = null; }
+    if (_medecinSearch) { SearchSelect.destroy(_medecinSearch.id); _medecinSearch = null; }
     render();
   };
 
   window._amtClearMedecin = function() {
     _state.medecin = null;
+    if (_medecinSearch) { SearchSelect.destroy(_medecinSearch.id); _medecinSearch = null; }
     render();
   };
 
@@ -270,8 +281,6 @@ async function showAddMedecinTraitant() {
       const med = medecins.find(m => m.id === res.id) || medecins[0];
       _state.medecin = { id: med.id, nom: med.nom, prenom: med.prenom, identifiant: med.identifiant };
       document.getElementById('amt-new-med').style.display = 'none';
-      document.getElementById('amt-sm').value = '';
-      document.getElementById('amt-sm-results').innerHTML = '';
       render();
       toast(`Médecin ${med.nom} ${med.prenom} créé et sélectionné.`, 'success');
     } catch(e) { err.textContent = e.message; err.classList.remove('hidden'); }

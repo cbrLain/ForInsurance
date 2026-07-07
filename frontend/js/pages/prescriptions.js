@@ -33,19 +33,106 @@ function renderPrescriptionsMed(rows) {
   `).join('');
 }
 
+/* ── Helper : créer un SearchSelect pour un assuré ──────── */
+function _createAssureSearch(inputId, hiddenId, resultsId) {
+  return SearchSelect.create({
+    input: document.getElementById(inputId),
+    hidden: document.getElementById(hiddenId),
+    results: document.getElementById(resultsId),
+    minLength: 2,
+    search: async (q) => {
+      const res = await Api.getAssures(q);
+      return (res.data || []).map(a => ({
+        id: a.id,
+        nom: a.nom,
+        prenom: a.prenom,
+        label: `${a.nom} ${a.prenom} — ${a.numero_ss}`,
+        numero_ss: a.numero_ss
+      }));
+    },
+    render: (a) => `<strong>${a.nom} ${a.prenom}</strong><br><small>${a.numero_ss}</small>`,
+  });
+}
+
+/* ── Helper : créer un SearchSelect pour feuilles ──────── */
+function _createFeuilleSearch(inputId, hiddenId, resultsId, assureHiddenId) {
+  return SearchSelect.create({
+    input: document.getElementById(inputId),
+    hidden: document.getElementById(hiddenId),
+    results: document.getElementById(resultsId),
+    minLength: 1,
+    search: async (q) => {
+      const assureId = document.getElementById(assureHiddenId)?.value;
+      const res = await Api.searchFeuilles(q, assureId);
+      return (res || []).map(f => ({
+        id: f.id,
+        label: `${f.reference} — ${f.assure_nom}`,
+        reference: f.reference,
+        nom: f.reference,
+        detail: f.assure_nom,
+        statut: f.statut,
+        value: f.id
+      }));
+    },
+    render: (f) => `<strong>${f.reference}</strong> — ${f.detail} <span class="badge" style="float:right;font-size:.7rem">${f.statut}</span>`,
+  });
+}
+
+/* ── Helper : créer un SearchSelect pour médicaments ───── */
+function _createMedSearch(inputEl) {
+  const wrapper = document.createElement('div');
+  wrapper.className = 'ss-wrapper';
+  wrapper.style.flex = '1';
+  inputEl.parentNode.insertBefore(wrapper, inputEl);
+  wrapper.appendChild(inputEl);
+
+  const results = document.createElement('div');
+  results.className = 'ss-results';
+  wrapper.appendChild(results);
+
+  const hidden = document.createElement('input');
+  hidden.type = 'hidden';
+  hidden.className = 'mr-med-id';
+  wrapper.appendChild(hidden);
+
+  return SearchSelect.create({
+    input: inputEl,
+    hidden,
+    results,
+    minLength: 1,
+    search: async (q) => {
+      try {
+        const data = await Api.searchMedicaments(q);
+        return (data || []).map(m => ({
+          id: m.nom,
+          nom: m.nom,
+          label: m.nom,
+          dosage: m.dosage,
+          value: m.nom
+        }));
+      } catch {
+        return [];
+      }
+    },
+    render: (m) => `<strong>${m.nom}</strong>${m.dosage ? '<br><small>'+m.dosage+'</small>' : ''}`,
+  });
+}
+
 /* ── Modale ajouter prescription médicaments ─────────────── */
 function showAddPrescription() {
   Modal.wide('Prescrire des médicaments', `
     <div class="form-group">
-      <label>N° SS de l'assuré *</label>
-      <input id="pm-nss" placeholder="1-900101-001-23" oninput="rechercherAssure(this.value,'pm')"/>
-      <div id="pm-info" style="margin-top:5px;font-size:.8rem;color:var(--primary)"></div>
+      <label>Assuré *</label>
+      <div class="ss-wrapper">
+        <input id="pm-search" placeholder="Tapez le nom, prénom ou N° SS…"/>
+        <div id="pm-results" class="ss-results"></div>
+      </div>
+      <input type="hidden" id="pm-assure-id"/>
     </div>
-    <input type="hidden" id="pm-assure-id"/>
     <div class="form-group">
       <label>Feuille de maladie *</label>
-      <input id="pm-feuille-q" placeholder="Référence, patient…" oninput="rechercherFeuille(this.value,'pm')" autocomplete="off"/>
-      <div id="pm-feuille-results" class="autocomplete-list"></div>
+      <input id="pm-feuille-q" placeholder="Référence, patient…" autocomplete="off"/>
+      <div id="pm-feuille-results" class="ss-results"></div>
       <input type="hidden" id="pm-feuille-id"/>
     </div>
     <div class="form-row">
@@ -63,6 +150,9 @@ function showAddPrescription() {
     <button class="btn btn-secondary" onclick="Modal.close()">Annuler</button>
     <button class="btn btn-primary" onclick="submitPrescriptionMed()"><i class="fas fa-prescription-bottle-alt"></i> Enregistrer la prescription</button>
   `);
+
+  window._pmAssureSearch = _createAssureSearch('pm-search', 'pm-assure-id', 'pm-results');
+  window._pmFeuilleSearch = _createFeuilleSearch('pm-feuille-q', 'pm-feuille-id', 'pm-feuille-results', 'pm-assure-id');
   addMedRow(); // une ligne par défaut
 }
 
@@ -77,8 +167,8 @@ function addMedRow() {
   div.innerHTML = `
     <button class="btn-rm" onclick="document.getElementById('med-row-${id}').remove()"><i class="fas fa-times"></i></button>
     <div class="form-row">
-      <div class="form-group"><label>Nom du médicament *</label><input class="mr-nom" placeholder="Paracétamol 1g"/></div>
-      <div class="form-group"><label>Dosage</label><input class="mr-dos" placeholder="3x/jour"/></div>
+      <div class="form-group" style="flex:2"><label>Nom du médicament *</label><input class="mr-nom" placeholder="Paracétamol 1g"/></div>
+      <div class="form-group" style="flex:1"><label>Dosage</label><input class="mr-dos" placeholder="3x/jour"/></div>
     </div>
     <div class="form-row">
       <div class="form-group"><label>Durée</label><input class="mr-dur" placeholder="7 jours"/></div>
@@ -86,34 +176,14 @@ function addMedRow() {
     </div>
   `;
   container.appendChild(div);
+
+  // Appliquer SearchSelect sur le champ médicament
+  const nomInput = div.querySelector('.mr-nom');
+  _createMedSearch(nomInput);
 }
 
+/* ── Recherche feuille (pour rétrocompatibilité) ────────── */
 const _prescTimers = {};
-const rechercherAssure = (function() {
-  return function(nss, prefix) {
-    const info = document.getElementById(`${prefix}-info`);
-    const idF  = document.getElementById(`${prefix}-assure-id`);
-    if (nss.length < 5) { info.textContent = ''; info.style.color = ''; idF.value = ''; return; }
-    if (_prescTimers[prefix]) clearTimeout(_prescTimers[prefix]);
-    info.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Vérification…';
-    info.style.color = 'var(--text-muted)';
-    _prescTimers[prefix] = setTimeout(async () => {
-      try {
-        const rows = (await Api.getAssures(nss)).data;
-        const match = rows.find(a => a.numero_ss === nss);
-        if (match) {
-          info.style.color = 'var(--primary)';
-          info.innerHTML = `<i class="fas fa-check-circle"></i> ${match.nom} ${match.prenom}`;
-          idF.value = match.id;
-        } else {
-          info.style.color = 'var(--danger)';
-          info.innerHTML = '<i class="fas fa-times-circle"></i> Assuré non trouvé';
-          idF.value = '';
-        }
-      } catch { info.innerHTML = ''; }
-    }, 300);
-  };
-})();
 
 function rechercherFeuille(q, prefix) {
   const container = document.getElementById(`${prefix}-feuille-results`);
@@ -124,13 +194,13 @@ function rechercherFeuille(q, prefix) {
     try {
       const rows = await Api.searchFeuilles(q);
       if (!rows.length) {
-        container.innerHTML = '<div class="autocomplete-item" style="color:var(--text-muted);cursor:default">Aucune feuille trouvée</div>';
+        container.innerHTML = '<div class="ss-item ss-disabled">Aucune feuille trouvée</div>';
         container.style.display = 'block';
         hidden.value = '';
         return;
       }
       container.innerHTML = rows.map(f =>
-        `<div class="autocomplete-item" data-id="${f.id}" onclick="selectionnerFeuille(this,'${prefix}')">
+        `<div class="ss-item" data-id="${f.id}" data-prefix="${prefix}" onclick="selectionnerFeuille(this,'${prefix}')">
           <strong>${f.reference}</strong> — ${f.assure_nom}
           <span class="badge" style="float:right;font-size:.7rem">${f.statut}</span>
         </div>`
@@ -141,7 +211,8 @@ function rechercherFeuille(q, prefix) {
 }
 
 function selectionnerFeuille(el, prefix) {
-  document.getElementById(`${prefix}-feuille-q`).value = el.textContent.trim().split('—')[0].trim();
+  const ref = el.querySelector('strong')?.textContent || el.textContent.trim().split('—')[0].trim();
+  document.getElementById(`${prefix}-feuille-q`).value = ref;
   document.getElementById(`${prefix}-feuille-id`).value = el.dataset.id;
   document.getElementById(`${prefix}-feuille-results`).innerHTML = '';
   document.getElementById(`${prefix}-feuille-results`).style.display = 'none';
@@ -151,7 +222,7 @@ async function submitPrescriptionMed() {
   const err = document.getElementById('pm-err');
   err.classList.add('hidden');
   const assure_id = document.getElementById('pm-assure-id').value;
-  if (!assure_id) { err.textContent = 'Assuré introuvable : vérifiez le N° SS.'; err.classList.remove('hidden'); return; }
+  if (!assure_id) { err.textContent = 'Sélectionnez un assuré.'; err.classList.remove('hidden'); return; }
   const feuille_id = document.getElementById('pm-feuille-id').value;
   if (!feuille_id) { err.textContent = 'Sélectionnez une feuille de maladie.'; err.classList.remove('hidden'); return; }
 
@@ -257,71 +328,107 @@ function renderConsultationsSpec(rows) {
 }
 
 function showAddConsultation() {
-  Api.getMedecins('', 'specialiste').then(specialistes => {
-    const opts = specialistes.data.map(m =>
-      `<option value="${m.id}">${m.nom} ${m.prenom} : ${m.specialite}</option>`
-    ).join('');
-
-    Modal.wide('Prescrire une consultation chez un spécialiste', `
-      <div class="form-group">
-        <label>N° SS de l'assuré *</label>
-        <input id="cs-nss" placeholder="1-900101-001-23" oninput="rechercherAssure(this.value,'cs')"/>
-        <div id="cs-info" style="margin-top:5px;font-size:.8rem;color:var(--primary)"></div>
+  Modal.wide('Prescrire une consultation chez un spécialiste', `
+    <div class="form-group">
+      <label>Assuré *</label>
+      <div class="ss-wrapper">
+        <input id="cs-search" placeholder="Tapez le nom, prénom ou N° SS…"/>
+        <div id="cs-results" class="ss-results"></div>
       </div>
       <input type="hidden" id="cs-assure-id"/>
+    </div>
+    <div class="form-group">
+      <label>Feuille de maladie *</label>
+      <input id="cs-feuille-q" placeholder="Référence, patient…" autocomplete="off"/>
+      <div id="cs-feuille-results" class="ss-results"></div>
+      <input type="hidden" id="cs-feuille-id"/>
+    </div>
+    <div class="form-row">
       <div class="form-group">
-        <label>Feuille de maladie *</label>
-        <input id="cs-feuille-q" placeholder="Référence, patient…" oninput="rechercherFeuille(this.value,'cs')" autocomplete="off"/>
-        <div id="cs-feuille-results" class="autocomplete-list"></div>
-        <input type="hidden" id="cs-feuille-id"/>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label>Spécialité requise *</label>
-          <input id="cs-spec" placeholder="Cardiologie, Neurologie…"/>
-        </div>
-        <div class="form-group">
-          <label>Urgence</label>
-          <select id="cs-urgence">
-            <option value="normale">Normale</option>
-            <option value="urgente">Urgente</option>
-          </select>
-        </div>
+        <label>Spécialité requise *</label>
+        <input id="cs-spec" placeholder="Cardiologie, Neurologie…" list="spec-list"/>
+        <datalist id="spec-list">
+          <option value="Cardiologie">
+          <option value="Neurologie">
+          <option value="Dermatologie">
+          <option value="Pédiatrie">
+          <option value="Ophtalmologie">
+          <option value="ORL">
+          <option value="Rhumatologie">
+          <option value="Endocrinologie">
+          <option value="Pneumologie">
+          <option value="Gynécologie">
+          <option value="Urologie">
+          <option value="Gastroentérologie">
+          <option value="Psychiatrie">
+          <option value="Radiologie">
+        </datalist>
       </div>
       <div class="form-group">
-        <label>Spécialiste désigné (optionnel)</label>
-        <select id="cs-specialiste">
-          <option value="">-- Laisser le choix à l'assureur --</option>
-          ${opts}
+        <label>Urgence</label>
+        <select id="cs-urgence">
+          <option value="normale">Normale</option>
+          <option value="urgente">Urgente</option>
         </select>
       </div>
-      <div class="form-group"><label>Motif de la consultation *</label>
-        <textarea id="cs-motif" rows="3" placeholder="Décrivez le motif de la consultation chez le spécialiste…"></textarea>
+    </div>
+    <div class="form-group">
+      <label>Spécialiste désigné (optionnel)</label>
+      <div class="ss-wrapper">
+        <input id="cs-specialiste" placeholder="Tapez le nom, prénom ou spécialité…"/>
+        <div id="cs-specialiste-results" class="ss-results"></div>
+        <input type="hidden" id="cs-specialiste-id"/>
       </div>
-      <div class="form-row">
-        <div class="form-group"><label>Date de prescription</label><input id="cs-date" type="date" value="${new Date().toISOString().split('T')[0]}"/></div>
-      </div>
-      <div class="form-group"><label>Notes</label><textarea id="cs-notes" rows="2"></textarea></div>
-      <div id="cs-err" class="alert alert-error hidden"></div>
-    `, `
-      <button class="btn btn-secondary" onclick="Modal.close()">Annuler</button>
-      <button class="btn btn-primary" onclick="submitConsultationSpec()"><i class="fas fa-microscope"></i> Enregistrer la prescription</button>
-    `);
-  }).catch(() => toast('Impossible de charger les spécialistes.', 'error'));
+    </div>
+    <div class="form-group"><label>Motif de la consultation *</label>
+      <textarea id="cs-motif" rows="3" placeholder="Décrivez le motif de la consultation chez le spécialiste…"></textarea>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Date de prescription</label><input id="cs-date" type="date" value="${new Date().toISOString().split('T')[0]}"/></div>
+    </div>
+    <div class="form-group"><label>Notes</label><textarea id="cs-notes" rows="2"></textarea></div>
+    <div id="cs-err" class="alert alert-error hidden"></div>
+  `, `
+    <button class="btn btn-secondary" onclick="Modal.close()">Annuler</button>
+    <button class="btn btn-primary" onclick="submitConsultationSpec()"><i class="fas fa-microscope"></i> Enregistrer la prescription</button>
+  `);
+
+  window._csAssureSearch = _createAssureSearch('cs-search', 'cs-assure-id', 'cs-results');
+  window._csFeuilleSearch = _createFeuilleSearch('cs-feuille-q', 'cs-feuille-id', 'cs-feuille-results', 'cs-assure-id');
+
+  // SearchSelect pour le spécialiste
+  window._csSpecialisteSearch = SearchSelect.create({
+    input: document.getElementById('cs-specialiste'),
+    hidden: document.getElementById('cs-specialiste-id'),
+    results: document.getElementById('cs-specialiste-results'),
+    minLength: 2,
+    search: async (q) => {
+      const res = await Api.getMedecins(q, 'specialiste');
+      return (res.data || []).map(m => ({
+        id: m.id,
+        nom: m.nom,
+        prenom: m.prenom,
+        label: `${m.nom} ${m.prenom} — ${m.specialite || ''}`,
+        specialite: m.specialite,
+        value: m.id
+      }));
+    },
+    render: (m) => `<strong>Dr. ${m.nom} ${m.prenom}</strong><br><small>${m.specialite || 'Spécialiste'}</small>`,
+  });
 }
 
 async function submitConsultationSpec() {
   const err = document.getElementById('cs-err');
   err.classList.add('hidden');
   const assure_id = document.getElementById('cs-assure-id').value;
-  if (!assure_id) { err.textContent = 'Assuré introuvable.'; err.classList.remove('hidden'); return; }
+  if (!assure_id) { err.textContent = 'Sélectionnez un assuré.'; err.classList.remove('hidden'); return; }
   const motif = document.getElementById('cs-motif').value.trim();
   const spec   = document.getElementById('cs-spec').value.trim();
   if (!motif || !spec) { err.textContent = 'Spécialité et motif sont obligatoires.'; err.classList.remove('hidden'); return; }
   const feuille_id = document.getElementById('cs-feuille-id').value;
   if (!feuille_id) { err.textContent = 'Sélectionnez une feuille de maladie.'; err.classList.remove('hidden'); return; }
 
-  const specId = document.getElementById('cs-specialiste').value;
+  const specId = document.getElementById('cs-specialiste-id').value;
   const data = {
     assure_id:         parseInt(assure_id),
     feuille_id:        parseInt(feuille_id),

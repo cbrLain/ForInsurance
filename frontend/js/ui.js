@@ -149,6 +149,155 @@ function promptDialog(msg, opts = {}) {
   });
 }
 
+// ── SearchSelect (Combobox avec suggestions) ───────────────────
+const SearchSelect = {
+  _instances: {},
+
+  create(opts) {
+    const id = opts.id || Math.random().toString(36).slice(2, 8);
+    const inst = {
+      id,
+      input: opts.input,
+      hidden: opts.hidden,
+      results: opts.results,
+      search: opts.search,
+      render: opts.render,
+      onSelect: opts.onSelect || (() => {}),
+      onClear: opts.onClear || (() => {}),
+      minLength: opts.minLength || 2,
+      debounce: opts.debounce || 300,
+      selected: null,
+      timer: null,
+      _activeIdx: -1,
+    };
+
+    inst.input.setAttribute('autocomplete', 'off');
+    inst.input.setAttribute('spellcheck', 'false');
+
+    inst.input.addEventListener('input', () => SearchSelect._onInput(inst));
+    inst.input.addEventListener('keydown', (e) => SearchSelect._onKeydown(inst, e));
+    inst.input.addEventListener('blur', () => {
+      setTimeout(() => { inst.results.style.display = 'none'; }, 200);
+    });
+    inst.input.addEventListener('focus', () => {
+      if (inst.selected || inst.input.value.length >= inst.minLength) {
+        inst.results.style.display = 'block';
+      }
+    });
+
+    inst.results.addEventListener('mousedown', (e) => {
+      const item = e.target.closest('.ss-item');
+      if (item) {
+        e.preventDefault();
+        const idx = parseInt(item.dataset.idx);
+        SearchSelect._pick(inst, inst._data[idx], idx);
+      }
+    });
+
+    this._instances[id] = inst;
+    return inst;
+  },
+
+  _onInput(inst) {
+    clearTimeout(inst.timer);
+    const val = inst.input.value.trim();
+
+    if (inst.selected) {
+      inst.selected = null;
+      inst.hidden.value = '';
+      inst.onClear();
+    }
+
+    if (val.length < inst.minLength) {
+      inst.results.style.display = 'none';
+      inst.results.innerHTML = '';
+      return;
+    }
+
+    inst.results.style.display = 'block';
+    inst.results.innerHTML = '<div class="ss-item ss-disabled"><i class="fas fa-spinner fa-spin"></i> Recherche…</div>';
+    inst._activeIdx = -1;
+
+    inst.timer = setTimeout(async () => {
+      try {
+        const data = await inst.search(val);
+        inst._data = data || [];
+        if (!inst._data.length) {
+          inst.results.innerHTML = '<div class="ss-item ss-disabled">Aucun résultat</div>';
+          return;
+        }
+        inst.results.innerHTML = inst._data.map((item, i) =>
+          `<div class="ss-item ${inst._activeIdx === i ? 'ss-active' : ''}" data-idx="${i}">${inst.render(item)}</div>`
+        ).join('');
+      } catch {
+        inst.results.innerHTML = '<div class="ss-item ss-disabled">Erreur de recherche</div>';
+      }
+    }, inst.debounce);
+  },
+
+  _onKeydown(inst, e) {
+    const items = inst.results.querySelectorAll('.ss-item:not(.ss-disabled)');
+    if (!items.length) return;
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      inst._activeIdx = Math.min(inst._activeIdx + 1, items.length - 1);
+      SearchSelect._highlight(inst, items);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      inst._activeIdx = Math.max(inst._activeIdx - 1, 0);
+      SearchSelect._highlight(inst, items);
+    } else if (e.key === 'Enter') {
+      if (inst._activeIdx >= 0 && inst._activeIdx < inst._data.length) {
+        e.preventDefault();
+        SearchSelect._pick(inst, inst._data[inst._activeIdx], inst._activeIdx);
+      }
+    } else if (e.key === 'Escape') {
+      inst.results.style.display = 'none';
+    }
+  },
+
+  _highlight(inst, items) {
+    items.forEach((el, i) => {
+      el.classList.toggle('ss-active', i === inst._activeIdx);
+    });
+    items[inst._activeIdx]?.scrollIntoView({ block: 'nearest' });
+  },
+
+  _pick(inst, item, idx) {
+    inst.selected = item;
+    inst.hidden.value = item.value !== undefined ? item.value : item.id;
+    inst.input.value = item.label || item.nom + ' ' + (item.prenom || '');
+    inst.results.style.display = 'none';
+    inst.results.innerHTML = '';
+    inst._activeIdx = -1;
+    inst.onSelect(item);
+  },
+
+  setValue(inst, item) {
+    inst.selected = item;
+    inst.hidden.value = item.value !== undefined ? item.value : item.id;
+    inst.input.value = item.label || item.nom + ' ' + (item.prenom || '');
+  },
+
+  clear(inst) {
+    inst.selected = null;
+    inst.hidden.value = '';
+    inst.input.value = '';
+    inst.results.innerHTML = '';
+    inst.results.style.display = 'none';
+    inst._activeIdx = -1;
+    inst.onClear();
+  },
+
+  destroy(id) {
+    const inst = this._instances[id];
+    if (inst) {
+      delete this._instances[id];
+    }
+  }
+};
+
 // ── Pagination ────────────────────────────────────────────────
 function renderPagination(containerId, { page, totalPages, total, limit }, onPageChange) {
   const c = document.getElementById(containerId);

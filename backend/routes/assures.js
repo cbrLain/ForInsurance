@@ -26,8 +26,8 @@ router.get('/', authenticate, async (req, res) => {
   let sql = `${ASSURE_SELECT} WHERE a.actif=1`;
   const params = [];
   if (q) {
-    sql += ' AND (a.numero_ss LIKE ? OR p.nom LIKE ? OR p.prenom LIKE ?)';
-    params.push(like, like, like);
+    sql += ' AND (a.numero_ss LIKE ? OR p.nom LIKE ? OR p.prenom LIKE ? OR p.telephone LIKE ?)';
+    params.push(like, like, like, like);
   }
   sql += ' ORDER BY p.nom';
   res.json(await paginate(db, sql, params, page, limit));

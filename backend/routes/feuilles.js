@@ -56,13 +56,13 @@ router.get('/', authenticate, async (req, res) => {
   res.json(await paginate(db, sql, params, page, limit));
 });
 
-// GET /api/feuilles/search?q= — Autocomplete de références (AVANT /:id)
+// GET /api/feuilles/search?q=&assure_id= — Autocomplete de références (AVANT /:id)
 router.get('/search', authenticate, async (req, res) => {
   const db = getDb();
-  const { q } = req.query;
+  const { q, assure_id } = req.query;
   if (!q || q.length < 2) return res.json([]);
 
-  let sql = `SELECT f.id, f.reference, f.statut,
+  let sql = `SELECT f.id, f.reference, f.statut, f.assure_id,
     pa.nom || ' ' || pa.prenom AS assure_nom,
     pm.nom || ' ' || pm.prenom AS medecin_nom
     FROM feuilles_maladie f
@@ -73,6 +73,8 @@ router.get('/search', authenticate, async (req, res) => {
     WHERE (f.reference LIKE ? OR pa.nom LIKE ? OR pm.nom LIKE ? OR a.numero_ss LIKE ?)`;
 
   const params = [`%${q}%`, `%${q}%`, `%${q}%`, `%${q}%`];
+
+  if (assure_id) { sql += ' AND f.assure_id = ?'; params.push(assure_id); }
 
   if (req.user.role === 'medecin') {
     const med = await db.prepare('SELECT id FROM medecins WHERE utilisateur_id=?').get(req.user.id);
