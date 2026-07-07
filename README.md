@@ -46,7 +46,7 @@ Brouillon ──[Envoyer]──► Transmise ──[Ouverture OSS]──► En c
                                                                          │
                                                               [Exécution remboursement]
                                                                          │
-                                                                     Remboursée O
+                                                                     Remboursée
 ```
 
 ---
@@ -61,35 +61,47 @@ PROJET CSI/
 │   ├── server.js                ← Point d'entrée Express
 │   ├── .env                     ← Variables d'environnement
 │   ├── db/
-│   │   ├── schema.sql           ← Schéma SQLite (tables, contraintes)
-│   │   ├── database.js          ← Connexion singleton SQLite
+│   │   ├── database.js          ← Factory : PostgreSQL ou SQLite
+│   │   ├── pg-database.js       ← Connexion PostgreSQL (pg)
+│   │   ├── sqlite-database.js   ← Connexion SQLite (better-sqlite3)
+│   │   ├── schema.pg.sql        ← Schéma PostgreSQL
+│   │   ├── schema.sqlite.sql    ← Schéma SQLite
 │   │   └── seed.js              ← Données de démonstration
 │   ├── middleware/
 │   │   └── auth.js              ← Vérification JWT + contrôle de rôle
-│   └── routes/
-│       ├── auth.js              ← POST /api/auth/login
-│       ├── assures.js           ← CRUD assurés + médecin traitant
-│       ├── medecins.js          ← CRUD médecins
-│       ├── feuilles.js          ← Feuilles de maladie + machine à états
-│       ├── remboursements.js    ← Remboursements + facture
-│       ├── prescriptions.js     ← Médicaments + consultations spécialistes
-│       └── stats.js             ← Statistiques tableau de bord
+│   ├── routes/
+│   │   ├── auth.js              ← POST /api/auth/login
+│   │   ├── assures.js           ← CRUD assurés + médecin traitant
+│   │   ├── medecins.js          ← CRUD médecins
+│   │   ├── feuilles.js          ← Feuilles de maladie + machine à états
+│   │   ├── remboursements.js    ← Remboursements + facture
+│   │   ├── prescriptions.js     ← Médicaments + consultations spécialistes
+│   │   ├── medicaments.js       ← Recherche médicaments
+│   │   ├── stats.js             ← Statistiques tableau de bord
+│   │   └── ...                  ← Autres routes (demandes, etc.)
+│   └── socket.js                ← Socket.IO (temps réel)
 │
 └── frontend/                    ← Interface HTML/CSS/JS pure
     ├── index.html               ← SPA — tous les écrans
     ├── css/
     │   └── main.css             ← Design system dark glassmorphism
+    ├── img/                     ← Images
     └── js/
         ├── api.js               ← Client HTTP (fetch + JWT)
-        ├── ui.js                ← Composants : toast, modal, badges, chart
-        ├── app.js               ← Routeur principal + gestion session
+        ├── ui.js                ← Composants : toast, modal, SearchSelect, badges, pagination
+        ├── app.js               ← Routeur principal + Socket.IO
         └── pages/
             ├── dashboard.js     ← Stats + graphique donut
             ├── assures.js       ← Liste, inscription, médecin traitant
             ├── medecins.js      ← Liste, enregistrement
+            ├── patients.js      ← Liste patients (vue médecin)
             ├── feuilles.js      ← Feuilles + transitions d'état
+            ├── prescriptions.js ← Médicaments + consultation spécialiste
             ├── remboursements.js← Remboursement + impression facture
-            └── prescriptions.js ← Médicaments + consultation spécialiste
+            ├── profil.js        ← Profil utilisateur
+            ├── historique.js    ← Historique
+            ├── recherche.js     ← Recherche globale
+            └── admin-comptes.js ← Admin : gestion des comptes assureurs
 ```
 
 ### Stack technologique
@@ -97,10 +109,14 @@ PROJET CSI/
 |---|---|
 | Runtime | Node.js |
 | Framework API | Express.js |
-| Base de données | SQLite (via `better-sqlite3`) |
-| Authentification | JWT (`jsonwebtoken`) + bcrypt |
+| Base de données | PostgreSQL (via `pg`) ou SQLite (via `better-sqlite3` — fallback local) |
+| Authentification | JWT (`jsonwebtoken`) + bcryptjs |
+| Temps réel | Socket.IO |
+| Email | Nodemailer (SendGrid / Ethereal) |
 | Frontend | HTML5 / CSS3 / JavaScript ES6+ (pur, sans framework) |
 | Police | Google Fonts — Inter + Outfit |
+| Icônes | Font Awesome 5 (CDN) |
+| Graphiques | Chart.js 4.4.1 (CDN) |
 
 ---
 
@@ -110,19 +126,19 @@ PROJET CSI/
 - **Node.js** ≥ 18 (`node --version`)
 - **npm** ≥ 9 (`npm --version`)
 
-###  Installer les dépendances backend
+### Installer les dépendances backend
 ```bash
 cd backend
 npm install
 ```
 
-###  Initialiser la base de données (seed)
+### Initialiser la base de données (seed)
 ```bash
 node db/seed.js
 ```
-> Crée `backend/db/securasante.db` avec des données de démonstration.
+> Crée automatiquement `backend/db/securasante.db` (SQLite) si aucune `DATABASE_URL` PostgreSQL n'est configurée.
 
-###  Démarrer le serveur
+### Démarrer le serveur
 ```bash
 # Mode production
 npm start
@@ -131,7 +147,7 @@ npm start
 npm run dev
 ```
 
-###  Ouvrir l'application
+### Ouvrir l'application
 ```
 http://localhost:3001
 ```
@@ -144,7 +160,7 @@ http://localhost:3001
 
 | Rôle | Identifiant | Mot de passe | Titulaire | Accès |
 |---|---|---|---|---|
-| Admin | `admin` | `AdminForInsurance2025!` | Admin SYSTEM | Accès assureur complet |
+| Admin | `admin` | `AdminForInsurance2025!` | Admin SYSTEM | Accès complet |
 | Assureur | `assureur01` | `assureur123` | NOUMSSI Elvira | Assurés, Médecins, Feuilles, Remboursements |
 | Assureur | `assureur02` | `assureur123` | ABONDO Mark | Idem |
 | Médecin | `medecin01` | `medecin123` | MAWAMBA Princesse (Généraliste) | Feuilles de maladie, Prescriptions |
@@ -166,7 +182,7 @@ GET    /api/auth/me             (token requis)
 
 ### Assurés
 ```
-GET    /api/assures             ?q=<recherche>
+GET    /api/assures             ?q=<recherche>&telephone=<tel>
 GET    /api/assures/:id
 POST   /api/assures             (rôle: assureur)
 PUT    /api/assures/:id         (rôle: assureur)
@@ -189,6 +205,11 @@ GET    /api/feuilles/:id
 POST   /api/feuilles            (rôle: medecin) → crée en Brouillon
 PATCH  /api/feuilles/:id/statut             → transitions d'état
 PATCH  /api/feuilles/:id/completer          → (rôle: assureur)
+```
+
+### Médicaments
+```
+GET    /api/medicaments/search  ?q=<nom>   ← autocomplétion depuis prescription_medicaments
 ```
 
 ### Remboursements
@@ -216,49 +237,25 @@ GET    /api/stats               Adapté selon le rôle de l'utilisateur
 ## Modèle de données (schéma SQL)
 
 ```
-utilisateurs          ← comptes d'accès au SI
-personnes             ← super-classe (Nom, Prénom, contact)
-medecins              ← lié à personnes (type: generaliste|specialiste)
-assures               ← lié à personnes + medecin_traitant
-feuilles_maladie      ← document central avec machine à états
-remboursements        ← lié à feuille + assuré
-prescriptions         ← base (type: medicaments|consultation_specialiste)
-prescription_medicaments       ← lignes de médicaments
-prescription_consultation      ← détail consultation spécialiste
+utilisateurs              ← comptes d'accès au SI (admin, assureur, medecin)
+personnes                 ← super-classe (Nom, Prénom, téléphone, email)
+medecins                  ← lié à personnes (type: generaliste|specialiste)
+assures                   ← lié à personnes + medecin_traitant
+feuilles_maladie          ← document central avec machine à états
+remboursements            ← lié à feuille + assuré
+prescriptions             ← base (type: medicaments|consultation_specialiste)
+prescription_medicaments  ← lignes de médicaments
+prescription_consultation ← détail consultation spécialiste
+demandes_inscription      ← demandes d'inscription des médecins
 ```
 
-> La base de données SQLite est créée automatiquement au démarrage dans `backend/db/securasante.db`. **Aucun serveur de base de données n'est requis.**
+> La base de données est automatiquement créée au démarrage. SQLite en local (dev), PostgreSQL en production via la variable d'environnement `DATABASE_URL`.
 
 ---
 
-## Intégration d'une vraie base de données (PostgreSQL/MySQL)
+## Intégration PostgreSQL
 
-Pour passer de SQLite à PostgreSQL en production :
-
-### 1. Installer le driver
-```bash
-npm install pg
-# ou pour MySQL:
-npm install mysql2
-```
-
-### 2. Remplacer `db/database.js`
-```js
-// PostgreSQL avec pg
-const { Pool } = require('pg');
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  // ex: postgres://user:pass@localhost:5432/securasante
-});
-module.exports = { query: (text, params) => pool.query(text, params) };
-```
-
-### 3. Adapter les requêtes
-- SQLite utilise `?` comme placeholder → PostgreSQL utilise `$1, $2, ...`
-- `INTEGER PRIMARY KEY AUTOINCREMENT` → `SERIAL PRIMARY KEY`
-- `DATETIME DEFAULT CURRENT_TIMESTAMP` → `TIMESTAMPTZ DEFAULT NOW()`
-
-### 4. Variables d'environnement `.env`
+### 1. Configurer `.env`
 ```env
 DATABASE_URL=postgres://user:password@localhost:5432/securasante
 JWT_SECRET=votre_secret_jwt_fort
@@ -266,17 +263,34 @@ PORT=3001
 NODE_ENV=production
 ```
 
+### 2. Démarrer
+```bash
+npm start
+```
+
+Le code détecte automatiquement `DATABASE_URL` et bascule de SQLite vers PostgreSQL.
+
 ---
 
 ## Sécurité
 
 | Mesure | Détail |
 |---|---|
-| Mots de passe | Hachés avec **bcrypt** (coût 10) |
+| Mots de passe | Hachés avec **bcryptjs** (coût 10) |
 | Sessions | **JWT** avec expiration 8h |
 | Contrôle d'accès | Middleware `requireRole()` sur chaque route sensible |
-| Données | Requêtes préparées SQLite (protection injection SQL) |
-| CORS | Configurable dans `server.js` (restreindre en production) |
+| Données | Requêtes préparées (protection injection SQL) |
+| CORS | Configurable dans `server.js` |
+
+---
+
+## Fonctionnalités notables
+
+### SearchSelect (autocomplétion)
+Composant réutilisable dans `frontend/js/ui.js:80` — combobox avec recherche asynchrone, debounce 300ms, navigation clavier, utilisé pour la recherche de patients, médecins, feuilles, médicaments et spécialistes dans tous les formulaires.
+
+### Temps réel (Socket.IO)
+Les mutations en base de données sont diffusées à tous les clients connectés via l'événement `data-change`, permettant une mise à jour instantanée des listes.
 
 ---
 
@@ -296,7 +310,3 @@ curl http://localhost:3001/api/assures \
 curl http://localhost:3001/api/feuilles \
   -H "Authorization: Bearer TOKEN"
 ```
-
----
-
-
