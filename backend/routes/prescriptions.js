@@ -34,7 +34,7 @@ router.get('/', authenticate, async (req, res) => {
     params.push(like, like);
   }
   sql += ' ORDER BY pr.created_at DESC';
-  const result = paginate(db, sql, params, page, limit);
+  const result = await paginate(db, sql, params, page, limit);
 
   // Enrichit chaque prescription avec ses lignes
   result.data = await Promise.all(result.data.map(async p => {

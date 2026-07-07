@@ -53,7 +53,7 @@ router.get('/', authenticate, async (req, res) => {
     params.push(like, like, like, like);
   }
   sql += ' ORDER BY f.created_at DESC';
-  res.json(paginate(db, sql, params, page, limit));
+  res.json(await paginate(db, sql, params, page, limit));
 });
 
 // GET /api/feuilles/search?q= — Autocomplete de références (AVANT /:id)

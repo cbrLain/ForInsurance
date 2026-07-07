@@ -30,7 +30,7 @@ router.get('/', authenticate, requireRole('assureur'), async (req, res) => {
     params.push(like, like, like);
   }
   sql += ' ORDER BY r.date_remboursement DESC';
-  res.json(paginate(db, sql, params, page, limit));
+  res.json(await paginate(db, sql, params, page, limit));
 });
 
 // GET /api/remboursements/:id

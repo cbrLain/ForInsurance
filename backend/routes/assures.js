@@ -30,7 +30,7 @@ router.get('/', authenticate, async (req, res) => {
     params.push(like, like, like);
   }
   sql += ' ORDER BY p.nom';
-  res.json(paginate(db, sql, params, page, limit));
+  res.json(await paginate(db, sql, params, page, limit));
 });
 
 // GET /api/assures/:id
