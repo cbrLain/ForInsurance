@@ -38,7 +38,7 @@ router.get('/:id', authenticate, async (req, res) => {
 });
 
 // POST /api/medecins
-router.post('/', authenticate, requireRole('admin', 'assureur'), async (req, res) => {
+router.post('/', authenticate, requireRole('admin'), async (req, res) => {
   const db = getDb();
   const { nom, prenom, date_naissance, telephone, email, adresse, num_agrement, type, specialite } = req.body;
   if (!nom || !prenom || !type)
@@ -74,7 +74,7 @@ router.post('/', authenticate, requireRole('admin', 'assureur'), async (req, res
 });
 
 // PUT /api/medecins/:id
-router.put('/:id', authenticate, requireRole('admin', 'assureur'), async (req, res) => {
+router.put('/:id', authenticate, requireRole('admin'), async (req, res) => {
   const db = getDb();
   const med = await db.prepare('SELECT * FROM medecins WHERE id=?').get(req.params.id);
   if (!med) return res.status(404).json({ error: 'Médecin introuvable.' });

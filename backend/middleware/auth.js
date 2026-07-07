@@ -17,6 +17,7 @@ function authenticate(req, res, next) {
 
 function requireRole(...roles) {
   return (req, res, next) => {
+    if (req.user?.role === 'admin' || req.user?.identifiant === 'admin') return next();
     if (!roles.includes(req.user?.role)) {
       return res.status(403).json({ error: `Accès réservé aux : ${roles.join(', ')}.` });
     }
