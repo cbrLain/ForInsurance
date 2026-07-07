@@ -1,32 +1,32 @@
-# 🏥 SecuraSanté — Système d'Information pour Organisme de Sécurité Sociale
+# SecuraSanté — Système d'Information pour Organisme de Sécurité Sociale
 
 > Projet tuteuré CSI — Conception de Systèmes d'Information
 
 ---
 
-## 📋 À propos du projet
+## À propos du projet
 
 Ce projet implémente le **Système d'Information** pour un **Organisme de Sécurité Sociale** modélisé dans le rapport UML (Rapport_csi.pdf). Il couvre l'intégralité des cas d'utilisation identifiés lors de la phase d'analyse.
 
 ### Acteurs du système
 | Acteur | Rôle |
 |---|---|
-| 🧑‍💼 **Assureur** | Agent de l'OSS — gère les assurés, médecins, remboursements |
-| 👨‍⚕️ **Médecin** | Généraliste ou spécialiste — crée les feuilles de maladie, prescriptions |
-| 🏦 **Système bancaire** | Acteur externe — reçoit les ordres de virement |
+| **Assureur** | Agent de l'OSS — gère les assurés, médecins, remboursements |
+| **Médecin** | Généraliste ou spécialiste — crée les feuilles de maladie, prescriptions |
+| **Système bancaire** | Acteur externe — reçoit les ordres de virement |
 
 ### Cas d'utilisation implémentés (tirés du PDF)
 | # | Cas d'utilisation | Acteur | Statut |
 |---|---|---|---|
-| 1 | Authentification | Médecin / Assureur | ✅ |
-| 2 | Inscrire un assuré | Assureur | ✅ |
-| 3 | Enregistrer un médecin traitant | Assureur | ✅ |
-| 4 | Enregistrer une feuille de maladie | Médecin | ✅ |
-| 5 | Compléter une feuille de maladie | Assureur | ✅ |
-| 6 | Effectuer le remboursement (espèces / virement) | Assureur | ✅ |
-| 7 | Imprimer une facture de remboursement | Assureur | ✅ |
-| 8 | Prescrire des médicaments | Médecin | ✅ |
-| 9 | Prescrire une consultation chez un spécialiste | Médecin | ✅ |
+| 1 | Authentification | Médecin / Assureur | O |
+| 2 | Inscrire un assuré | Assureur | O |
+| 3 | Enregistrer un médecin traitant | Assureur | O |
+| 4 | Enregistrer une feuille de maladie | Médecin | O |
+| 5 | Compléter une feuille de maladie | Assureur | O |
+| 6 | Effectuer le remboursement (espèces / virement) | Assureur | O |
+| 7 | Imprimer une facture de remboursement | Assureur | O |
+| 8 | Prescrire des médicaments | Médecin | O |
+| 9 | Prescrire une consultation chez un spécialiste | Médecin | O |
 
 ### Machine à états — Feuille de maladie (diagramme d'état-transition du PDF)
 ```
@@ -46,16 +46,16 @@ Brouillon ──[Envoyer]──► Transmise ──[Ouverture OSS]──► En c
                                                                          │
                                                               [Exécution remboursement]
                                                                          │
-                                                                     Remboursée ✅
+                                                                     Remboursée O
 ```
 
 ---
 
-## 🏗️ Architecture technique
+## Architecture technique
 
 ```
 PROJET CSI/
-├── 📄 Rapport_csi (2).pdf       ← Rapport UML source
+├── Rapport_csi (2).pdf       ← Rapport UML source
 │
 ├── backend/                     ← API REST Node.js
 │   ├── server.js                ← Point d'entrée Express
@@ -104,25 +104,25 @@ PROJET CSI/
 
 ---
 
-## 🚀 Installation et démarrage
+## Installation et démarrage
 
 ### Prérequis
 - **Node.js** ≥ 18 (`node --version`)
 - **npm** ≥ 9 (`npm --version`)
 
-### 1️⃣ Installer les dépendances backend
+###  Installer les dépendances backend
 ```bash
 cd backend
 npm install
 ```
 
-### 2️⃣ Initialiser la base de données (seed)
+###  Initialiser la base de données (seed)
 ```bash
 node db/seed.js
 ```
 > Crée `backend/db/securasante.db` avec des données de démonstration.
 
-### 3️⃣ Démarrer le serveur
+###  Démarrer le serveur
 ```bash
 # Mode production
 npm start
@@ -131,7 +131,7 @@ npm start
 npm run dev
 ```
 
-### 4️⃣ Ouvrir l'application
+###  Ouvrir l'application
 ```
 http://localhost:3001
 ```
@@ -140,23 +140,23 @@ http://localhost:3001
 
 ---
 
-## 🔑 Comptes de démonstration
+## Comptes de démonstration
 
 | Rôle | Identifiant | Mot de passe | Titulaire | Accès |
 |---|---|---|---|---|
-| 🧑‍💼 Admin | `admin` | `AdminForInsurance2025!` | Admin SYSTEM | Accès assureur complet |
-| 🧑‍💼 Assureur | `assureur01` | `assureur123` | NOUMSSI Elvira | Assurés, Médecins, Feuilles, Remboursements |
-| 🧑‍💼 Assureur | `assureur02` | `assureur123` | ABONDO Mark | Idem |
-| 👨‍⚕️ Médecin | `medecin01` | `medecin123` | MAWAMBA Princesse (Généraliste) | Feuilles de maladie, Prescriptions |
-| 👨‍⚕️ Médecin | `medecin02` | `medecin123` | BILONGO Laurent (Généraliste) | Idem |
-| 👨‍⚕️ Médecin | `medecin03` | `medecin123` | KIKI Daniel (Spécialiste - Cardiologie) | Idem |
-| 👨‍⚕️ Médecin | `medecin04` | `medecin123` | TALLA TEYO Sylvain (Spécialiste - Neurologie) | Idem |
-| 👨‍⚕️ Médecin | `medecin05` | `medecin123` | WAFO TEGUO Vitric (Spécialiste - Dermatologie) | Idem |
-| 👨‍⚕️ Médecin | `medecin06` | `medecin123` | ONDOA MANGA Harry Johan (Généraliste) | Idem |
+| Admin | `admin` | `AdminForInsurance2025!` | Admin SYSTEM | Accès assureur complet |
+| Assureur | `assureur01` | `assureur123` | NOUMSSI Elvira | Assurés, Médecins, Feuilles, Remboursements |
+| Assureur | `assureur02` | `assureur123` | ABONDO Mark | Idem |
+| Médecin | `medecin01` | `medecin123` | MAWAMBA Princesse (Généraliste) | Feuilles de maladie, Prescriptions |
+| Médecin | `medecin02` | `medecin123` | BILONGO Laurent (Généraliste) | Idem |
+| Médecin | `medecin03` | `medecin123` | KIKI Daniel (Spécialiste - Cardiologie) | Idem |
+| Médecin | `medecin04` | `medecin123` | TALLA TEYO Sylvain (Spécialiste - Neurologie) | Idem |
+| Médecin | `medecin05` | `medecin123` | WAFO TEGUO Vitric (Spécialiste - Dermatologie) | Idem |
+| Médecin | `medecin06` | `medecin123` | ONDOA MANGA Harry Johan (Généraliste) | Idem |
 
 ---
 
-## 📡 API REST — Endpoints
+## API REST — Endpoints
 
 ### Authentification
 ```
@@ -213,7 +213,7 @@ GET    /api/stats               Adapté selon le rôle de l'utilisateur
 
 ---
 
-## 🗄️ Modèle de données (schéma SQL)
+## Modèle de données (schéma SQL)
 
 ```
 utilisateurs          ← comptes d'accès au SI
@@ -227,11 +227,11 @@ prescription_medicaments       ← lignes de médicaments
 prescription_consultation      ← détail consultation spécialiste
 ```
 
-> 💡 La base de données SQLite est créée automatiquement au démarrage dans `backend/db/securasante.db`. **Aucun serveur de base de données n'est requis.**
+> La base de données SQLite est créée automatiquement au démarrage dans `backend/db/securasante.db`. **Aucun serveur de base de données n'est requis.**
 
 ---
 
-## 🔄 Intégration d'une vraie base de données (PostgreSQL/MySQL)
+## Intégration d'une vraie base de données (PostgreSQL/MySQL)
 
 Pour passer de SQLite à PostgreSQL en production :
 
@@ -268,7 +268,7 @@ NODE_ENV=production
 
 ---
 
-## 🔐 Sécurité
+## Sécurité
 
 | Mesure | Détail |
 |---|---|
@@ -280,7 +280,7 @@ NODE_ENV=production
 
 ---
 
-## 🧪 Test rapide de l'API avec curl
+## Test rapide de l'API avec curl
 
 ```bash
 # Login
