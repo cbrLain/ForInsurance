@@ -92,17 +92,23 @@ async function changerStatutDepuisModal(id, statut) {
 
 async function showCompleter(id) {
   const f = await Api.getFeuille(id);
+  const remb = f.montant_honoraires && f.taux_remboursement
+    ? Math.round(f.montant_honoraires * f.taux_remboursement) : 0;
+
   Modal.open('Compléter la feuille de maladie', `
-    <p style="color:var(--text-muted);font-size:.82rem;margin-bottom:14px">
-      <strong>Étape 2 :</strong> renseignez le montant et le mode de remboursement.
-    </p>
-    <div class="prt-section" style="margin-bottom:14px">
-      <div class="prt-row"><span class="prt-key">Prestation (honoraires)</span><span class="prt-val">${fmtMoney(f.montant_honoraires)}</span></div>
-      <div class="prt-row"><span class="prt-key">Taux appliqué</span><span class="prt-val">${((f.taux_remboursement||0.7)*100).toFixed(0)}%</span></div>
-      <div class="prt-row"><span class="prt-key">Remboursement estimé</span><span class="prt-val" style="color:var(--success)">${fmtMoney(f.montant_remboursement)}</span></div>
+    <div style="margin-bottom:14px;padding:10px;background:var(--surface2);border-radius:8px">
+      <div class="prt-row"><span class="prt-key">Honoraires</span><span class="prt-val">${fmtMoney(f.montant_honoraires)}</span></div>
+      <div class="prt-row"><span class="prt-key">Taux remboursement</span><span class="prt-val">${((f.taux_remboursement||0.7)*100).toFixed(0)}%</span></div>
+      <div class="prt-row" style="border-top:1px solid var(--border);padding-top:6px;margin-top:4px">
+        <span class="prt-key" style="font-weight:700">Montant remboursement</span>
+        <span class="prt-val" style="font-weight:700;color:var(--success)">${fmtMoney(remb)}</span>
+      </div>
     </div>
+    <p style="color:var(--text-muted);font-size:.82rem;margin-bottom:14px">
+      Confirmez le mode de paiement pour finaliser la complétion.
+    </p>
     <div class="form-row">
-      <div class="form-group"><label>Montant à rembourser (FCFA) *</label><input id="c-mont" type="number" min="0" value="${f.montant_remboursement || ''}" placeholder="15000"/></div>
+      <div class="form-group"><label>Montant à rembourser (FCFA) *</label><input id="c-mont" type="number" min="0" value="${remb}" readonly style="background:var(--surface2);cursor:not-allowed"/></div>
       <div class="form-group">
         <label>Mode de paiement *</label>
         <select id="c-mode">
@@ -161,12 +167,12 @@ function showCompleterByRef() {
     </div>
     <div id="c-form" style="display:none">
       <hr style="margin:14px 0;border:none;border-top:1px solid var(--border)">
-      <p style="color:var(--text-muted);font-size:.82rem;margin-bottom:10px">
-        <strong>Étape 2 :</strong> renseignez le montant et le mode de remboursement.
+      <div id="c-breakdown" style="margin-bottom:14px;padding:10px;background:var(--surface2);border-radius:8px"></div>
+      <p style="color:var(--text-muted);font-size:.82rem;margin-bottom:14px">
+        Confirmez le mode de paiement pour finaliser la complétion.
       </p>
-      <div id="c-prestation-summary" style="font-size:.82rem;color:var(--text-muted);margin-bottom:10px;padding:8px;background:var(--bg-card);border-radius:6px"></div>
       <div class="form-row">
-        <div class="form-group"><label>Montant à rembourser (FCFA) *</label><input id="c-mont2" type="number" min="0" placeholder="15000"/></div>
+        <div class="form-group"><label>Montant à rembourser (FCFA) *</label><input id="c-mont2" type="number" min="0" readonly style="background:var(--surface2);cursor:not-allowed"/></div>
         <div class="form-group">
           <label>Mode de paiement *</label>
           <select id="c-mode2">
@@ -210,14 +216,21 @@ function showCompleterByRef() {
       const form = document.getElementById('c-form');
       try {
         const feuille = await Api.getFeuilleByRef(item.reference);
-        info.innerHTML = `<i class="fas fa-check-circle"></i> ${feuille.assure_nom} — ${feuille.diagnostic}<br><small>Prestation : ${fmtMoney(feuille.montant_honoraires)} · Taux ${((feuille.taux_remboursement||0.7)*100).toFixed(0)}% · Remb. estimé : ${fmtMoney(feuille.montant_remboursement)}</small>`;
+        info.innerHTML = `<i class="fas fa-check-circle"></i> ${feuille.assure_nom} — ${feuille.diagnostic}`;
         info.style.color = 'var(--primary)';
         form.style.display = 'block';
         form.dataset.feuilleId = feuille.id;
-        const montInput = document.getElementById('c-mont2');
-        if (montInput && feuille.montant_remboursement) montInput.value = feuille.montant_remboursement;
-        const summary = document.getElementById('c-prestation-summary');
-        if (summary) summary.innerHTML = `<strong>Prestation :</strong> ${fmtMoney(feuille.montant_honoraires)} · <strong>Taux :</strong> ${((feuille.taux_remboursement||0.7)*100).toFixed(0)}% · <strong>Remb. estimé :</strong> ${fmtMoney(feuille.montant_remboursement)}`;
+
+        const remb = feuille.montant_honoraires && feuille.taux_remboursement
+          ? Math.round(feuille.montant_honoraires * feuille.taux_remboursement) : 0;
+        document.getElementById('c-breakdown').innerHTML = `
+          <div class="prt-row"><span class="prt-key">Honoraires</span><span class="prt-val">${fmtMoney(feuille.montant_honoraires)}</span></div>
+          <div class="prt-row"><span class="prt-key">Taux remboursement</span><span class="prt-val">${((feuille.taux_remboursement||0.7)*100).toFixed(0)}%</span></div>
+          <div class="prt-row" style="border-top:1px solid var(--border);padding-top:6px;margin-top:4px">
+            <span class="prt-key" style="font-weight:700">Montant remboursement</span>
+            <span class="prt-val" style="font-weight:700;color:var(--success)">${fmtMoney(remb)}</span>
+          </div>`;
+        document.getElementById('c-mont2').value = remb;
       } catch(e) {
         info.innerHTML = '<i class="fas fa-times-circle"></i> ' + e.message;
         info.style.color = 'var(--danger)';
