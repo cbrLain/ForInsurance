@@ -5,7 +5,7 @@ const { getDb } = require('./database');
 
 async function seed() {
   const db = getDb();
-  console.log('🌱 Seeding database...');
+  console.log('Seeding database...');
 
   const hash = (p) => bcrypt.hashSync(p, 10);
 
@@ -130,9 +130,9 @@ async function seed() {
   await db.prepare(`INSERT OR IGNORE INTO prescription_consultation (prescription_id, specialiste_id, specialite_requise, urgence, motif)
     VALUES (?, ?, ?, ?, ?)`).run(p2.lastInsertRowid, med3Id, 'Cardiologie', 'normale', 'Palpitations récurrentes depuis 3 mois');
 
-  console.log('✅ Base de données initialisée avec succès !');
+  console.log('Base de données initialisée avec succès !');
   console.log('');
-  console.log('🔐 Tous les identifiants (mot de passe par défaut : medecin123) :');
+  console.log('Tous les identifiants (mot de passe par défaut : medecin123) :');
   console.log('═══════════════════════════════════════════════════');
   console.log('  ASSUREURS :');
   console.log('    admin      → AdminForInsurance2025!   | Administrateur système');

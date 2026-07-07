@@ -47,8 +47,8 @@ function showRembourser(feuilleId, ref, montant, assureId, assureNom) {
       <label>Mode de paiement *</label>
       <select id="r-mode" onchange="toggleRembMode()">
         <option value="">-- Choisir --</option>
-        <option value="especes">💰 Espèces (guichet)</option>
-        <option value="virement">🏦 Virement bancaire</option>
+        <option value="especes">Espèces (guichet)</option>
+        <option value="virement">Virement bancaire</option>
       </select>
     </div>
 

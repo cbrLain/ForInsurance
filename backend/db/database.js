@@ -6,11 +6,11 @@ let _mode = null;
 
 async function initDb() {
   if (process.env.DATABASE_URL) {
-    console.log('🗄️  DATABASE_URL détecté → PostgreSQL');
+    console.log('DATABASE_URL détecté → PostgreSQL');
     _api = await initPg();
     _mode = 'pg';
   } else {
-    console.log('🗄️  Aucun DATABASE_URL → SQLite local');
+    console.log('Aucun DATABASE_URL → SQLite local');
     const { initSqlite } = require('./sqlite-database');
     _api = await initSqlite();
     _mode = 'sqlite';
@@ -19,7 +19,7 @@ async function initDb() {
   // Seed si base vide
   const row = await _api.prepare('SELECT COUNT(*) AS n FROM utilisateurs').get();
   if (!row || row.n === '0' || row.n === 0) {
-    console.log('📦 Base vide — exécution du seed...');
+    console.log('Base vide — exécution du seed...');
     await require('./seed').seed();
   }
 
@@ -28,9 +28,9 @@ async function initDb() {
     try {
       const old = _api.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='utilisateurs_old'").get();
       if (old) {
-        console.log('🧹 Nettoyage : utilisateurs_old détectée, restauration...');
+        console.log('Nettoyage : utilisateurs_old détectée, restauration...');
         _api.prepare('DROP TABLE IF EXISTS utilisateurs_old').run();
-        console.log('✅ utilisateurs_old supprimée.');
+        console.log('utilisateurs_old supprimée.');
       }
     } catch {}
   }
@@ -38,9 +38,9 @@ async function initDb() {
   // Migration : attribuer le rôle admin à l'utilisateur 'admin'
   try {
     await _api.prepare("UPDATE utilisateurs SET role='admin' WHERE identifiant='admin'").run();
-    console.log('✅ Rôle admin attribué à l\'utilisateur admin.');
+    console.log('Rôle admin attribué à l\'utilisateur admin.');
   } catch {
-    console.log('⚠️  Impossible de mettre à jour le rôle admin (contrainte CHECK). L\'admin est reconnu par son identifiant.');
+    console.log('Impossible de mettre à jour le rôle admin (contrainte CHECK). L\'admin est reconnu par son identifiant.');
   }
 
   return _api;

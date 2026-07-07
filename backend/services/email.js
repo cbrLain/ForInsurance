@@ -30,9 +30,9 @@ async function getTransporter() {
     try {
       await transporter.verify();
     } catch (e) {
-      console.error(`⚠️ SMTP port ${port} échoué:`, e.message);
+      console.error(`SMTP port ${port} échoué:`, e.message);
       if (port === 587) {
-        console.log('🔄 Tentative sur port 2525...');
+        console.log('Tentative sur port 2525...');
         process.env.SMTP_PORT = '2525';
         transporter = nodemailer.createTransport({
           host: process.env.SMTP_HOST,
@@ -45,7 +45,7 @@ async function getTransporter() {
           tls: { rejectUnauthorized: false },
         });
         await transporter.verify();
-        console.log('✅ SMTP OK sur port 2525');
+        console.log('SMTP OK sur port 2525');
       } else {
         throw e;
       }
@@ -59,7 +59,7 @@ async function getTransporter() {
       secure: false,
       auth: { user: testAccount.user, pass: testAccount.pass },
     });
-    console.log('📧 Ethereal email :', testAccount.user);
+    console.log('Ethereal email :', testAccount.user);
   }
   return transporter;
 }
@@ -73,14 +73,14 @@ async function sendMail({ to, subject, html }) {
       subject,
       html,
     });
-    console.log(`📧 Email envoyé à ${to}: "${subject}"`);
+    console.log(`Email envoyé à ${to}: "${subject}"`);
     if (!process.env.SMTP_HOST) {
       const previewUrl = nodemailer.getTestMessageUrl(info);
-      console.log('📬 Preview:', previewUrl);
+      console.log('Preview:', previewUrl);
     }
     return info;
   } catch (e) {
-    console.error(`❌ Échec envoi email à ${to}:`, e.message);
+    console.error(`Échec envoi email à ${to}:`, e.message);
     lastError = e;
     throw e;
   }

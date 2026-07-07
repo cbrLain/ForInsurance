@@ -87,7 +87,7 @@ async function submitAddMedecin() {
   try {
     const res = await Api.addMedecin(data);
     Modal.close();
-    Modal.open('✅ Compte médecin créé avec succès', `
+    Modal.open('Compte médecin créé avec succès', `
       <div style="text-align:center;padding:12px 0">
         <p style="color:var(--text-muted);margin-bottom:16px">Veuillez communiquer ces identifiants au médecin.</p>
         <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:20px;display:inline-block;text-align:left;min-width:260px">
